@@ -7,17 +7,21 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-<title>AqYoung - 安全羊</title>
+<title>CTF- 靶场夺旗 - AqYoung - 安全羊</title>
 
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="AqYoung - 安全羊">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;index.html">
+    <meta name="description" content="一、CTF介绍CTF是一种流行的信息安全竞赛形式，其英文名可直译为“夺得Flag”，也可意译为“夺旗赛”。">
+<meta name="keywords" content="CTF,命令执行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF- 靶场夺旗">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;15&#x2F;CTF-%E9%9D%B6%E5%9C%BA%E5%A4%BA%E6%97%97&#x2F;index.html">
 <meta property="og:site_name" content="AqYoung - 安全羊">
+<meta property="og:description" content="一、CTF介绍CTF是一种流行的信息安全竞赛形式，其英文名可直译为“夺得Flag”，也可意译为“夺旗赛”。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;og_image.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ctf&#x2F;ctf99.png">
+<meta property="og:updated_time" content="2019-12-15T06:32:08.149Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;og_image.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ctf&#x2F;ctf99.png">
 
 
 
@@ -83,7 +87,7 @@
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/">
             
-                <img src="/images/logo.png" alt="AqYoung - 安全羊" height="28">
+                <img src="/images/logo.png" alt="CTF- 靶场夺旗" height="28">
             
             </a>
         </div>
@@ -91,7 +95,7 @@
             
             <div class="navbar-start">
                 
-                <a class="navbar-item is-active"
+                <a class="navbar-item"
                 href="/">主页</a>
                 
                 <a class="navbar-item"
@@ -133,13 +137,12 @@
         <div class="container">
             <div class="columns">
                 <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
-    
 <div class="card">
     
     <div class="card-image">
-        <a href="/2019/12/15/CTF-%E9%9D%B6%E5%9C%BA%E5%A4%BA%E6%97%97/" class="image is-7by1">
+        <span  class="image is-7by1">
             <img class="thumbnail" src="/images/ctf/ctf99.png" alt="CTF- 靶场夺旗">
-        </a>
+        </span>
     </div>
     
     <div class="card-content article ">
@@ -165,267 +168,117 @@
         
         <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
             
-                <a class="has-link-black-ter" href="/2019/12/15/CTF-%E9%9D%B6%E5%9C%BA%E5%A4%BA%E6%97%97/">CTF- 靶场夺旗</a>
+                CTF- 靶场夺旗
             
         </h1>
         <div class="content">
-            <h2 id="一、CTF介绍"><a href="#一、CTF介绍" class="headerlink" title="一、CTF介绍"></a>一、CTF介绍</h2><p>CTF是一种流行的信息安全竞赛形式，其英文名可直译为“夺得Flag”，也可意译为“夺旗赛”。</p>
+            <h2 id="一、CTF介绍"><a href="#一、CTF介绍" class="headerlink" title="一、CTF介绍"></a>一、CTF介绍</h2><p>CTF是一种流行的信息安全竞赛形式，其英文名可直译为“夺得Flag”，也可意译为“夺旗赛”。<a id="more"></a>其大致流程是，参赛团队之间通过进行攻防对抗、程序分析等形式，率先从主办方给出的比赛环境中得到一串具有一定格式的字符串或其他内容，并将其提交给主办方，从而夺得分数。为了方便称呼，我们把这样的内容称之为“Flag”。</p>
+<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><p>攻击机：kali linux（192.168.0.4）桥接模式<br>靶机：192.168.0.100 桥接模式</p>
+<h2 id="三、实验过程"><a href="#三、实验过程" class="headerlink" title="三、实验过程"></a>三、实验过程</h2><p><strong>1、信息探测</strong><br>扫描主机开放的端口号</p>
+<ul>
+<li>nmap -p- -T4 靶场lP地址<br><img src="/images/ctf/ctf1.png" alt></li>
+</ul>
+<p>快速扫描主机全部信息</p>
+<ul>
+<li>nmap -T4 -A -v 靶场lP地址<br><img src="/images/ctf/ctf2.png" alt><br><img src="/images/ctf/ctf3.png" alt></li>
+</ul>
+<p>探测敏感信息</p>
+<ul>
+<li><p>nikto -host http://靶场lP地址：端口<br><img src="/images/ctf/ctf4.png" alt><br><img src="/images/ctf/ctf5.png" alt></p>
+</li>
+<li><p>dirb http://靶场lP地址：端口<br><img src="/images/ctf/ctf6.png" alt><br><img src="/images/ctf/ctf7.png" alt></p>
+</li>
+</ul>
+<p><strong>2、深入挖掘</strong><br>分析nmap、nikto扫描结果，挖掘可以利用的信息；</p>
+<p>对于大端口非http服务，可以使用nc来探测该端口的banner信息；</p>
+<ul>
+<li>nc ip地址 端口号<br><img src="/images/ctf/ctf8.png" alt><br><em>根据分析，我们可以得到13337和60000应该是非http服务</em><br><img src="/images/ctf/ctf9.png" alt></li>
+</ul>
+<p>对于大端口http服务，可以使用浏览器浏览界面查看源代码，寻找lag值；<br><img src="/images/ctf/ctf10.png" alt><br><em>根据分析，可以得到80和9090是http服务，于是我们用浏览器尝试打开</em></p>
+<ul>
+<li><a href="http://ip地址：端口号" target="_blank" rel="noopener">http://ip地址：端口号</a><br><img src="/images/ctf/ctf11.png" alt><br><em>又发现一个flag值</em></li>
+</ul>
+<p><strong>3、更深入挖掘</strong><br>FTP 匿名登录挖掘敏感信息；<br><img src="/images/ctf/ctf12.png" alt><br><em>由之前的nmap扫描中发现，存在ftp服务，并且可以匿名登陆</em><br>在浏览器中输入ftp://靶场lP地址 匿名登录tp服务器根目录，查看敏感文件，注意一定要查看源代码；<br><img src="/images/ctf/ctf13.png" alt></p>
+<p>发现robots.txt文件<br><img src="/images/ctf/ctf14.png" alt></p>
+<ul>
+<li>在站点robots.txt文件中寻找敏感文件，挖掘敏感文件漏洞；<br><img src="/images/ctf/ctf16.png" alt></li>
+</ul>
+<p><img src="/images/ctf/ctf17.png" alt><br><img src="/images/ctf/ctf18.png" alt><br><img src="/images/ctf/ctf19.png" alt><br><em>打开三个目录后发现 <a href="http://192.168.0.10/cgi-bin/tracertool.cgi这个URL存在交互，于是进行下一步测试" target="_blank" rel="noopener">http://192.168.0.10/cgi-bin/tracertool.cgi这个URL存在交互，于是进行下一步测试</a></em><br><img src="/images/ctf/ctf20.png" alt><br><img src="/images/ctf/ctf21.png" alt><br>果然存在命令执行的漏洞，于是尝试打开/etc/passwd文件<br>但是cat打不开，应该是被过滤了<br>对于命令执行中，为了绕过对应的限制，可以使用相近命令来代替限制的shell命令<br>如cat more<br><img src="/images/ctf/ctf22.png" alt><br><img src="/images/ctf/ctf23.png" alt><br><em>由于之前提示我们Morty的用户的密码可能无法破解，于是我们重点放在Summer账户</em></p>
+<p><strong>4、登录靶场机器</strong><br>获得对应的用户名和密码之后，可以通过ssh来登录系统，查看对应的lag值<br><img src="/images/ctf/ctf24.png" alt><br><em>这里22端口被拒绝连接了</em><br><img src="/images/ctf/ctf25.png" alt><br>分析之前的端口：22222可能可以登录<br>ssh-p port 用户名@靶场lP地址<br><img src="/images/ctf/ctf26.png" alt><br><em>无奈尝试弱密码失败</em><br>这个时候想起之前的在查看源码，发现了一个password<br><img src="/images/ctf/ctf27.png" alt><br>之后输入对应的密码登录系统<br><img src="/images/ctf/ctf28.png" alt><br>pwd Is cat more<br>执行命令查看flag值<br><img src="/images/ctf/ctf29.png" alt></p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>注意未知服务的端口，可以使用nc获取对应的banner信息；<br>使用对应相近的shell命令来绕过限制；如cat more<br>对每一个服务都需要进行对应的探测，不放过任何一个可以利用的点</p>
+
         </div>
         
-        
-        <div class="level is-mobile">
+        <div class="level is-size-7 is-uppercase">
             <div class="level-start">
                 <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2019/12/15/CTF-%E9%9D%B6%E5%9C%BA%E5%A4%BA%E6%97%97/#more">阅读更多</a>
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/CTF/" rel="tag">CTF</a>, <a class="has-link-grey -link" href="/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/" rel="tag">命令执行</a>
                 </div>
             </div>
         </div>
         
+        
+        
+        <div class="bdsharebuttonbox">
+    <a href="#" class="bds_more" data-cmd="more"></a>
+    <a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+    <a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+    <a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+    <a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+    <a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+</div>
+<script>window._bd_share_config = { "common": { "bdSnsKey": {}, "bdText": "", "bdMini": "2", "bdPic": "", "bdStyle": "0", "bdSize": "16" }, "share": {} }; with (document) 0[(getElementsByTagName('head')[0] || body).appendChild(createElement('script')).src = 'http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion=' + ~(-new Date() / 36e5)];</script>
         
     </div>
 </div>
 
 
 
-
-
-
-
-
-    
 <div class="card">
-    
-    <div class="card-image">
-        <a href="/2019/12/14/CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/" class="image is-7by1">
-            <img class="thumbnail" src="/images/ftp/ftp99.png" alt="CTF-FTP服务后门利用">
-        </a>
-    </div>
-    
-    <div class="card-content article ">
-        
-        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
-            <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2019-12-14T11:57:58.000Z">2019-12-14</time>
-                
-                <div class="level-item">
-                <a class="has-link-grey -link" href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/">CTF夺旗训练</a>
-                </div>
-                
-                
-                <span class="level-item has-text-grey">
-                    
-                    
-                    4 分钟 读完 (大约 605 个字)
-                </span>
-                
-                
-            </div>
-        </div>
-        
-        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
             
-                <a class="has-link-black-ter" href="/2019/12/14/CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/">CTF-FTP服务后门利用</a>
-            
-        </h1>
-        <div class="content">
-            <h2 id="一、FTP介绍"><a href="#一、FTP介绍" class="headerlink" title="一、FTP介绍"></a>一、FTP介绍</h2><p>FTP是File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于Internet上的控制文件的双向传输。</p>
+                
+<a class="button is-info donate">
+    <span class="icon is-small">
+        <i class="fab fa-alipay"></i>
+    </span>
+    <span>支付宝</span>
+    <div class="qrcode"><img src="/images/zhifubao.jpg" alt="支付宝"></div>
+</a>
+
+                
+                
+<a class="button is-success donate">
+    <span class="icon is-small">
+        <i class="fab fa-weixin"></i>
+    </span>
+    <span>微信</span>
+    <div class="qrcode"><img src="/images/weixin.jpg" alt="微信"></div>
+</a>
+
+                
         </div>
-        
-        
-        <div class="level is-mobile">
-            <div class="level-start">
-                <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2019/12/14/CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/#more">阅读更多</a>
-                </div>
-            </div>
-        </div>
-        
-        
     </div>
 </div>
 
 
 
-
-
-
-
-
-    
-<div class="card">
-    
-    <div class="card-image">
-        <a href="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" class="image is-7by1">
-            <img class="thumbnail" src="/images/smb/smb99.png" alt="CTF-SMB信息泄露">
-        </a>
-    </div>
-    
-    <div class="card-content article ">
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
         
-        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
-            <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2019-12-14T09:13:34.000Z">2019-12-14</time>
-                
-                <div class="level-item">
-                <a class="has-link-grey -link" href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/">CTF夺旗训练</a>
-                </div>
-                
-                
-                <span class="level-item has-text-grey">
-                    
-                    
-                    5 分钟 读完 (大约 730 个字)
-                </span>
-                
-                
-            </div>
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2019/12/14/CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/">
+                <span class="level-item">CTF-FTP服务后门利用</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
         </div>
-        
-        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
-            
-                <a class="has-link-black-ter" href="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/">CTF-SMB信息泄露</a>
-            
-        </h1>
-        <div class="content">
-            <h2 id="一、SMB介绍"><a href="#一、SMB介绍" class="headerlink" title="一、SMB介绍"></a>一、SMB介绍</h2><p>SMB（Server Message Block）通信协议是微软（Microsoft）和英特尔（Intel）在1987年制定的协议，主要是作为Microsoft网络的通讯协议。后来Linux移植了SMB，并称为samba。</p>
-        </div>
-        
-        
-        <div class="level is-mobile">
-            <div class="level-start">
-                <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/#more">阅读更多</a>
-                </div>
-            </div>
-        </div>
-        
         
     </div>
 </div>
-
-
-
-
-
-
-
-
-    
-<div class="card">
-    
-    <div class="card-image">
-        <a href="/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/" class="image is-7by1">
-            <img class="thumbnail" src="/images/ssh.png" alt="CTF-SSH私钥泄露CTF-SSH服务测试">
-        </a>
-    </div>
-    
-    <div class="card-content article ">
-        
-        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
-            <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2019-12-14T04:58:29.000Z">2019-12-14</time>
-                
-                <div class="level-item">
-                <a class="has-link-grey -link" href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/">CTF夺旗训练</a>
-                </div>
-                
-                
-                <span class="level-item has-text-grey">
-                    
-                    
-                    7 分钟 读完 (大约 982 个字)
-                </span>
-                
-                
-            </div>
-        </div>
-        
-        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
-            
-                <a class="has-link-black-ter" href="/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/">CTF-SSH私钥泄露CTF-SSH服务测试</a>
-            
-        </h1>
-        <div class="content">
-            <h2 id="一、实验环境"><a href="#一、实验环境" class="headerlink" title="一、实验环境"></a>一、实验环境</h2><p>攻击机：kali linux（192.168.43.153）NAT模式<br>靶机：born2root</p>
-        </div>
-        
-        
-        <div class="level is-mobile">
-            <div class="level-start">
-                <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/#more">阅读更多</a>
-                </div>
-            </div>
-        </div>
-        
-        
-    </div>
-</div>
-
-
-
-
-
-
-
-
-    
-<div class="card">
-    
-    <div class="card-image">
-        <a href="/2019/11/04/%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%BF%AB%E9%80%9F%E6%9C%89%E6%95%88%E7%9A%84%E2%80%9C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E2%80%9D/" class="image is-7by1">
-            <img class="thumbnail" src="/images/x2.jpg" alt="如何进行快速有效的“信息收集”">
-        </a>
-    </div>
-    
-    <div class="card-content article ">
-        
-        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
-            <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2019-11-04T12:11:28.000Z">2019-11-04</time>
-                
-                <div class="level-item">
-                <a class="has-link-grey -link" href="/categories/web%E5%AE%89%E5%85%A8/">web安全</a>
-                </div>
-                
-                
-                <span class="level-item has-text-grey">
-                    
-                    
-                    11 分钟 读完 (大约 1696 个字)
-                </span>
-                
-                
-            </div>
-        </div>
-        
-        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
-            
-                <a class="has-link-black-ter" href="/2019/11/04/%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%BF%AB%E9%80%9F%E6%9C%89%E6%95%88%E7%9A%84%E2%80%9C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E2%80%9D/">如何进行快速有效的“信息收集”</a>
-            
-        </h1>
-        <div class="content">
-            <h2 id="0x0-背景"><a href="#0x0-背景" class="headerlink" title="0x0 背景"></a>0x0 背景</h2><p><font color="#32CD32"><strong>信息收集对于渗透测试整个过程来说是非常重要的，能否挖掘到漏洞很大一部分取决于信息的收集是否全面，只有想尽办法收集到更多信息，你挖掘到漏洞的可能性越大，</strong></font></p>
-        </div>
-        
-        
-        <div class="level is-mobile">
-            <div class="level-start">
-                <div class="level-item">
-                <a class="button is-size-7 is-light" href="/2019/11/04/%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E5%BF%AB%E9%80%9F%E6%9C%89%E6%95%88%E7%9A%84%E2%80%9C%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E2%80%9D/#more">阅读更多</a>
-                </div>
-            </div>
-        </div>
-        
-        
-    </div>
-</div>
-
-
-
-
-
-
 
 
 </div>
@@ -1052,7 +905,7 @@
             <div class="level-start has-text-centered-mobile">
                 <a class="footer-logo is-block has-mb-6" href="/">
                 
-                    <img src="/images/logo.png" alt="AqYoung - 安全羊" height="28">
+                    <img src="/images/logo.png" alt="CTF- 靶场夺旗" height="28">
                 
                 </a>
                 <p class="is-size-7">
