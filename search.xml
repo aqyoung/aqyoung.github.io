@@ -181,7 +181,7 @@
       </tags>
   </entry>
   <entry>
-    <title>如何进行快速有效的“信息收集”</title>
+    <title>信息收集_base1”</title>
     <url>/2019/11/04/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86_base1/</url>
     <content><![CDATA[<h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>信息收集对于渗透测试整个过程来说是非常重要的，能否挖掘到漏洞很大一部分取决于信息的收集是否全面，只有想尽办法收集到更多信息，你挖掘到漏洞的可能性越大，<a id="more"></a>本文章主要对目前较为经典与流行的信息收集的一些手段进行总结。</p>
 <h1 id="信息收集方法总结"><a href="#信息收集方法总结" class="headerlink" title="信息收集方法总结"></a>信息收集方法总结</h1><h2 id="whois和备案"><a href="#whois和备案" class="headerlink" title="whois和备案"></a>whois和备案</h2><p>1、使用各大whois网站查询<br><a href="https://whois.aliyun.com" target="_blank" rel="noopener">阿里云whois: https://whois.aliyun.com</a><br><a href="https://www.whois365.com/cn" target="_blank" rel="noopener">whois365: https://www.whois365.com/cn</a><br><a href="http://whois.chinaz.com" target="_blank" rel="noopener">站长之家: http://whois.chinaz.com</a><br><a href="https://www.whois.com/whois" target="_blank" rel="noopener">国外的whois: https://www.whois.com/whois</a></p>
@@ -275,7 +275,6 @@ site:Github.com内部</code></pre><h2 id="真实IP地址收集"><a href="#真实
       </categories>
       <tags>
         <tag>信息收集</tag>
-        <tag>工具</tag>
       </tags>
   </entry>
 </search>
