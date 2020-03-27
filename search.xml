@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>2020-03-27</title>
+    <url>/2020/03/27/2020-03-27/</url>
+    <content><![CDATA[<h2 id="2020年计划"><a href="#2020年计划" class="headerlink" title="2020年计划"></a>2020年计划<a id="more"></a></h2><h1 id="19年"><a href="#19年" class="headerlink" title="19年"></a>19年</h1><p>2019年是我接触渗透测试的元年，严格来说：只是我开始学习渗透知识的一年，并不算是真正接触渗透测试，在这一年期间我做了这么几件事情:<br><img src="/images/2020/19%E5%B9%B4.png" alt=""></p>
+<pre><code>1.学习常见的“web漏洞”：利用sqlmap挖掘注入漏洞进入后台、利用&quot;auth&quot;存在逻辑缺陷bypass从而造成越权的危害等等...
+2.学习kali linux和常见的渗透工具：常见的cve漏洞ms08067拿反弹shell；学习后渗透、域渗透、提权等；工具MSF、Nessus、netcat、nmap、burpsuit等等，工具真的太多了，后来发现就算你把kali所有的工具学个遍你也不会成为大佬，但这都是基础。
+3.再后来我发现学完这些，挖洞的效率低，于是乎：我又去学了Python，从基础语法到Python核心编程；学习爬虫、学习各种库、os、datatime、sys、socket、thereading、xml、xpath、request、re等等；尽管学完这些、爬虫效率总是不尽人意于是乎又写了scrapy框架、学习twisted异步操作数据库、用爬取的内容存入数据库，用到的时候随时取出。
+4.linux的使用频率随着我学到的东西越来越多，也会用的更加频繁，如此的工作量存在一定的重复性怎么办、bash编程无疑是一个好的解决方案：
+于是乎我又去学习了bash编程，利用bash编程将一切可以工程化的工作自动完成。</code></pre><p>学了一年我总算是了解了渗透测试的一些皮毛，在一年我兴奋过、疑惑过、甚至想放弃过。也曾怀疑过自己也许不适合这个行业，但是当我后来当我回过头来看时，我也确实增加了很多技能点，这总比躺着好吧！即使没有天赋。</p>
+<pre><code>这里引用“余玄”大佬的一句话：</code></pre><blockquote>
+<p>“我眼中的 Python、大数据、产品、项目、运营、营销、黑客等等等，都是一种技能而已，没什么特别，你也可以掌握，它们就在那，就像玩孢子游戏一样，你要足够大才能吃掉那些比你小的，而你还不够大时，却盲目贪婪，小心你自己被吃掉。”</p>
+</blockquote>
+<p>这句话让我感触颇深，确实这些东西在一个黑客眼中都只是一种技能而已，我反问自己我所学到的技能，需要完全掌握的技能点，我真的掌握了吗？<br><strong>不，我没有！</strong></p>
+<hr>
+<h1 id="20年"><a href="#20年" class="headerlink" title="20年"></a>20年</h1>]]></content>
+      <categories>
+        <category>MyPlan</category>
+      </categories>
+  </entry>
+  <entry>
     <title>CTF- 靶场夺旗</title>
     <url>/2019/12/15/CTF-%E9%9D%B6%E5%9C%BA%E5%A4%BA%E6%97%97/</url>
     <content><![CDATA[<h2 id="一、CTF介绍"><a href="#一、CTF介绍" class="headerlink" title="一、CTF介绍"></a>一、CTF介绍</h2><p>CTF是一种流行的信息安全竞赛形式，其英文名可直译为“夺得Flag”，也可意译为“夺旗赛”。<a id="more"></a>其大致流程是，参赛团队之间通过进行攻防对抗、程序分析等形式，率先从主办方给出的比赛环境中得到一串具有一定格式的字符串或其他内容，并将其提交给主办方，从而夺得分数。为了方便称呼，我们把这样的内容称之为“Flag”。</p>

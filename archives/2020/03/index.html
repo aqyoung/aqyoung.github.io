@@ -21,31 +21,16 @@
     var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="一、FTP介绍FTP是File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于Internet上的控制文件的双向传输。">
-<meta name="keywords" content="CTF,FTP远程溢出">
-<meta property="og:type" content="article">
-<meta property="og:title" content="CTF-FTP服务后门利用">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;12&#x2F;14&#x2F;CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8&#x2F;index.html">
+  <meta name="description" content="努力将一切&quot;Regular attacks&quot;工程化！">
+<meta property="og:type" content="website">
+<meta property="og:title" content="AqYoung">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;archives&#x2F;2020&#x2F;03&#x2F;index.html">
 <meta property="og:site_name" content="AqYoung">
-<meta property="og:description" content="一、FTP介绍FTP是File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于Internet上的控制文件的双向传输。">
+<meta property="og:description" content="努力将一切&quot;Regular attacks&quot;工程化！">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp1.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp2.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp3.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp4.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp5.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp6.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp7.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp7.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp8.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp9.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp10.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp10.png">
-<meta property="og:updated_time" content="2019-12-14T12:02:07.313Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;yoursite.com&#x2F;images&#x2F;ftp&#x2F;ftp1.png">
 
-<link rel="canonical" href="http://yoursite.com/2019/12/14/CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/">
+<link rel="canonical" href="http://yoursite.com/archives/2020/03/">
 
 
 <script id="page-configurations">
@@ -53,12 +38,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : true,
+    isPost : false,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>CTF-FTP服务后门利用 | AqYoung</title>
+  <title>归档 | AqYoung</title>
   
 
 
@@ -200,112 +185,52 @@
         <div class="content-wrap">
           
 
-          <div class="content post">
+          <div class="content archive">
             
 
-  <div class="posts-expand">
-      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/14/CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="AqYoung">
-      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="AqYoung">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          CTF-FTP服务后门利用
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2019-12-14 19:57:58 / 修改时间：20:02:07" itemprop="dateCreated datePublished" datetime="2019-12-14T19:57:58+08:00">2019-12-14</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/" itemprop="url" rel="index"><span itemprop="name">CTF夺旗训练</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
+  
+  <div class="post-block">
+    <div class="posts-collapse">
+      <div class="collection-title">
+        <span class="collection-header">嗯..! 目前共计 6 篇日志。 继续努力。</span>
+      </div>
 
       
-        <h2 id="一、FTP介绍"><a href="#一、FTP介绍" class="headerlink" title="一、FTP介绍"></a>一、FTP介绍</h2><p>FTP是File Transfer Protocol（文件传输协议）的英文简称，而中文简称为“文传协议”。用于Internet上的控制文件的双向传输。<a id="more"></a>同时，它也是一个应用程序（Application）。基于不同的操作系统有不同的FTP应用程序，而所有这些应用程序都遵守同一种协议以传输文件。在FTP的使用当中，用户经常遇到两个概念：“下载” (Download)和“上传”（Upload）。”下载”文件就是从远程主机拷贝文件至自己的计算机上，“上传”文件就是将文件从自己的计算机中拷贝至远程主机上。用Internet语言来说，用户可通过客户机程序向（从）远程主机上传（下载）文件。</p>
-<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><p>攻击机：kali linux 192.168.43.153<br>靶场机器：192.168.43.138</p>
-<h2 id="三、实验过程"><a href="#三、实验过程" class="headerlink" title="三、实验过程"></a>三、实验过程</h2><p><strong>1、信息探测</strong><br>扫描主机服务信息以及服务版本<br>nmap -sV靶场lP地址<br><img src="/images/ftp/ftp1.png" alt=""></p>
-<p>快速扫描主机全部信息<br>nmap-T4-A-v靶场lP地址<br><img src="/images/ftp/ftp2.png" alt=""></p>
-<p><strong>2、发现漏洞</strong><br>分析nmap扫描结果，并对结果进行分析，挖掘可以利用的信息；<br><img src="/images/ftp/ftp3.png" alt=""><br>使用seachsploit，查看漏洞信息，找到可利用的溢出代码；<br><img src="/images/ftp/ftp4.png" alt=""></p>
-<p><strong>3、使用metasploit进行溢出</strong><br>打开Metasploit 在终端中输入msfconsole<br>输入search对应的软件及版本号</p>
-<p>使用exploit<br>-use exploit<br><img src="/images/ftp/ftp5.png" alt=""></p>
-<p>查看可以使用的payload<br>-show payload<br><img src="/images/ftp/ftp6.png" alt=""></p>
-<p>设置payload<br>–set payload<br><img src="/images/ftp/ftp7.png" alt=""></p>
-<p>设置参数<br>–show options<br>-set rhost 靶场lP<br>-set lhost 靶场lP</p>
-<p>进行远程溢出<br>-exploit<br><img src="/images/ftp/ftp7.png" alt=""><br><img src="/images/ftp/ftp8.png" alt=""></p>
-<p>执行命令<br>id<br><img src="/images/ftp/ftp9.png" alt=""></p>
-<p><strong>4、优化shell使用</strong><br>python pty开启终端</p>
-<pre><code>python -c &quot;import pty;pty.spawn(&apos;/bin/bash&apos;)&quot;</code></pre><p><img src="/images/ftp/ftp10.png" alt=""></p>
-<p><strong>5、获取Flag</strong><br>一般情况下，靶场机器的lag值是存放在服务器的根目录下，/root/目录。<br>cd/root/<br>Is<br>cat flag<br>writeup 测试文档 总结文档<br><img src="/images/ftp/ftp10.png" alt=""></p>
-<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>对于开放FTP、SSH、Telnet等服务的系统，可以尝试一些对应服务版本的漏洞代码；<br>对于系统，一定要注意利用现成的EXP来root主机；</p>
-
+    <div class="collection-year">
+      <span class="collection-header">2020</span>
     </div>
 
-    
-    
-    
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
 
-      <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/CTF/" rel="tag"># CTF</a>
-              <a href="/tags/FTP%E8%BF%9C%E7%A8%8B%E6%BA%A2%E5%87%BA/" rel="tag"># FTP远程溢出</a>
-          </div>
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2020-03-27T23:42:08+08:00"
+              content="2020-03-27">
+          03-27
+        </time>
+      </div>
 
-        
+      <div class="post-title">
+          <a class="post-title-link" href="/2020/03/27/2020-03-27/" itemprop="url">
+            <span itemprop="name">2020-03-27</span>
+          </a>
+      </div>
 
-
-        
-    <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" rel="prev" title="CTF-SMB信息泄露">
-      <i class="fa fa-chevron-left"></i> CTF-SMB信息泄露
-    </a></div>
-      <div class="post-nav-item">
-    <a href="/2019/12/15/CTF-%E9%9D%B6%E5%9C%BA%E5%A4%BA%E6%97%97/" rel="next" title="CTF- 靶场夺旗">
-      CTF- 靶场夺旗 <i class="fa fa-chevron-right"></i>
-    </a></div>
-    </div>
-      </footer>
-    
+    </header>
   </article>
+
+
+    </div>
+  </div>
   
   
   
 
-  </div>
+  
+
 
 
           </div>
@@ -356,7 +281,6 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、FTP介绍"><span class="nav-number">1.</span> <span class="nav-text">一、FTP介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、实验环境"><span class="nav-number">2.</span> <span class="nav-text">二、实验环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、实验过程"><span class="nav-number">3.</span> <span class="nav-text">三、实验过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、总结"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
