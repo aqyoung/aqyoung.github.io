@@ -20,7 +20,8 @@
 <p>利用电脑自带的nslookup也可以简单的判断，判断方法和上面一致（注意第一次使用后会留下缓存，所以只有一个address）</p>
 <p><img src="https://i.imgur.com/ppmtsFX.png" alt=""></p>
 <hr>
-<h1 id="CDN绕过方法"><a href="#CDN绕过方法" class="headerlink" title="CDN绕过方法"></a>CDN绕过方法</h1><h2 id="子域名查询"><a href="#子域名查询" class="headerlink" title="子域名查询"></a>子域名查询</h2><ul>
+<h1 id="CDN绕过方法"><a href="#CDN绕过方法" class="headerlink" title="CDN绕过方法"></a>CDN绕过方法</h1><p><img src="https://i.imgur.com/FAltFsb.png" alt=""></p>
+<h2 id="子域名查询"><a href="#子域名查询" class="headerlink" title="子域名查询"></a>子域名查询</h2><ul>
 <li><p>原理：因为使用CDN是需要费用的，所以一般公司可能不会让所有的子域名都使用CDN，一般访问量较少的可能没有使用CDN。那么那个子域名的ip就有可能是目标站点的真实IP了。</p>
 </li>
 <li><p>关于子域名的查询方法有很多。</p>
