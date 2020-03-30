@@ -1,6 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>绕过CDN查找真实IP方法总结</title>
+    <url>/2020/03/30/CDN_bypass1/</url>
+    <content><![CDATA[<p>绕过CDN查找真实IP地址的总结文章<a id="more"></a></p>
+<h1 id="什么是CDN有哪些影响？"><a href="#什么是CDN有哪些影响？" class="headerlink" title="什么是CDN有哪些影响？"></a>什么是CDN有哪些影响？</h1><blockquote>
+<p>CDN的全称是Content Delivery Network，即内容分发网络。CDN是构建在现有网络基础之上的智能虚拟网络，依靠部署在各地的边缘服务器，通过中心平台的负载均衡、内容分发、调度等功能模块，使用户就近获取所需内容，降低网络拥塞，提高用户访问响应速度和命中率。CDN的关键技术主要有内容存储和分发技术。</p>
+</blockquote>
+<p>简单来讲：CDN可以被形象的称为“网络加速器”，那么在渗透测试过程中如果目标网站有使用CDN技术的话，那么你访问的是一个缓存，会导致一些操作难以进行。所以就需要学习我们绕过CDN的方法。</p>
+<hr>
+<h1 id="如何检测目标是否存在CDN"><a href="#如何检测目标是否存在CDN" class="headerlink" title="如何检测目标是否存在CDN"></a>如何检测目标是否存在CDN</h1><ul>
+<li>超级ping</li>
+</ul>
+<p>网上有很多超级提供超级ping服务的厂商，我们可以通过判断“响应IP”是否一致确定有无使用CDN，一致则没有使用CDN；反之使用了CDN。</p>
+<p><img src="https://i.imgur.com/KMRzVVz.png" alt=""></p>
+<ul>
+<li>nslookup</li>
+</ul>
+<p>利用电脑自带的nslookup也可以简单的判断，判断方法和上面一致（注意第一次使用后会留下缓存，所以只有一个address）</p>
+<p><img src="https://i.imgur.com/ppmtsFX.png" alt=""></p>
+<hr>
+<h1 id="CDN绕过方法"><a href="#CDN绕过方法" class="headerlink" title="CDN绕过方法"></a>CDN绕过方法</h1><h2 id="子域名查询"><a href="#子域名查询" class="headerlink" title="子域名查询"></a>子域名查询</h2><ul>
+<li><p>原理：因为使用CDN是需要费用的，所以一般公司可能不会让所有的子域名都使用CDN，一般访问量较少的可能没有使用CDN。那么那个子域名的ip就有可能是目标站点的真实IP了。</p>
+</li>
+<li><p>关于子域名的查询方法有很多。</p>
+<p>  这里推荐一款network scraping工具”amass”集成了DNS、证书、各种API、网页档案；<br>  至于bruteforcer可以使用的工具也有很多，Layer、Massdns等。效果取决于你字典的质量。</p>
+</li>
+</ul>
+<h2 id="国外地址请求"><a href="#国外地址请求" class="headerlink" title="国外地址请求"></a>国外地址请求</h2><ul>
+<li>原理：顾名思义是使用，国外的IP地址去访问目标地址。一些偏远的地区可能没有CDN服务，那么就会直接去访问真实IP了。</li>
+<li>使用：<a href="https://asm.ca.com/en/ping.php" target="_blank" rel="noopener">https://asm.ca.com/en/ping.php</a>（如果自己有IP资源可以）<br><img src="https://i.imgur.com/5DAjqnS.png" alt=""></li>
+</ul>
+<h2 id="邮件服务查询"><a href="#邮件服务查询" class="headerlink" title="邮件服务查询"></a>邮件服务查询</h2><ul>
+<li>原理：通过各种方式，让对方给你发送邮件。注册验证码、社工、等等。</li>
+<li>这里以qq邮箱为例：只需要点查看邮件原文，关注Received即可。</li>
+</ul>
+<p><img src="https://i.imgur.com/iP9sagY.png" alt=""></p>
+<p><img src="https://i.imgur.com/OoLl7N9.png" alt=""></p>
+<h2 id="网络搜索引擎"><a href="#网络搜索引擎" class="headerlink" title="网络搜索引擎"></a>网络搜索引擎</h2><ul>
+<li><p>原理：这里主要是利用网站返回的内容寻找真实原始IP，如果原始服务器IP也返回了网站的内容，那么可以在网上搜索大量的相关数据。</p>
+</li>
+<li><p>方法1 空间搜索：</p>
+<ul>
+<li>查看网页源代码，寻找特征码片段。</li>
+<li>搜索title，如shodan可以直接用title=”xxx”来搜索，当然也可以使用其他第三方服务（百度统计，google统计的特征码等等。）<br><img src="https://i.imgur.com/rxSeefe.png" alt=""></li>
+</ul>
+</li>
+<li><p>方法2 Censys证书查询搜索：</p>
+<ul>
+<li><p>1、aaa.com 证书的搜索查询参数为：parsed.names：xxx.com</p>
+</li>
+<li><p>只显示有效证书的查询参数为：tags.raw：trusted</p>
+</li>
+<li><p>2、组合后的搜索参数为：parsed.names: aaa.com and tags.raw: trusted</p>
+</li>
+<li><p>3、Censys将向你显示符合上述搜索条件的所有标准证书。要逐个查看这些搜索结果，攻击者可以通过单击右侧的“Explore”，打开包含多个工具的下拉菜单。What’s using this certificate? &gt; IPv4 Hosts；<br><img src="https://i.imgur.com/cODmmOG.png" alt=""><br>然后可以用下面这一段jQuery代码批量提取IP</p>
+<p>$(‘span.ip a’).each(function(n,e){console.log($(e).prop(“href”).split(“v4/“)[1])})</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://i.imgur.com/ciIrHcN.png" alt=""></p>
+<h2 id="dns历史记录"><a href="#dns历史记录" class="headerlink" title="dns历史记录"></a>dns历史记录</h2><ul>
+<li>原理：<br>通过查找历史解析的IP，可能是他没上CDN之前的真实ip<ul>
+<li><a href="https://dnsdb.io/zh-cn/" target="_blank" rel="noopener">https://dnsdb.io/zh-cn/</a></li>
+<li><a href="https://x.threatbook.cn/" target="_blank" rel="noopener">https://x.threatbook.cn/</a></li>
+<li><a href="http://toolbar.netcraft.com/site_report?url=" target="_blank" rel="noopener">http://toolbar.netcraft.com/site_report?url=</a></li>
+<li><a href="http://viewdns.info/" target="_blank" rel="noopener">http://viewdns.info/</a></li>
+</ul>
+</li>
+</ul>
+<p>在某些情况下，找到的IP的服务器返回默认索引页或404、403 HTTP代码等。</p>
+<p>那么，在这种情况下，可以尝试修改电脑的hosts文件。再用下面代码进行验证。</p>
+<pre><code>curl -H &quot;Host: www.xx.com&quot; https://xxx.168.1.xxx -k</code></pre><h2 id="其他方法"><a href="#其他方法" class="headerlink" title="其他方法"></a>其他方法</h2><h3 id="phpinfo"><a href="#phpinfo" class="headerlink" title="phpinfo"></a>phpinfo</h3><pre><code>查看phpinfo文件的SERVER_ADDR</code></pre><p><img src="https://i.imgur.com/jpSE1DO.png" alt=""></p>
+<h3 id="扫全网"><a href="#扫全网" class="headerlink" title="扫全网"></a>扫全网</h3><p>通过扫描全网开放特定端口的IP，最终匹配具有相同HTTP banner的，再进行筛选</p>
+<pre><code># masscan 10.0.0.0/8 -p80 --banners --source-ip 192.168.1.200</code></pre><p>这条命令的意思是扫描10.x.x.x网段80端口的开放信息，并且获取banner信息。–source-ip 是指定源IP，这个ip必须指定独立有效的IP地址。</p>
+<p>这个时候你还可能获取不到banners的信息，需要配置防火墙。可以参考这篇文章：</p>
+<p><a href="https://my.oschina.net/799835984/blog/663361" target="_blank" rel="noopener" title="Linux配置防火墙详细步骤（iptables命令使用） ">https://my.oschina.net/799835984/blog/663361</a></p>
+<h3 id="消耗CDN"><a href="#消耗CDN" class="headerlink" title="消耗CDN"></a>消耗CDN</h3><p>一般来说CDN是有流量限制的，如果你使用了DOS攻击等消耗了资源，那么就会访问到真实IP了，但此方法代价较大，极不推荐使用。</p>
+<h3 id="JS泄露"><a href="#JS泄露" class="headerlink" title="JS泄露"></a>JS泄露</h3><h3 id="SSRF"><a href="#SSRF" class="headerlink" title="SSRF"></a>SSRF</h3><h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><p><a href="https://github.com/boy-hack/w8fuckcdn" target="_blank" rel="noopener">https://github.com/boy-hack/w8fuckcdn</a></p>
+<hr>
+<p>此文章仅用于网络安全交流，请勿将其用于其他非法目的！</p>
+<p><strong>本文属于@ayoung博客，未经许可禁止转载</strong></p>
+]]></content>
+      <categories>
+        <category>web安全</category>
+      </categories>
+      <tags>
+        <tag>信息收集</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>2020-03-27</title>
     <url>/2020/03/27/2020-03-27/</url>
     <content><![CDATA[<h2 id="2020年计划"><a href="#2020年计划" class="headerlink" title="2020年计划"></a>2020年计划<a id="more"></a></h2><h1 id="19年"><a href="#19年" class="headerlink" title="19年"></a>19年</h1><p>2019年是我接触渗透测试的元年，严格来说：只是我开始学习渗透知识的一年，并不算是真正接触渗透测试，在这一年期间我做了这么几件事情:<br><img src="/images/2020/19%E5%B9%B4.png" alt=""></p>
