@@ -1,6 +1,350 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Win10系统Ubuntu安装docker</title>
+    <url>/2020/04/05/Win10%E5%AD%90%E7%B3%BB%E7%BB%9FUbuntu%E5%AE%89%E8%A3%85docker/</url>
+    <content><![CDATA[<p>对于在Windows10子系统Ubuntu安装docker遇到的一些问题记录<a id="more"></a></p>
+<h1 id="问题发现"><a href="#问题发现" class="headerlink" title="问题发现"></a>问题发现</h1><p>通过 Docker 的简单使用指南可以成功的安装docker，但是在Win10子系统Ubuntu下，安装完后执行”docker version”却发现只有”client”没有”server”。</p>
+<pre><code>yang@DESKTOP-610CBGS:/mnt/c/Users/y1385$ docker version
+Client: Docker Engine - Community
+ Version:   19.03.8
+ API version:   1.40
+ Go version:go1.12.17
+ Git commit:afacb8b7f0
+ Built: Wed Mar 11 01:25:46 2020
+ OS/Arch:   linux/amd64
+ Experimental:  false
+Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?</code></pre><p>通过查阅资料我们可以知道Windows下的Ubuntu是不能直接安装docker。</p>
+<h1 id="问题解决："><a href="#问题解决：" class="headerlink" title="问题解决："></a>问题解决：</h1><h2 id="安装-docker-toolbox"><a href="#安装-docker-toolbox" class="headerlink" title="安装 docker toolbox"></a>安装 docker toolbox</h2><p>由于我的系统是Windows家庭版的。不能安装Docker Desktop，所以我这里使用的docker toolbox。</p>
+<h3 id="下载toolbox"><a href="#下载toolbox" class="headerlink" title="下载toolbox"></a>下载toolbox</h3><p><a href="http://mirrors.aliyun.com/docker-toolbox/windows/docker-toolbox/" target="_blank" rel="noopener">http://mirrors.aliyun.com/docker-toolbox/windows/docker-toolbox/</a></p>
+<p>点上面的aliyun链接之后选择一个DockerToolbox-x.x.x-ce.exe版本安装。之后无脑下一步即可。</p>
+<h3 id="可能遇到的问题"><a href="#可能遇到的问题" class="headerlink" title="可能遇到的问题"></a>可能遇到的问题</h3><p>安装完成之后双击桌面的docker图标，页面打印信息说Boot2Docker的版本不合适，得重新下载，然后就一直下载，最后要么卡死在下载环节，要么下载完了也无法看到大鲸鱼。</p>
+<p>但是其实boot2docker这个文件根本不需要下载。</p>
+<p>所以我们只需要删除default的machine（用户cmd命令切换到toolbox的安装目录，默认为：C:\Program Files\Docker Toolbox）之后。</p>
+<pre><code>docker-machine ls # 查看当前的docker虚拟机</code></pre><p><img src="https://i.imgur.com/ef1R6uk.png" alt=""></p>
+<p>如果STATE是Error说明有问题。</p>
+<pre><code>docker-machine rm default #删除docker虚拟机
+
+docker-machine create --driver virtualbox --virtualbox-boot2docker-url=boot2docker.iso default #重新创建
+
+docker-machine ls # 查看当前的docker虚拟机</code></pre><p><img src="https://i.imgur.com/svSklPA.png" alt=""></p>
+<p>如果STATE是Running说明是正常的。</p>
+<h3 id="配置阿里云加速"><a href="#配置阿里云加速" class="headerlink" title="配置阿里云加速"></a>配置阿里云加速</h3><p><a href="https://account.aliyun.com/" target="_blank" rel="noopener">点这里</a>去申请一个镜像加速地址，在我另外一篇docker简单指南有介绍到。</p>
+<pre><code>docker-machine stop default #停止docker虚拟机
+docker-machine rm default
+docker-machine create --driver virtualbox --virtualbox-boot2docker-url=boot2docker.iso --engine-registry-mirror=https://o7ch5p59.mirror.aliyuncs.com default    # 最后的xxxo7ch5p59需要换成你特有的阿里云加速
+docker info </code></pre><h3 id="修改镜像文件存储位置"><a href="#修改镜像文件存储位置" class="headerlink" title="修改镜像文件存储位置"></a>修改镜像文件存储位置</h3><pre><code>docker-machine stop default #停止docker虚拟机</code></pre><p>在桌面双击启动Oracle VM VirtualBox，Ctrl+D 打开虚拟介质管理，选中disk.vmdk，点复制，然后一路next到最后一步填新的目录，保存为disk_new.vdi<br><img src="https://i.imgur.com/jUDvW6A.png" alt=""></p>
+<p><img src="https://i.imgur.com/Deu8MnU.png" alt=""></p>
+<p>点击存储，控制器右上角添加新的虚拟硬盘就行了。</p>
+<p><img src="https://i.imgur.com/UtkHcF2.png" alt=""></p>
+<p>之后重启点击桌面的docker启动</p>
+<p><img src="https://i.imgur.com/RQemcUO.png" alt=""></p>
+<p><strong>到这里出现鲸鱼说明toolbox安装成功。</strong></p>
+<h2 id="Ubuntu连接到-toolbox的docker"><a href="#Ubuntu连接到-toolbox的docker" class="headerlink" title="Ubuntu连接到 toolbox的docker"></a>Ubuntu连接到 toolbox的docker</h2><pre><code># 在cmd中执行
+docker-machine env default</code></pre><p><img src="https://i.imgur.com/DWOC44S.png" alt=""></p>
+<pre><code># 得到类似的以下输出：
+export DOCKER_TLS_VERIFY=&quot;1&quot;
+export DOCKER_HOST=&quot;tcp://192.168.99.100:2376&quot;
+export DOCKER_CERT_PATH=&quot;C:\Users\用户名\.docker\machine\machines\default&quot;
+export DOCKER_MACHINE_NAME=&quot;default&quot;
+export COMPOSE_CONVERT_WINDOWS_PATHS=&quot;true&quot;</code></pre><p>到Ubuntu中修改~/.profile(其他linux登陆自动执行的文件也可以)</p>
+<pre><code># 在文件后面添加如下：
+export DOCKER_HOST=192.168.99.100:2376
+export DOCKER_TLS_VERIFY=1
+export DOCKER_CERT_PATH=/mnt/c/Users/用户名/.docker/machine/machines/default/
+export DOCKER_MACHINE_NAME=default
+export COMPOSE_CONVERT_WINDOWS_PATHS=true</code></pre><p>第三行的用户名记得根据”docker-machine env default”显示来添加。之后</p>
+<pre><code>source ~/.profile</code></pre><h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><pre><code># 在Ubuntu中输入
+docker version
+
+# 显示：
+Client: Docker Engine - Community
+ Version:   19.03.8
+ API version:   1.37 (downgraded from 1.40)
+ Go version:go1.12.17
+ Git commit:afacb8b7f0
+ Built: Wed Mar 11 01:25:46 2020
+ OS/Arch:   linux/amd64
+ Experimental:  false
+
+Server:
+ Engine:
+  Version:  18.03.0-ce
+  API version:  1.37 (minimum version 1.12)
+  Go version:   go1.9.4
+  Git commit:   0520e24
+  Built:Wed Mar 21 23:14:54 2018
+  OS/Arch:  linux/amd64
+  Experimental: false</code></pre><p>说明我们安装成功了，我们测试一下</p>
+<pre><code>docker search hello</code></pre><p><em>如果你不幸出现如下的问题：</em></p>
+<pre><code>Error response from daemon: Get https://index.docker.io/v1/search?q=mysql&amp;n=25: dial tcp: lookup index.docker.io on 10.0.2.3:53: read udp 10.0.2.15:47946-&gt;10.0.2.3:53: i/o timeout</code></pre><p>那么你只需要回到安装docker toolbox重新安装即可。</p>
+<h2 id="尾巴："><a href="#尾巴：" class="headerlink" title="尾巴："></a>尾巴：</h2><p>这个文章记录了我在Windows10的Ubuntu安装docker的一些问题解决，最后得出，这不是一个好的选择，由于一些docker对Windows支持的原因出现了各种各样的问题，这里由于我的Windows不是pro版的，所以不能使用docker desktop for windows更加麻烦。这篇文章是发表于2020-04-05日，所以，如果你也遇到问题的话，希望可以给你参考，因为随着时间的推移方法不一定有效，但是思路是不变的。</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
+</li>
+<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux基础</category>
+      </categories>
+      <tags>
+        <tag>docker,问题解决</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker的简单使用指南</title>
+    <url>/2020/04/05/docker%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/</url>
+    <content><![CDATA[<p>主要是从docker的安装到具体应用简单指南<a id="more"></a></p>
+<h1 id="Docker-简介"><a href="#Docker-简介" class="headerlink" title="Docker 简介"></a>Docker 简介</h1><blockquote>
+<p>Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的镜像中，然后发布到任何流行的 Linux或Windows 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口。</p>
+</blockquote>
+<p>把Docker比喻做货物运输中的“集装箱”，那么我们都知道集装箱在运输过程中免去了重复装卸的过程，大大节省了人力物力的同时一辆运输工具可以重复使用不同的集装箱。那么对于Docker来说可以也是这样，免去重复安装卸载环境的过程，并且因为重复利用内核文件，大大节省了空间。</p>
+<p><a href="https://www.docker.com/" target="_blank" rel="noopener">更多关于docker的信息 . . . </a></p>
+<hr>
+<h1 id="Docker-初始化"><a href="#Docker-初始化" class="headerlink" title="Docker 初始化"></a>Docker 初始化</h1><h2 id="Docker-CE-安装"><a href="#Docker-CE-安装" class="headerlink" title="Docker CE 安装"></a>Docker CE 安装</h2><p><a href="https://developer.aliyun.com/mirror/" target="_blank" rel="noopener">https://developer.aliyun.com/mirror/</a></p>
+<p>打开上面的链接 选择容器 选择docker-ce</p>
+<h3 id="Ubuntu-16-04-18-04（使用-apt-get-进行安装）"><a href="#Ubuntu-16-04-18-04（使用-apt-get-进行安装）" class="headerlink" title="Ubuntu 16.04/18.04（使用 apt-get 进行安装）"></a>Ubuntu 16.04/18.04（使用 apt-get 进行安装）</h3><pre><code># step 1: 安装必要的一些系统工具
+sudo apt-get update
+sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
+# step 2: 安装GPG证书
+curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+# Step 3: 写入软件源信息
+sudo add-apt-repository &quot;deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable&quot;
+# Step 4: 更新并安装Docker-CE
+sudo apt-get -y update
+sudo apt-get -y install docker-ce
+
+# 安装指定版本的Docker-CE:
+# Step 1: 查找Docker-CE的版本:
+# apt-cache madison docker-ce
+#   docker-ce | 17.03.1~ce-0~ubuntu-xenial | https://mirrors.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages
+#   docker-ce | 17.03.0~ce-0~ubuntu-xenial | https://mirrors.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages
+# Step 2: 安装指定版本的Docker-CE: (VERSION例如上面的17.03.1~ce-0~ubuntu-xenial)
+# sudo apt-get -y install docker-ce=[VERSION]</code></pre><h3 id="CentOS-7（使用-yum-进行安装）"><a href="#CentOS-7（使用-yum-进行安装）" class="headerlink" title="CentOS 7（使用 yum 进行安装）"></a>CentOS 7（使用 yum 进行安装）</h3><pre><code># step 1: 安装必要的一些系统工具
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+# Step 2: 添加软件源信息
+sudo yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+# Step 3: 更新并安装Docker-CE
+sudo yum makecache fast
+sudo yum -y install docker-ce
+# Step 4: 开启Docker服务
+sudo service docker start
+
+# 注意：
+# 官方软件源默认启用了最新的软件，您可以通过编辑软件源的方式获取各个版本的软件包。例如官方并没有将测试版本的软件源置为可用，您可以通过以下方式开启。同理可以开启各种测试版本等。
+# vim /etc/yum.repos.d/docker-ee.repo
+#   将[docker-ce-test]下方的enabled=0修改为enabled=1
+#
+# 安装指定版本的Docker-CE:
+# Step 1: 查找Docker-CE的版本:
+# yum list docker-ce.x86_64 --showduplicates | sort -r
+#   Loading mirror speeds from cached hostfile
+#   Loaded plugins: branch, fastestmirror, langpacks
+#   docker-ce.x86_6417.03.1.ce-1.el7.centosdocker-ce-stable
+#   docker-ce.x86_6417.03.1.ce-1.el7.centos@docker-ce-stable
+#   docker-ce.x86_6417.03.0.ce-1.el7.centosdocker-ce-stable
+#   Available Packages
+# Step2: 安装指定版本的Docker-CE: (VERSION例如上面的17.03.0.ce.1-1.el7.centos)
+# sudo yum -y install docker-ce-[VERSION]</code></pre><h3 id="安装校验"><a href="#安装校验" class="headerlink" title="安装校验"></a>安装校验</h3><pre><code>root@iZbp12adskpuoxodbkqzjfZ:$ docker version
+Client:
+ Version:  17.03.0-ce
+ API version:  1.26
+ Go version:   go1.7.5
+ Git commit:   3a232c8
+ Built:Tue Feb 28 07:52:04 2017
+ OS/Arch:  linux/amd64
+
+Server:
+ Version:  17.03.0-ce
+ API version:  1.26 (minimum version 1.12)
+ Go version:   go1.7.5
+ Git commit:   3a232c8
+ Built:Tue Feb 28 07:52:04 2017
+ OS/Arch:  linux/amd64
+ Experimental: false</code></pre><h2 id="配置镜像加速器"><a href="#配置镜像加速器" class="headerlink" title="配置镜像加速器"></a>配置镜像加速器</h2><p>完成上面的步骤之后。选择右上角的控制台 在搜索框输入“容器镜像服务”找到镜像加速服务即可。</p>
+<p>针对Docker客户端版本大于 1.10.0 的用户</p>
+<p>您可以通过修改daemon配置文件/etc/docker/daemon.json来使用加速器</p>
+<pre><code># Ubuntu\Centos
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json &lt;&lt;-&apos;EOF&apos;
+{
+  &quot;registry-mirrors&quot;: [&quot;https://o7ch5p59.mirror.aliyuncs.com&quot;]    #阿里镜像
+  &quot;registry-mirrors&quot;: [&quot;http://hub-mirror.c.163.com&quot;]    #网易镜像
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker</code></pre><hr>
+<h1 id="Docker-命令"><a href="#Docker-命令" class="headerlink" title="Docker 命令"></a>Docker 命令</h1><p>docker官方文档：<a href="https://docs.docker.com/install/" target="_blank" rel="noopener">https://docs.docker.com/install/</a></p>
+<p>docker教程|菜鸟教程：<a href="https://www.runoob.com/docker/docker-command-manual.html" target="_blank" rel="noopener">https://www.runoob.com/docker/docker-command-manual.html</a></p>
+<h2 id="服务相关命令"><a href="#服务相关命令" class="headerlink" title="服务相关命令"></a>服务相关命令</h2><pre><code># 启动docker服务：
+systemctl start docker
+
+# 停止docker服务：
+systemctl stop docker
+
+# 重启docker服务：
+systemctl restart docker
+
+# 查看docker状态：
+systemctl status docker
+
+# 设置开机启动docker服务：
+systemctl enable docker</code></pre><h2 id="镜像相关命令"><a href="#镜像相关命令" class="headerlink" title="镜像相关命令"></a>镜像相关命令</h2><pre><code>#查看镜像：查看本地所有的镜像
+docker images 
+docker images -q #查看所用镜像的id
+
+#搜索镜像：从网络中查找需要的镜像
+docker search 镜像名称
+
+#拉取镜像：从Docker仓库下载镜像到本地，镜像名称格式为名称版本号，如果版本号不指定则是最新的版本。
+如果不知道镜像版本，可以去docker hub 搜索对应镜像查看。
+docker pull 镜像名称
+
+#删除镜像：删除本地镜像
+docker rmi 镜像id #剧除指定本地镜像
+docken rmi &apos;docker images -q&apos; #删除所有本地镜像</code></pre><p><a href="https://hub.docker.com/" target="_blank" rel="noopener">docker hub</a> </p>
+<p><a href="https://cr.console.aliyun.com/cn-hangzhou/instances/images" target="_blank" rel="noopener">阿里云容器镜像服务</a></p>
+<h2 id="容器相关命令1"><a href="#容器相关命令1" class="headerlink" title="容器相关命令1"></a>容器相关命令1</h2><pre><code>#查看容器
+docker ps #查看正在运行的容器
+docker ps -a #查看所有容器
+
+#创建并启动容器
+docker run 参数</code></pre><p>-i：保持容器运行。通常与 -t 同时使用。加入it这两个参数后，容器创建后自动进入容器中，<strong>退出容器后，容器自动关闭。</strong></p>
+<p>-t：为容器重新分配一个伪输入终端，通常与 -i 同时使用。</p>
+<p>-d：以守护（后台）模式运行容器。创建一个容器在后台运行，需要使用docker exec进入容器。<strong>退出后，容器不会关闭。</strong></p>
+<p>-it 创建的容器一般称为交互式容器，-id 创建的容器一般称为守护式容器</p>
+<p>–name：为创建的容器命名。</p>
+<h2 id="容器相关命令2"><a href="#容器相关命令2" class="headerlink" title="容器相关命令2"></a>容器相关命令2</h2><pre><code># 进入容器
+docker exec 参数 #退出容器，容器不会关闭
+
+# 停止容器
+docker stop 容器名称
+
+# 启动容器
+docker start 容器名称
+
+# 删除容器：如果容器是运行状态则删除失败，需要停止容器才能删除
+docker rm 容器名称 
+
+#docker rm $(docker ps -aq)  删除所有容器
+
+# 查看容器信息
+docker inspect 容器名称</code></pre><hr>
+<h1 id="Docker容器数据卷"><a href="#Docker容器数据卷" class="headerlink" title="Docker容器数据卷"></a>Docker容器数据卷</h1><p>简单理解：容器器数据卷是为了，解决在宿主机和容器之间的文件共享，或者是容器和容器之间文件共享，使用数据卷的方式可以快速的实现这个需求。</p>
+<h2 id="配置数据卷"><a href="#配置数据卷" class="headerlink" title="配置数据卷"></a>配置数据卷</h2><pre><code>#创建启动容器时，使用 -v参数设置数据卷
+docker run -v 宿主机目录(文件):容器内目录(文件)</code></pre><p>注意事项：</p>
+<p>1.目录必须是绝对路径</p>
+<p>2.如果目录不存在，会自动创建</p>
+<p>3.可以挂载多个数据卷</p>
+<pre><code>## 配置数据卷容器
+
+# 1.创建启动c3数据卷容器，使用-v参数 设置数据卷
+docker run -it --name=c3 -v/volume centos:7 /bin/bash
+
+# 2.创建启动c1、c2容器，使用 --volumes-from 参数设置数据卷
+docker run -it --name=cl --volumes-from c3 centos：7/bin/bash 
+docker run -it --name=c2 --volumes-from c3 centos：7/bin/bash</code></pre><hr>
+<h1 id="Docker-Dockerfile"><a href="#Docker-Dockerfile" class="headerlink" title="Docker Dockerfile"></a>Docker Dockerfile</h1><p>要使用Dockerfile来构建镜像文本文件，需要简单了解docker镜像加载原理”Docker的镜像实际上由一层一层的文件系统组成”下面的图片就很形象的表示出来：</p>
+<p><img src="https://i.imgur.com/opbTBvZ.png" alt=""></p>
+<h2 id="容器转为镜像"><a href="#容器转为镜像" class="headerlink" title="容器转为镜像"></a>容器转为镜像</h2><pre><code>docker commit 容器id镜像名称:版本号
+docker save -o 压缩文件名称镜像名称:版本号
+docker load -i 压缩文件名称</code></pre><h2 id="dockerfile"><a href="#dockerfile" class="headerlink" title="dockerfile"></a>dockerfile</h2><p>参考：<a href="https://www.runoob.com/docker/docker-dockerfile.html" target="_blank" rel="noopener">https://www.runoob.com/docker/docker-dockerfile.html</a></p>
+<hr>
+<h1 id="Docker-实例"><a href="#Docker-实例" class="headerlink" title="Docker 实例"></a>Docker 实例</h1><h2 id="Docker安装-Kali"><a href="#Docker安装-Kali" class="headerlink" title="Docker安装 Kali"></a>Docker安装 Kali</h2><p>1、查看可用kali linux版本</p>
+<p><img src="https://i.imgur.com/ru3i9p7.png" alt=""></p>
+<p>2、拉取指定版本的kali</p>
+<pre><code>docker pull kalilinux/kali-rolling:latest</code></pre><p>3、查看本地镜像</p>
+<pre><code>docker images</code></pre><p><img src="https://i.imgur.com/DzLakXA.png" alt=""></p>
+<p>4、运行容器</p>
+<pre><code># -d表示以后台运行，指定name为mykali
+docker run -id --name mykali kalilinux/kali-rolling:latest
+
+# exec进入kali容器
+docker exec -it mykali /bin/bash</code></pre><p><img src="https://i.imgur.com/fqSGjlu.png" alt=""></p>
+<p>安装完这个kali官方镜像，里面啥也没有，你可以参考<a href="https://nightmorning.site/wordpress/?p=364" target="_blank" rel="noopener">https://nightmorning.site/wordpress/?p=364</a>这篇，或者直接pull一个别人已经做好的镜像。另外Centos和Ubuntu的安装方法和Kali大同小异，这里就不再赘述。</p>
+<h2 id="Docker-安装MySql"><a href="#Docker-安装MySql" class="headerlink" title="Docker 安装MySql"></a>Docker 安装MySql</h2><p>1、search mysql 镜像</p>
+<pre><code>docker search mysql</code></pre><p>2、拉取最新版本的mysql</p>
+<pre><code>docker pull mysql</code></pre><p>3、创建容器、设置端口映射、目录映射</p>
+<pre><code># 创建/root/mysql用来存储mysql数据信息
+mkdir ~/mysql &amp;&amp; cd ~/mysql
+
+docker run -id \
+-p 3308:3306 \
+--name=mymysql \
+-v $PWD/conf:/etc/mysql/conf.d \
+-v $PWD/log:/logs \
+-v $PWD/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=toor \
+mysql:latest</code></pre><p><em>参数说明：</em></p>
+<ul>
+<li>-p 3308:3306：    容器的3306端口映射到宿主机的3308端口。</li>
+<li>-v $PWD/conf:/etc/mysql/conf.d：将宿主机的 当前目录/conf挂载到容器的/etc/mysql/conf.d <strong>配置目录</strong></li>
+<li>-v $PWD/log:/logs：<strong>日志目录</strong></li>
+<li>-v $PWD/data:/var/lib/mysql：<strong>数据目录</strong></li>
+<li>-e MYSQL_ROOT_PASSWORD=toor：初始化root密码为toor</li>
+</ul>
+<p><img src="https://i.imgur.com/1gcl36B.png" alt=""></p>
+<p>创建完成之后，我们用Navicat去连接宿主机的3308端口试一下。</p>
+<p><img src="https://i.imgur.com/5USWENV.png" alt=""></p>
+<pre><code>#如果出现“2059 - authentication plugin &apos;caching_sha2_password&apos; ...&quot;可以尝试下面这个更改验证插件。
+ALTER USER &apos;root&apos;@&apos;%&apos; IDENTIFIED WITH mysql_native_password BY &apos;toor&apos;;</code></pre><p>连接成功了</p>
+<p><img src="https://i.imgur.com/hJQ8GfW.png" alt=""></p>
+<h2 id="Docker-安装Tomcat"><a href="#Docker-安装Tomcat" class="headerlink" title="Docker 安装Tomcat"></a>Docker 安装Tomcat</h2><p>1、search Tomcat 镜像</p>
+<pre><code>docker search tomcat</code></pre><p>2、拉取最新版本的Tomcat</p>
+<pre><code>docker pull Tomcat</code></pre><p>3、创建容器、设置端口映射、目录映射</p>
+<pre><code># 创建/root/tomcat用来存储tomcat数据信息
+mkdir ~/tomcat &amp;&amp; cd ~/tomcat
+
+docker run -id --name mytomcat \
+-p 8080:8080 \
+-v $PWD:/usr/local/tomcat/webapps \
+tomcat:latest</code></pre><p>4、测试</p>
+<p><img src="https://i.imgur.com/Ji1L9WI.png" alt=""></p>
+<p>如果你访问时出现”HTTP Status 404 – 未找到”可以参考这篇：<a href="https://blog.csdn.net/qq_32565267/article/details/104460212" target="_blank" rel="noopener">https://blog.csdn.net/qq_32565267/article/details/104460212</a></p>
+<h2 id="Docker-安装Nginx"><a href="#Docker-安装Nginx" class="headerlink" title="Docker 安装Nginx"></a>Docker 安装Nginx</h2><p>1、search Nginx 镜像</p>
+<pre><code>docker search Nginx</code></pre><p>2、拉取最新版本的Nginx</p>
+<pre><code>docker pull Nginx</code></pre><p>3、创建容器、设置端口映射、目录映射</p>
+<pre><code># 创建~/nginx用来存储nginx数据信息
+mkdir -p ~/nginx/conf &amp;&amp; cd ~/nginx
+
+docker run -id --name mynginx \
+-p 80:80 \
+-v $PWD/conf/nginx.conf:/etc/nginx/mginx.conf \
+-v $PWD/logs:/var/log/nginx \
+-v $PWD/html:/usr/share/nginx/html \
+nginx:latest</code></pre><p>4、测试：</p>
+<p>在/nginx/html/新建一个index.html的文件</p>
+<pre><code>tee ~/nginx/html/index.html &lt;&lt;-&apos;EOF&apos;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Mydocker&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;Docker Nginx test !!! &lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.17.9&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF</code></pre><p><img src="https://i.imgur.com/NP5H2D9.png" alt=""></p>
+<h2 id="尾巴："><a href="#尾巴：" class="headerlink" title="尾巴："></a>尾巴：</h2><p>docker一出来就很火，但是网上的教程鱼龙混杂，所以整理了一下docker的简单使用使用指南，初心是为了方便自己使用，因为在渗透过程中难免会出现，搭建各种不同版本的服务来测试。用docker可以大大的提高效率，简直不要太方便了。</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
+</li>
+<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux基础</category>
+      </categories>
+      <tags>
+        <tag>docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>中间件漏洞之Apach解析漏洞（记录）</title>
     <url>/2020/04/04/Apach%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E/</url>
     <content><![CDATA[<p>中间件Apach解析漏洞记录<a id="more"></a></p>

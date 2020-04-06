@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"yoursite.com","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="主要是从docker的安装到具体应用简单指南">
+<meta name="keywords" content="docker">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker的简单使用指南">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;04&#x2F;05&#x2F;docker%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="主要是从docker的安装到具体应用简单指南">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;opbTBvZ.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;ru3i9p7.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;DzLakXA.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;fqSGjlu.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;1gcl36B.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;5USWENV.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;hJQ8GfW.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;Ji1L9WI.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;NP5H2D9.png">
+<meta property="og:updated_time" content="2020-04-06T10:56:32.495Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;opbTBvZ.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/05/docker%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Docker的简单使用指南 | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">致力于Bash、Python开发渗透工具，分享渗透知识与技巧</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/05/docker%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker的简单使用指南
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-05 16:31:49" itemprop="dateCreated datePublished" datetime="2020-04-05T16:31:49+08:00">2020-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-06 18:56:32" itemprop="dateModified" datetime="2020-04-06T18:56:32+08:00">2020-04-06</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">Linux基础</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>主要是从docker的安装到具体应用简单指南<a id="more"></a></p>
+<h1 id="Docker-简介"><a href="#Docker-简介" class="headerlink" title="Docker 简介"></a>Docker 简介</h1><blockquote>
+<p>Docker 是一个开源的应用容器引擎，让开发者可以打包他们的应用以及依赖包到一个可移植的镜像中，然后发布到任何流行的 Linux或Windows 机器上，也可以实现虚拟化。容器是完全使用沙箱机制，相互之间不会有任何接口。</p>
+</blockquote>
+<p>把Docker比喻做货物运输中的“集装箱”，那么我们都知道集装箱在运输过程中免去了重复装卸的过程，大大节省了人力物力的同时一辆运输工具可以重复使用不同的集装箱。那么对于Docker来说可以也是这样，免去重复安装卸载环境的过程，并且因为重复利用内核文件，大大节省了空间。</p>
+<p><a href="https://www.docker.com/" target="_blank" rel="noopener">更多关于docker的信息 . . . </a></p>
+<hr>
+<h1 id="Docker-初始化"><a href="#Docker-初始化" class="headerlink" title="Docker 初始化"></a>Docker 初始化</h1><h2 id="Docker-CE-安装"><a href="#Docker-CE-安装" class="headerlink" title="Docker CE 安装"></a>Docker CE 安装</h2><p><a href="https://developer.aliyun.com/mirror/" target="_blank" rel="noopener">https://developer.aliyun.com/mirror/</a></p>
+<p>打开上面的链接 选择容器 选择docker-ce</p>
+<h3 id="Ubuntu-16-04-18-04（使用-apt-get-进行安装）"><a href="#Ubuntu-16-04-18-04（使用-apt-get-进行安装）" class="headerlink" title="Ubuntu 16.04/18.04（使用 apt-get 进行安装）"></a>Ubuntu 16.04/18.04（使用 apt-get 进行安装）</h3><pre><code># step 1: 安装必要的一些系统工具
+sudo apt-get update
+sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
+# step 2: 安装GPG证书
+curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+# Step 3: 写入软件源信息
+sudo add-apt-repository &quot;deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable&quot;
+# Step 4: 更新并安装Docker-CE
+sudo apt-get -y update
+sudo apt-get -y install docker-ce
+
+# 安装指定版本的Docker-CE:
+# Step 1: 查找Docker-CE的版本:
+# apt-cache madison docker-ce
+#   docker-ce | 17.03.1~ce-0~ubuntu-xenial | https://mirrors.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages
+#   docker-ce | 17.03.0~ce-0~ubuntu-xenial | https://mirrors.aliyun.com/docker-ce/linux/ubuntu xenial/stable amd64 Packages
+# Step 2: 安装指定版本的Docker-CE: (VERSION例如上面的17.03.1~ce-0~ubuntu-xenial)
+# sudo apt-get -y install docker-ce=[VERSION]</code></pre><h3 id="CentOS-7（使用-yum-进行安装）"><a href="#CentOS-7（使用-yum-进行安装）" class="headerlink" title="CentOS 7（使用 yum 进行安装）"></a>CentOS 7（使用 yum 进行安装）</h3><pre><code># step 1: 安装必要的一些系统工具
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+# Step 2: 添加软件源信息
+sudo yum-config-manager --add-repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+# Step 3: 更新并安装Docker-CE
+sudo yum makecache fast
+sudo yum -y install docker-ce
+# Step 4: 开启Docker服务
+sudo service docker start
+
+# 注意：
+# 官方软件源默认启用了最新的软件，您可以通过编辑软件源的方式获取各个版本的软件包。例如官方并没有将测试版本的软件源置为可用，您可以通过以下方式开启。同理可以开启各种测试版本等。
+# vim /etc/yum.repos.d/docker-ee.repo
+#   将[docker-ce-test]下方的enabled=0修改为enabled=1
+#
+# 安装指定版本的Docker-CE:
+# Step 1: 查找Docker-CE的版本:
+# yum list docker-ce.x86_64 --showduplicates | sort -r
+#   Loading mirror speeds from cached hostfile
+#   Loaded plugins: branch, fastestmirror, langpacks
+#   docker-ce.x86_6417.03.1.ce-1.el7.centosdocker-ce-stable
+#   docker-ce.x86_6417.03.1.ce-1.el7.centos@docker-ce-stable
+#   docker-ce.x86_6417.03.0.ce-1.el7.centosdocker-ce-stable
+#   Available Packages
+# Step2: 安装指定版本的Docker-CE: (VERSION例如上面的17.03.0.ce.1-1.el7.centos)
+# sudo yum -y install docker-ce-[VERSION]</code></pre><h3 id="安装校验"><a href="#安装校验" class="headerlink" title="安装校验"></a>安装校验</h3><pre><code>root@iZbp12adskpuoxodbkqzjfZ:$ docker version
+Client:
+ Version:  17.03.0-ce
+ API version:  1.26
+ Go version:   go1.7.5
+ Git commit:   3a232c8
+ Built:Tue Feb 28 07:52:04 2017
+ OS/Arch:  linux/amd64
+
+Server:
+ Version:  17.03.0-ce
+ API version:  1.26 (minimum version 1.12)
+ Go version:   go1.7.5
+ Git commit:   3a232c8
+ Built:Tue Feb 28 07:52:04 2017
+ OS/Arch:  linux/amd64
+ Experimental: false</code></pre><h2 id="配置镜像加速器"><a href="#配置镜像加速器" class="headerlink" title="配置镜像加速器"></a>配置镜像加速器</h2><p>完成上面的步骤之后。选择右上角的控制台 在搜索框输入“容器镜像服务”找到镜像加速服务即可。</p>
+<p>针对Docker客户端版本大于 1.10.0 的用户</p>
+<p>您可以通过修改daemon配置文件/etc/docker/daemon.json来使用加速器</p>
+<pre><code># Ubuntu\Centos
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json &lt;&lt;-&apos;EOF&apos;
+{
+  &quot;registry-mirrors&quot;: [&quot;https://o7ch5p59.mirror.aliyuncs.com&quot;]    #阿里镜像
+  &quot;registry-mirrors&quot;: [&quot;http://hub-mirror.c.163.com&quot;]    #网易镜像
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker</code></pre><hr>
+<h1 id="Docker-命令"><a href="#Docker-命令" class="headerlink" title="Docker 命令"></a>Docker 命令</h1><p>docker官方文档：<a href="https://docs.docker.com/install/" target="_blank" rel="noopener">https://docs.docker.com/install/</a></p>
+<p>docker教程|菜鸟教程：<a href="https://www.runoob.com/docker/docker-command-manual.html" target="_blank" rel="noopener">https://www.runoob.com/docker/docker-command-manual.html</a></p>
+<h2 id="服务相关命令"><a href="#服务相关命令" class="headerlink" title="服务相关命令"></a>服务相关命令</h2><pre><code># 启动docker服务：
+systemctl start docker
+
+# 停止docker服务：
+systemctl stop docker
+
+# 重启docker服务：
+systemctl restart docker
+
+# 查看docker状态：
+systemctl status docker
+
+# 设置开机启动docker服务：
+systemctl enable docker</code></pre><h2 id="镜像相关命令"><a href="#镜像相关命令" class="headerlink" title="镜像相关命令"></a>镜像相关命令</h2><pre><code>#查看镜像：查看本地所有的镜像
+docker images 
+docker images -q #查看所用镜像的id
+
+#搜索镜像：从网络中查找需要的镜像
+docker search 镜像名称
+
+#拉取镜像：从Docker仓库下载镜像到本地，镜像名称格式为名称版本号，如果版本号不指定则是最新的版本。
+如果不知道镜像版本，可以去docker hub 搜索对应镜像查看。
+docker pull 镜像名称
+
+#删除镜像：删除本地镜像
+docker rmi 镜像id #剧除指定本地镜像
+docken rmi &apos;docker images -q&apos; #删除所有本地镜像</code></pre><p><a href="https://hub.docker.com/" target="_blank" rel="noopener">docker hub</a> </p>
+<p><a href="https://cr.console.aliyun.com/cn-hangzhou/instances/images" target="_blank" rel="noopener">阿里云容器镜像服务</a></p>
+<h2 id="容器相关命令1"><a href="#容器相关命令1" class="headerlink" title="容器相关命令1"></a>容器相关命令1</h2><pre><code>#查看容器
+docker ps #查看正在运行的容器
+docker ps -a #查看所有容器
+
+#创建并启动容器
+docker run 参数</code></pre><p>-i：保持容器运行。通常与 -t 同时使用。加入it这两个参数后，容器创建后自动进入容器中，<strong>退出容器后，容器自动关闭。</strong></p>
+<p>-t：为容器重新分配一个伪输入终端，通常与 -i 同时使用。</p>
+<p>-d：以守护（后台）模式运行容器。创建一个容器在后台运行，需要使用docker exec进入容器。<strong>退出后，容器不会关闭。</strong></p>
+<p>-it 创建的容器一般称为交互式容器，-id 创建的容器一般称为守护式容器</p>
+<p>–name：为创建的容器命名。</p>
+<h2 id="容器相关命令2"><a href="#容器相关命令2" class="headerlink" title="容器相关命令2"></a>容器相关命令2</h2><pre><code># 进入容器
+docker exec 参数 #退出容器，容器不会关闭
+
+# 停止容器
+docker stop 容器名称
+
+# 启动容器
+docker start 容器名称
+
+# 删除容器：如果容器是运行状态则删除失败，需要停止容器才能删除
+docker rm 容器名称 
+
+#docker rm $(docker ps -aq)  删除所有容器
+
+# 查看容器信息
+docker inspect 容器名称</code></pre><hr>
+<h1 id="Docker容器数据卷"><a href="#Docker容器数据卷" class="headerlink" title="Docker容器数据卷"></a>Docker容器数据卷</h1><p>简单理解：容器器数据卷是为了，解决在宿主机和容器之间的文件共享，或者是容器和容器之间文件共享，使用数据卷的方式可以快速的实现这个需求。</p>
+<h2 id="配置数据卷"><a href="#配置数据卷" class="headerlink" title="配置数据卷"></a>配置数据卷</h2><pre><code>#创建启动容器时，使用 -v参数设置数据卷
+docker run -v 宿主机目录(文件):容器内目录(文件)</code></pre><p>注意事项：</p>
+<p>1.目录必须是绝对路径</p>
+<p>2.如果目录不存在，会自动创建</p>
+<p>3.可以挂载多个数据卷</p>
+<pre><code>## 配置数据卷容器
+
+# 1.创建启动c3数据卷容器，使用-v参数 设置数据卷
+docker run -it --name=c3 -v/volume centos:7 /bin/bash
+
+# 2.创建启动c1、c2容器，使用 --volumes-from 参数设置数据卷
+docker run -it --name=cl --volumes-from c3 centos：7/bin/bash 
+docker run -it --name=c2 --volumes-from c3 centos：7/bin/bash</code></pre><hr>
+<h1 id="Docker-Dockerfile"><a href="#Docker-Dockerfile" class="headerlink" title="Docker Dockerfile"></a>Docker Dockerfile</h1><p>要使用Dockerfile来构建镜像文本文件，需要简单了解docker镜像加载原理”Docker的镜像实际上由一层一层的文件系统组成”下面的图片就很形象的表示出来：</p>
+<p><img src="https://i.imgur.com/opbTBvZ.png" alt=""></p>
+<h2 id="容器转为镜像"><a href="#容器转为镜像" class="headerlink" title="容器转为镜像"></a>容器转为镜像</h2><pre><code>docker commit 容器id镜像名称:版本号
+docker save -o 压缩文件名称镜像名称:版本号
+docker load -i 压缩文件名称</code></pre><h2 id="dockerfile"><a href="#dockerfile" class="headerlink" title="dockerfile"></a>dockerfile</h2><p>参考：<a href="https://www.runoob.com/docker/docker-dockerfile.html" target="_blank" rel="noopener">https://www.runoob.com/docker/docker-dockerfile.html</a></p>
+<hr>
+<h1 id="Docker-实例"><a href="#Docker-实例" class="headerlink" title="Docker 实例"></a>Docker 实例</h1><h2 id="Docker安装-Kali"><a href="#Docker安装-Kali" class="headerlink" title="Docker安装 Kali"></a>Docker安装 Kali</h2><p>1、查看可用kali linux版本</p>
+<p><img src="https://i.imgur.com/ru3i9p7.png" alt=""></p>
+<p>2、拉取指定版本的kali</p>
+<pre><code>docker pull kalilinux/kali-rolling:latest</code></pre><p>3、查看本地镜像</p>
+<pre><code>docker images</code></pre><p><img src="https://i.imgur.com/DzLakXA.png" alt=""></p>
+<p>4、运行容器</p>
+<pre><code># -d表示以后台运行，指定name为mykali
+docker run -id --name mykali kalilinux/kali-rolling:latest
+
+# exec进入kali容器
+docker exec -it mykali /bin/bash</code></pre><p><img src="https://i.imgur.com/fqSGjlu.png" alt=""></p>
+<p>安装完这个kali官方镜像，里面啥也没有，你可以参考<a href="https://nightmorning.site/wordpress/?p=364" target="_blank" rel="noopener">https://nightmorning.site/wordpress/?p=364</a>这篇，或者直接pull一个别人已经做好的镜像。另外Centos和Ubuntu的安装方法和Kali大同小异，这里就不再赘述。</p>
+<h2 id="Docker-安装MySql"><a href="#Docker-安装MySql" class="headerlink" title="Docker 安装MySql"></a>Docker 安装MySql</h2><p>1、search mysql 镜像</p>
+<pre><code>docker search mysql</code></pre><p>2、拉取最新版本的mysql</p>
+<pre><code>docker pull mysql</code></pre><p>3、创建容器、设置端口映射、目录映射</p>
+<pre><code># 创建/root/mysql用来存储mysql数据信息
+mkdir ~/mysql &amp;&amp; cd ~/mysql
+
+docker run -id \
+-p 3308:3306 \
+--name=mymysql \
+-v $PWD/conf:/etc/mysql/conf.d \
+-v $PWD/log:/logs \
+-v $PWD/data:/var/lib/mysql \
+-e MYSQL_ROOT_PASSWORD=toor \
+mysql:latest</code></pre><p><em>参数说明：</em></p>
+<ul>
+<li>-p 3308:3306：    容器的3306端口映射到宿主机的3308端口。</li>
+<li>-v $PWD/conf:/etc/mysql/conf.d：将宿主机的 当前目录/conf挂载到容器的/etc/mysql/conf.d <strong>配置目录</strong></li>
+<li>-v $PWD/log:/logs：<strong>日志目录</strong></li>
+<li>-v $PWD/data:/var/lib/mysql：<strong>数据目录</strong></li>
+<li>-e MYSQL_ROOT_PASSWORD=toor：初始化root密码为toor</li>
+</ul>
+<p><img src="https://i.imgur.com/1gcl36B.png" alt=""></p>
+<p>创建完成之后，我们用Navicat去连接宿主机的3308端口试一下。</p>
+<p><img src="https://i.imgur.com/5USWENV.png" alt=""></p>
+<pre><code>#如果出现“2059 - authentication plugin &apos;caching_sha2_password&apos; ...&quot;可以尝试下面这个更改验证插件。
+ALTER USER &apos;root&apos;@&apos;%&apos; IDENTIFIED WITH mysql_native_password BY &apos;toor&apos;;</code></pre><p>连接成功了</p>
+<p><img src="https://i.imgur.com/hJQ8GfW.png" alt=""></p>
+<h2 id="Docker-安装Tomcat"><a href="#Docker-安装Tomcat" class="headerlink" title="Docker 安装Tomcat"></a>Docker 安装Tomcat</h2><p>1、search Tomcat 镜像</p>
+<pre><code>docker search tomcat</code></pre><p>2、拉取最新版本的Tomcat</p>
+<pre><code>docker pull Tomcat</code></pre><p>3、创建容器、设置端口映射、目录映射</p>
+<pre><code># 创建/root/tomcat用来存储tomcat数据信息
+mkdir ~/tomcat &amp;&amp; cd ~/tomcat
+
+docker run -id --name mytomcat \
+-p 8080:8080 \
+-v $PWD:/usr/local/tomcat/webapps \
+tomcat:latest</code></pre><p>4、测试</p>
+<p><img src="https://i.imgur.com/Ji1L9WI.png" alt=""></p>
+<p>如果你访问时出现”HTTP Status 404 – 未找到”可以参考这篇：<a href="https://blog.csdn.net/qq_32565267/article/details/104460212" target="_blank" rel="noopener">https://blog.csdn.net/qq_32565267/article/details/104460212</a></p>
+<h2 id="Docker-安装Nginx"><a href="#Docker-安装Nginx" class="headerlink" title="Docker 安装Nginx"></a>Docker 安装Nginx</h2><p>1、search Nginx 镜像</p>
+<pre><code>docker search Nginx</code></pre><p>2、拉取最新版本的Nginx</p>
+<pre><code>docker pull Nginx</code></pre><p>3、创建容器、设置端口映射、目录映射</p>
+<pre><code># 创建~/nginx用来存储nginx数据信息
+mkdir -p ~/nginx/conf &amp;&amp; cd ~/nginx
+
+docker run -id --name mynginx \
+-p 80:80 \
+-v $PWD/conf/nginx.conf:/etc/nginx/mginx.conf \
+-v $PWD/logs:/var/log/nginx \
+-v $PWD/html:/usr/share/nginx/html \
+nginx:latest</code></pre><p>4、测试：</p>
+<p>在/nginx/html/新建一个index.html的文件</p>
+<pre><code>tee ~/nginx/html/index.html &lt;&lt;-&apos;EOF&apos;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Mydocker&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;center&gt;&lt;h1&gt;Docker Nginx test !!! &lt;/h1&gt;&lt;/center&gt;
+&lt;hr&gt;&lt;center&gt;nginx/1.17.9&lt;/center&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+EOF</code></pre><p><img src="https://i.imgur.com/NP5H2D9.png" alt=""></p>
+<h2 id="尾巴："><a href="#尾巴：" class="headerlink" title="尾巴："></a>尾巴：</h2><p>docker一出来就很火，但是网上的教程鱼龙混杂，所以整理了一下docker的简单使用使用指南，初心是为了方便自己使用，因为在渗透过程中难免会出现，搭建各种不同版本的服务来测试。用docker可以大大的提高效率，简直不要太方便了。</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
+</li>
+<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/docker/" rel="tag"># docker</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/04/Apach%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E/" rel="prev" title="中间件漏洞之Apach解析漏洞（记录）">
+      <i class="fa fa-chevron-left"></i> 中间件漏洞之Apach解析漏洞（记录）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/04/05/Win10%E5%AD%90%E7%B3%BB%E7%BB%9FUbuntu%E5%AE%89%E8%A3%85docker/" rel="next" title="Win10系统Ubuntu安装docker">
+      Win10系统Ubuntu安装docker <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker-简介"><span class="nav-number">1.</span> <span class="nav-text">Docker 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker-初始化"><span class="nav-number">2.</span> <span class="nav-text">Docker 初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker-CE-安装"><span class="nav-number">2.1.</span> <span class="nav-text">Docker CE 安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Ubuntu-16-04-18-04（使用-apt-get-进行安装）"><span class="nav-number">2.1.1.</span> <span class="nav-text">Ubuntu 16.04/18.04（使用 apt-get 进行安装）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CentOS-7（使用-yum-进行安装）"><span class="nav-number">2.1.2.</span> <span class="nav-text">CentOS 7（使用 yum 进行安装）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装校验"><span class="nav-number">2.1.3.</span> <span class="nav-text">安装校验</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#配置镜像加速器"><span class="nav-number">2.2.</span> <span class="nav-text">配置镜像加速器</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker-命令"><span class="nav-number">3.</span> <span class="nav-text">Docker 命令</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#服务相关命令"><span class="nav-number">3.1.</span> <span class="nav-text">服务相关命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#镜像相关命令"><span class="nav-number">3.2.</span> <span class="nav-text">镜像相关命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容器相关命令1"><span class="nav-number">3.3.</span> <span class="nav-text">容器相关命令1</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容器相关命令2"><span class="nav-number">3.4.</span> <span class="nav-text">容器相关命令2</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker容器数据卷"><span class="nav-number">4.</span> <span class="nav-text">Docker容器数据卷</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#配置数据卷"><span class="nav-number">4.1.</span> <span class="nav-text">配置数据卷</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker-Dockerfile"><span class="nav-number">5.</span> <span class="nav-text">Docker Dockerfile</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#容器转为镜像"><span class="nav-number">5.1.</span> <span class="nav-text">容器转为镜像</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#dockerfile"><span class="nav-number">5.2.</span> <span class="nav-text">dockerfile</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Docker-实例"><span class="nav-number">6.</span> <span class="nav-text">Docker 实例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker安装-Kali"><span class="nav-number">6.1.</span> <span class="nav-text">Docker安装 Kali</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker-安装MySql"><span class="nav-number">6.2.</span> <span class="nav-text">Docker 安装MySql</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker-安装Tomcat"><span class="nav-number">6.3.</span> <span class="nav-text">Docker 安装Tomcat</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Docker-安装Nginx"><span class="nav-number">6.4.</span> <span class="nav-text">Docker 安装Nginx</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#尾巴："><span class="nav-number">6.5.</span> <span class="nav-text">尾巴：</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">努力将一切"Regular attacks"工程化！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
