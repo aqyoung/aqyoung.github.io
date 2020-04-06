@@ -1,6 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>中间件漏洞之Apach解析漏洞（记录）</title>
+    <url>/2020/04/04/Apach%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E/</url>
+    <content><![CDATA[<p>中间件Apach解析漏洞记录<a id="more"></a></p>
+<h1 id="Apache简介："><a href="#Apache简介：" class="headerlink" title="Apache简介："></a>Apache简介：</h1><blockquote>
+<p>Apache是世界使用排名第一的Web服务器软件。它可以运行在几乎所有广泛使用的计算机平台上，由于其跨平台被广泛使用，是最流行的Web服务器端软件之一。同时Apache的漏洞也层出不穷，甚至Struts2安全漏洞频出 ，也和Apache官方代码有关。所以我们这次要对Apache一些解析漏洞复现，希望可以得到一些启发。</p>
+</blockquote>
+<h1 id="Apache解析漏洞"><a href="#Apache解析漏洞" class="headerlink" title="Apache解析漏洞"></a>Apache解析漏洞</h1><h2 id="未知扩展名解析漏洞"><a href="#未知扩展名解析漏洞" class="headerlink" title="未知扩展名解析漏洞"></a>未知扩展名解析漏洞</h2><p>这个解析漏洞是根据Apache的一个特性：Apache从最右边后缀开始识别，如果该后缀无法识别（即不在mine.types文件中），就会继续向右识别，直到识别成功才解析。</p>
+<pre><code>e.g:phpinfo.php.test 解析为：phpinfo.php</code></pre><p><img src="https://i.imgur.com/VaPZ9Sf.png" alt=""></p>
+<p>值得注意的是：在实际的应用中，可以通过上传”php.xxx”应用，但是不能上传”php.jpg”因为jpg在mine.types中就会识别成jpg图片文件。</p>
+<h2 id="AddHandler导致的解析漏洞"><a href="#AddHandler导致的解析漏洞" class="headerlink" title="AddHandler导致的解析漏洞"></a>AddHandler导致的解析漏洞</h2><p>在上面的解析漏洞中，jpg会被识别</p>
+<p>但是，如果运维人员给.php后缀增加了处理器：</p>
+<pre><code>AddHandler application/x-httpd-php .php</code></pre><p>我们在http.conf增加上面的处理器（之后重启server）</p>
+<p><img src="https://i.imgur.com/rrhQ5wY.png" alt=""></p>
+<p><img src="https://i.imgur.com/ODVHLi1.png" alt=""></p>
+<p><img src="https://i.imgur.com/RkutvuH.png" alt=""></p>
+<p>那么只要文件名中含有.php后缀，即被识别成PHP文件</p>
+<p>利用这个特性，将会造成一个可以绕过上传白名单的解析漏洞。</p>
+<h2 id="HTTPD-换行解析漏洞（CVE-2017-15715）"><a href="#HTTPD-换行解析漏洞（CVE-2017-15715）" class="headerlink" title="HTTPD 换行解析漏洞（CVE-2017-15715）"></a>HTTPD 换行解析漏洞（CVE-2017-15715）</h2><p>1、影响范围：2.4.0~2.4.29版本(在Windows下，不允许以换行符文件结尾的后缀，所以Windows服务器无法利用。)</p>
+<p><strong>2、复现过程：</strong></p>
+<p><em>1、通过docker拉取一个Apache版本在2.4.0~2.4.29之间的。我这里用的是Apache 2.4.10</em></p>
+<p><img src="https://i.imgur.com/azGA6xv.png" alt=""></p>
+<pre><code>#拉取一个apache+php的docker镜像
+docker pull webimp/php-55-apache:latest</code></pre><p><em>2、启动docker</em></p>
+<pre><code>#创建存放Apache的目录
+mkdir apache2
+#守护启动，并且将本机的80和容器的80做端口映射、配置数据卷
+docker run -id -p 80:80 -v $PWD/www/html:/var/www/html</code></pre><p><em>3、编写测试代码放在本机的$PWD/www/html/index.php</em></p>
+<pre><code>&lt;html&gt;
+&lt;body&gt;
+    &lt;form action=&quot;&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;
+    &lt;input type=&quot;file&quot; name=&quot;file&quot; /&gt;
+    &lt;input type=&quot;text&quot; name=&quot;name&quot; /&gt;
+    &lt;input type=&quot;submit&quot; value=&quot;uploadfile&quot; /&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+&lt;?php
+if(isset($_FILES[&apos;file&apos;])) {
+    $name = basename($_POST[&apos;name&apos;]);
+    $ext = pathinfo($name,PATHINFO_EXTENSION);
+    if(in_array($ext, [&apos;php&apos;, &apos;php3&apos;, &apos;php4&apos;, &apos;php5&apos;, &apos;phtml&apos;, &apos;pht&apos;])) {
+        exit(&apos;bad file&apos;);
+    }
+    move_uploaded_file($_FILES[&apos;file&apos;][&apos;tmp_name&apos;], &apos;./&apos; . $name);
+}</code></pre><p><em>4、在下面页面用burp抓包进行分析：</em></p>
+<p><img src="https://i.imgur.com/s5AARRo.png" alt=""></p>
+<p>在phpinfo.php后面添加一个“.”之后到Hex<br><img src="https://i.imgur.com/aOUmJgv.png" alt=""></p>
+<p>将2e（表示.）改为0a（表示换行），之后上传即可。<br><img src="https://i.imgur.com/JWifqDX.png" alt=""></p>
+<p>我们可以看到上传成功了，phpinfo正常解析。<br><img src="https://i.imgur.com/IJbZmgX.png" alt=""></p>
+<p><img src="https://i.imgur.com/kSBQOPY.png" alt=""></p>
+<p>3、参考：</p>
+<p><a href="https://www.leavesongs.com/PENETRATION/apache-cve-2017-15715-vulnerability.html" target="_blank" rel="noopener">https://www.leavesongs.com/PENETRATION/apache-cve-2017-15715-vulnerability.html</a></p>
+<p><strong>解析漏洞修复建议</strong></p>
+<pre><code>1. 升级到最新版本
+2. 将上传的文件重命名为为时间戳+随机数+.jpg的格式并禁用上传文件目录执行脚本权限。</code></pre><h2 id="尾巴："><a href="#尾巴：" class="headerlink" title="尾巴："></a>尾巴：</h2><p>通过总结上面的Apache解析漏洞可以在实战中过程中应用更加的得心应手。一般这些漏洞可能会出现在“及其隐蔽的子域中”，所以我们要耐心观察版本，加以应用。</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
+</li>
+<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web安全</category>
+      </categories>
+      <tags>
+        <tag>中间件</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>中间件漏洞之IIS（记录）</title>
     <url>/2020/04/03/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BIIS%EF%BC%88%E8%AE%B0%E5%BD%95%EF%BC%89/</url>
     <content><![CDATA[<p>中间件IIS常见漏洞记录<a id="more"></a></p>
