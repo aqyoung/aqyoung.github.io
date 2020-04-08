@@ -1,6 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>VM安装Linux之后会做的配置</title>
+    <url>/2020/04/08/Linux%E5%AE%89%E8%A3%85%E5%8F%8A%E4%B8%AA%E4%BA%BA%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p>备忘录：安装Linux操作系统之后我需要做的事情（以Ubuntu为例，在VMware安装）</p>
+<p>—- 方便自己安装使用的备忘录，忽略即可。<a id="more"></a></p>
+<h2 id="1、安装VMTools"><a href="#1、安装VMTools" class="headerlink" title="1、安装VMTools"></a>1、安装VMTools</h2><h3 id="1-1-找到虚拟机点击安装vmtools。"><a href="#1-1-找到虚拟机点击安装vmtools。" class="headerlink" title="1.1 找到虚拟机点击安装vmtools。"></a>1.1 找到虚拟机点击安装vmtools。</h3><p><img src="https://i.imgur.com/IaAlMEP.png" alt=""></p>
+<h3 id="1-2-打开终端输入"><a href="#1-2-打开终端输入" class="headerlink" title="1.2 打开终端输入"></a>1.2 打开终端输入</h3><pre><code># 解压VMtools到指定目录
+tar -zxvf /media/yang/VMware\ Tools/VMwareTools-10.3.10-12406962.tar.gz -C /home/yang/
+# 开始安装，第一次输入yes，之后一路回车即可
+./vmware-tools-distrib/vmware-install.pl 
+# rm -rf vmware-tools-distrib/</code></pre><h2 id="2、配置更新源（Ubuntu-18-04-4）"><a href="#2、配置更新源（Ubuntu-18-04-4）" class="headerlink" title="2、配置更新源（Ubuntu 18.04.4）"></a>2、配置更新源（Ubuntu 18.04.4）</h2><pre><code># 备份更新源之后删除
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.back &amp;&amp; rm /etc/apt/sources.list
+# 直接配置为阿里云的更新源
+sudo tee /etc/apt/sources.list &lt;&lt;-&apos;EOF&apos;
+deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+
+deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+EOF</code></pre><h2 id="3、更新"><a href="#3、更新" class="headerlink" title="3、更新"></a>3、更新</h2><pre><code># 更新软件列表
+sudo apt-get update
+# 更新软件
+sudo apt-get upgrade</code></pre><h2 id="4、安装docker"><a href="#4、安装docker" class="headerlink" title="4、安装docker"></a>4、安装docker</h2><p><a href="https://aqyoung.github.io/2020/04/05/docker%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" target="_blank" rel="noopener">见docker简单使用指南</a></p>
+<h2 id="5、配置ssh和静态ip（Ubuntu18-04）"><a href="#5、配置ssh和静态ip（Ubuntu18-04）" class="headerlink" title="5、配置ssh和静态ip（Ubuntu18.04）"></a>5、配置ssh和静态ip（Ubuntu18.04）</h2><h3 id="5-1-配置静态IP"><a href="#5-1-配置静态IP" class="headerlink" title="5.1 配置静态IP"></a>5.1 配置静态IP</h3><pre><code>cd /etc/netplan
+ls
+#看看是否有01-network-manager-all.yaml编辑他
+vim 01-network-manager-all.yaml
+
+# Let NetworkManager manage all devices on this system
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+     ens33: #配置的网卡名称,使用ifconfig -a查看得到
+       dhcp4: no #dhcp4关闭
+       addresses: [192.168.11.11/24] #设置本机IP及掩码
+       gateway4: 192.168.11.2 #设置网关
+       nameservers:
+         addresses: [192.168.11.2] #设置DNS
+
+# 使用命令，使静态ip生效。
+sudo netplan apply</code></pre><h3 id="5-2-动态ip"><a href="#5-2-动态ip" class="headerlink" title="5.2 动态ip"></a>5.2 动态ip</h3><pre><code>network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+     enp3s0: #配置的网卡名称,使用ifconfig -a查看得到
+       dhcp4: true #dhcp4开启
+       addresses: [] #设置本机IP及掩码，空
+       optional: true</code></pre><h3 id="5-3-安装ssh服务并设置开机自启动"><a href="#5-3-安装ssh服务并设置开机自启动" class="headerlink" title="5.3 安装ssh服务并设置开机自启动"></a>5.3 安装ssh服务并设置开机自启动</h3><pre><code>#安装ssh服务
+sudo apt-get install openssh-server
+
+#启动ssh服务
+sudo /etc/init.d/ssh start
+
+#设置开机自启动
+sudo systemctl enable ssh
+
+#关闭ssh开机自动启动命令
+sudo systemctl disable ssh
+
+#单次开启ssh
+sudo systemctl start ssh
+
+#单次关闭ssh
+sudo systemctl stop ssh
+
+#设置好后重启
+reboot</code></pre><h2 id="6、问题解决："><a href="#6、问题解决：" class="headerlink" title="6、问题解决："></a>6、问题解决：</h2><h3 id="6-2-Ubuntu的root账号无法登陆ssh"><a href="#6-2-Ubuntu的root账号无法登陆ssh" class="headerlink" title="6.2 Ubuntu的root账号无法登陆ssh"></a>6.2 Ubuntu的root账号无法登陆ssh</h3><pre><code>#！问题提示：
+Permission denied, please try again
+
+#问题解决：
+# 编辑
+vi /etc/ssh/sshd_config
+
+# 修改如下：
+# Authentication:
+LoginGraceTime 120
+#PermitRootLogin without-password
+PermitRootLogin yes
+StrictModes yes
+
+# 重启ssh 
+/etc/init.d/ssh restart</code></pre><h3 id="6-3-卸载gnome桌面（当桌面无法显示时候又想要保存数据）"><a href="#6-3-卸载gnome桌面（当桌面无法显示时候又想要保存数据）" class="headerlink" title="6.3 卸载gnome桌面（当桌面无法显示时候又想要保存数据）"></a>6.3 卸载gnome桌面（当桌面无法显示时候又想要保存数据）</h3><pre><code>#卸载gnome-shell主程序
+sudo apt-get remove gnome-shell
+
+#卸载gnome
+sudo apt-get remove gnome
+
+#卸载不需要的依赖关系
+sudo apt-get autoremove
+
+#彻底卸载删除gnome的相关配置文件
+sudo apt-get purge gnome
+
+#清理安装gnome时候留下的缓存程序软件包
+sudo apt-get autoclean
+sudo apt-get clean</code></pre><h3 id="6-4-pip-国内源提速"><a href="#6-4-pip-国内源提速" class="headerlink" title="6.4 pip 国内源提速"></a>6.4 pip 国内源提速</h3><pre><code>#国内镜像源
+http://pypi.douban.com/  豆瓣
+http://pypi.hustunique.com/  华中理工大学
+http://pypi.sdutlinux.org/  山东理工大学
+http://pypi.mirrors.ustc.edu.cn/  中国科学技术大学
+https://pypi.tuna.tsinghua.edu.cn/simple 清华
+http://mirrors.aliyun.com/pypi/simple/ 阿里</code></pre><h3 id="6-4-1-临时使用："><a href="#6-4-1-临时使用：" class="headerlink" title="6.4.1 临时使用："></a>6.4.1 临时使用：</h3><pre><code>例如：（-i 参数选择镜像源，这样就会从豆瓣开源镜像去安装scrapy库了）
+pip install -i http://pypi.douban.com/  scrapy</code></pre><h3 id="6-4-2-永久使用："><a href="#6-4-2-永久使用：" class="headerlink" title="6.4.2 永久使用："></a>6.4.2 永久使用：</h3><p>Linux 创建一个配置文件并且设置豆瓣为镜像源（<strong>直接复制粘贴就可以了</strong>）</p>
+<pre><code>mkdir ~/.pip &amp;&amp; touch ~/.pip/pip.conf
+tee ~/.pip/pip.conf &lt;&lt;-&apos;EOF&apos;
+[global]
+index-url = https://pypi.doubanio.com/simple/
+timeout = 1000
+[install]
+use-mirrors = true
+mirrors = https://pypi.doubanio.com//
+EOF</code></pre><p>windows 在 C:\Users\name\pip 新建一个pip.ini 这里name是用户名（<strong>文件中的中文注释要去掉</strong>）</p>
+<pre><code>[global]
+index-url = https://pypi.douban.com/simple
+trusted-host = pypi.douban.com        #添加豆瓣为可信主机，要不然可能报错
+disable-pip-version-check = true    #取消pip版本检查，排除每次都报最新的pip
+timeout = 120</code></pre><h3 id="6-4-3-升级所有第三方包"><a href="#6-4-3-升级所有第三方包" class="headerlink" title="6.4.3 升级所有第三方包"></a>6.4.3 升级所有第三方包</h3><pre><code>pip list --outdated | grep &apos;^[a-z]* (&apos; | cut -d &quot; &quot; -f 1 | xargs pip install -U </code></pre><h2 id="几个开源镜像地址："><a href="#几个开源镜像地址：" class="headerlink" title="几个开源镜像地址："></a>几个开源镜像地址：</h2><p><a href="http://mirrors.163.com/" target="_blank" rel="noopener">http://mirrors.163.com/</a></p>
+<p><a href="https://developer.aliyun.com/mirror/" target="_blank" rel="noopener">https://developer.aliyun.com/mirror/</a></p>
+<p><a href="https://mirrors.ustc.edu.cn/" target="_blank" rel="noopener">https://mirrors.ustc.edu.cn/</a></p>
+]]></content>
+      <categories>
+        <category>Linux基础</category>
+      </categories>
+      <tags>
+        <tag>问题解决，备忘录</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Win10系统Ubuntu安装docker</title>
     <url>/2020/04/05/Win10%E5%AD%90%E7%B3%BB%E7%BB%9FUbuntu%E5%AE%89%E8%A3%85docker/</url>
     <content><![CDATA[<p>对于在Windows10子系统Ubuntu安装docker遇到的一些问题记录<a id="more"></a></p>
