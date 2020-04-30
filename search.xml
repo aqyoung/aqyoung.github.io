@@ -1,6 +1,253 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>socket之编写netcat（python3）</title>
+    <url>/2020/04/30/netcat1/</url>
+    <content><![CDATA[<p>关于网络编程之编写一款属于自己的netcat<a id="more"></a></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><blockquote>
+<p>netcat是个计算机网络公用程序，用来对网络连线TCP或者UDP进行读写。 netcat 在2001年insecure.org对nmap用户邮件列表举办的投票被推选为第二有用的网络保全工具。2003年投票结果是第四名；2006年的投票继续稳占同样第四名宝座。<br>在《Python黑帽子》这本书中是这样介绍的：他说聪明的系统管理员都会将他从系统中移除。但是却安装了python</p>
+</blockquote>
+<p>在书中他是采用Python2来编写的，我这里用Python3编写，并且做出一些解释。</p>
+<h1 id="编写netcat"><a href="#编写netcat" class="headerlink" title="编写netcat"></a>编写netcat</h1><p><strong>在创建主函数之前我们先做一些准备</strong></p>
+<pre><code>#导入一些库
+import sys
+import socket
+import getopt
+import threading
+import subprocess
+
+# 定义全局变量
+listen = False
+command = False
+upload = False
+execute = &quot;&quot;
+target = &quot;&quot;
+upload_destination = &quot;&quot;
+port = 0
+
+# 编写使用帮助
+def usage():
+print(&quot;MY NET TOOL&quot;)
+print(&quot;&quot;)
+print(&quot;Usage: netcat.py -t target_host -p port&quot;)
+print(&quot;-l --listen                                    - listen on [host]:[port] for&quot;)
+print(&quot;                                                 incoming connections&quot;)
+print(&quot;-e --execute=file_to_run                       - execute the given file upon&quot;)
+print(&quot;                                                 receiving a connection&quot;)
+print(&quot;-c --command                                   - initialize a command shell&quot;)
+print(&quot;-u --upload=destination                        - upon receiving connection upload a&quot;)
+print(&quot;                                                 file and write to [destination]&quot;)
+print(&quot;&quot;)
+print(&quot;&quot;)
+print(&quot;Examples:&quot;)
+print(&quot;netcat.py -t 192.168.0.1 -p 5555 -l -c&quot;)
+print(&quot;netcat.py -t 192.168.0.1 -p 5555 -l -u=c:\\target.exe&quot;)
+print(&quot;netcat.py -t 192.168.0.1 -p 5555 -l -e=\&quot;cat /etc/passwd\&quot;&quot;)
+print(&quot;echo &apos;ABCDEFGHI&apos; | ./netcat.py -t 192.168.11.12 -p 135&quot;)
+sys.exit(0)</code></pre><p>上面导入库、定义全局变量和使用帮助，还需要根据socket创建两个函数server_loop()和client_sender()</p>
+<h2 id="了解socket的调用流程"><a href="#了解socket的调用流程" class="headerlink" title="了解socket的调用流程"></a>了解socket的调用流程</h2><p>由于编写中只涉及到TCP C/S模式，所以下面只针对这种。</p>
+<p>套接字调用流程：</p>
+<p><img src="/images/netcat/1.png" alt=""></p>
+<p>通过上面的流程图相信你可以很好的了解socket的调用流程，在此基础上进行编写server端</p>
+<pre><code>def server_loop():
+    global target
+
+    # 如果没有定义目标，监听所有接口
+    if not len(target):
+        target = &quot;0.0.0.0&quot;
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # 1
+    server.bind((target, port)) # 2
+    server.listen(5) # 3
+
+    while True:
+        client_socket, addr = server.accept() # 4
+        # 分拆一个线程处理新的客户端
+        client_thread = threading.Thread(target=client_handler, args=(client_socket,)) # 5
+        client_thread.start()</code></pre><p>在上面的1~4都是对应流程图中Server直到5中调用了client中的发送和接收。下面看一下client端</p>
+<pre><code>def client_sender(buffer):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        # 连接到目标主机
+        client.connect((target, port))
+
+        if len(buffer):
+            client.send(buffer.encode()) 
+
+        while True:
+            # 等待数据回传
+            recv_len = 1
+            response = &quot;&quot;
+
+            while recv_len:
+                data = client.recv(4096).decode()
+                recv_len = len(data)
+                response += data
+
+                if recv_len &lt; 4096:
+                    break
+            print(response)
+            # 等待更多的输入
+            buffer = input(&quot;&quot;)
+            buffer += &quot;\n&quot;
+            # 发送出去
+            client.send(buffer.encode())
+
+    except:
+        print(&quot;[*] Exception! Exiting.&quot;)
+        # 关闭连接
+        client.close()</code></pre><p>客户端的编写也是根据流程图就可以了，要注意的是Python3中发送和接收数据需要进行编码和解码。</p>
+<h2 id="实现文件上传、命令执行、shell相关功能"><a href="#实现文件上传、命令执行、shell相关功能" class="headerlink" title="实现文件上传、命令执行、shell相关功能"></a>实现文件上传、命令执行、shell相关功能</h2><pre><code># 命令执行
+def run_command(command):
+    # 换行
+    command = command.rstrip()
+    # 运行命令并将输入返回
+
+    try:
+        output = subprocess.getoutput(command)
+
+    except:
+        output = &quot;Failed to execute command.\r\n&quot;
+
+    # 将输出发送
+    return output</code></pre><p>在output中用subprocess.getoutput()函数来获取我们输入的命令</p>
+<pre><code># 实现文件上传、命令执行、shell相关功能
+def client_handler(client_socket):
+    global upload
+    global execute
+    global command
+
+    # 1 检测上传文件
+    if len(upload_destination):
+        # 读取所有的字符并且写下目标
+        file_buffer = &quot;&quot;
+        # 持续读取直至没有符合数据
+        while True:
+            data = client_socket.recv(1024)
+            if not data:
+                break
+            else:
+                file_buffer += data
+
+        # 2 现在我们接收这些数据并将他们写出来
+        try:
+            file_descriptor = open(upload_destination, &quot;wb&quot;)
+            file_descriptor.write(file_buffer)
+            file_descriptor.close()
+
+            # 确定文件已经写出来
+            client_socket.send(&quot;Sucessfully saved file to {}\r\n&quot;.format(upload_destination).encode())
+
+        except:
+            client_socket.send(&quot;Failed to save file to {}\r\n&quot;.format(upload_destination).encode())
+
+    # 3 检查命令执行
+    if len(execute):
+        # 运行命令
+        output = run_command(execute)
+        client_socket.send(output.encode())
+
+    # 如果需要一个命令行shell，进入另外一个循环
+    if command:
+
+        while True:
+            # 跳出一个窗口
+            client_socket.send(&quot;&lt;NETCAT:#&gt;&quot;.encode())
+            # 接收文件知道发现换行符
+            cmd_buffer = &quot;&quot;
+
+            while &quot;\n&quot; not in cmd_buffer:
+                cmd_buffer += client_socket.recv(1024).decode()
+                # 返还命令输出
+                response = run_command(cmd_buffer)
+                # 返回响应数据
+                client_socket.send(response.encode())</code></pre><p>说明：</p>
+<pre><code>1、主要负责连接之后来接收文件的，这样我们就可以通过该工具进行上传和执行测试脚本了
+2、接收文件数据，web标识确保我们以二进制格式写入，并且保证数据完全接收
+3、直接调用run_command函数执行文件
+4、持续处理你输入的命令</code></pre><p>最后到了编写主函数的时候</p>
+<pre><code>def main():
+    # 定义一些全局变量
+    global listen, opts
+    global port
+    global execute
+    global command
+    global upload_destination
+    global target
+
+    if not len(sys.argv[1:]):
+        usage()
+
+    # 读取命令行选项
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], &quot;hle:t:p:cu:&quot;,
+                                   [&quot;help&quot;, &quot;listen&quot;, &quot;execute&quot;, &quot;target&quot;, &quot;port&quot;,
+                                    &quot;command&quot;, &quot;upload&quot;])
+    except getopt.GetoptError as err:
+        print(str(err))
+        usage()
+
+    for o, a in opts:
+        if o in (&quot;-h&quot;, &quot;--help&quot;):
+            usage()
+        elif o in (&quot;-l&quot;, &quot;--listen&quot;):
+            listen = True
+        elif o in (&quot;-e&quot;, &quot;--execute&quot;):
+            execute = a
+        elif o in (&quot;-t&quot;, &quot;--target&quot;):
+            target = a
+        elif o in (&quot;-p&quot;, &quot;--port&quot;):
+            port = int(a)
+        elif o in (&quot;-c&quot;, &quot;--command&quot;):
+            command = True
+        elif o in (&quot;-u&quot;, &quot;--upload&quot;):
+            upload_destination = a
+        else:
+            assert False, &quot;Unhandled Option&quot;
+
+    # 判断我们是监听还是仅从标准输入发送数据(这里相当于：client端)
+    if not listen and len(target) and port &gt; 0:
+        # 从命令行读取内存数据
+        # 这里将阻塞
+        buffer = sys.stdin.read()
+
+        # 发送数据
+        client_sender(buffer)
+
+    # 我们开始监听并准备上传文件、执行命令
+    # 放置一个反弹shell
+    # 取决于上面的命令行选项(这里相当于：server端)
+    if listen:
+        server_loop()
+
+
+if __name__ == &apos;__main__&apos;:
+    main()</code></pre><p>在定义一些全局变量之后，直接判断是否输入参数，如果没有则返回帮助</p>
+<pre><code>这里sys.argv[1:]表示的第一个参数之后    
+#例如：Python3 netcat.py -t target_host -p port
+那么sys.argv[1:]检测的是netcat.py 之后有没有参数(-t、-p)</code></pre><p>读取命令行选项</p>
+<pre><code>getopt.getopt(args, options[, long_options]
+# option 有&quot;：&quot;表示后面必须附加参数
+# 如 hlc都可以不需要附加参数，其他则需要附加</code></pre><p>之后就是判断有没有参数和调用之前的函数来执行了</p>
+<p>运行效果：</p>
+<p><img src="/images/netcat/2.png" alt=""></p>
+<p><img src="/images/netcat/3.png" alt=""></p>
+<p>Windows中使用CTRL-Z、Linux则使用CTRL-D</p>
+<p>参考:《Python黑帽子》</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>network</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>想批量刷洞？看一下POC怎么编写</title>
     <url>/2020/04/30/%E6%83%B3%E6%89%B9%E9%87%8F%E5%88%B7%E6%B4%9E%EF%BC%8C%E7%9C%8B%E4%B8%80%E4%B8%8BPOC%E6%80%8E%E4%B9%88%E7%BC%96%E5%86%99/</url>
     <content><![CDATA[<p>SQL POC的编写（基于sqli-labs）<a id="more"></a></p>
