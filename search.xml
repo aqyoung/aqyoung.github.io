@@ -1,6 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>URL采集器模块</title>
+    <url>/2020/05/01/URLcaiji/</url>
+    <content><![CDATA[<p>编写各大搜索引擎的URL采集模块（baidu、bing、google）<a id="more"></a></p>
+<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>前段时间编写了几个URL采集模块，在这里小结一下，总体来说都是利用爬虫的原理，采集各大搜索引擎的url，主要是这些规则，可能会随着时间改变而改变</p>
+<h1 id="URL采集器模块"><a href="#URL采集器模块" class="headerlink" title="URL采集器模块"></a>URL采集器模块</h1><h2 id="baidu采集模块"><a href="#baidu采集模块" class="headerlink" title="baidu采集模块"></a>baidu采集模块</h2><p>由于三个模块基本相同，而百度采集到的URL地址需要进行一个302的跳转，所以这里以百度模块来展开。</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><pre><code># 默认采集前10页可以在下面更改
+PAGES = 10
+
+import requests
+from lxml import etree
+from urllib.parse import quote, urlparse
+from concurrent.futures import ThreadPoolExecutor</code></pre><h3 id="开始编写采集模块"><a href="#开始编写采集模块" class="headerlink" title="开始编写采集模块"></a>开始编写采集模块</h3><pre><code>def BaiduScan(keywords):
+    result = set()
+    for i in range(0, PAGES*10, 10):
+        url = &apos;https://www.baidu.com/s?wd={}&amp;pn={}&apos;.format(quote(keywords), i)
+        print(&quot;正在采集第{}页，请耐心等待&quot;.format(int(i/10+1)))
+        try:
+            HEADERS = {
+                &apos;Accept&apos;: &apos;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&apos;,
+                &apos;Accept-Encoding&apos;: &apos;gzip, deflate, br&apos;,
+                &apos;Accept-Language&apos;: &apos;zh-CN,zh;q=0.9,en;q=0.8&apos;,
+                &apos;Cache-Control&apos;: &apos;max-age=0&apos;,
+                &apos;Connection&apos;: &apos;keep-alive&apos;,
+                &apos;Cookie&apos;: &apos;BAIDUID=832CF61CDAEF34C68E7CA06F591DF82A:FG=1; BIDUPSID=832CF61CDAEF34C68E7CA06F591DF82A; PSTM=1544962484; BD_UPN=12314753; BDUSS=RWclRJUURtR25qZWxKZWZiN0JuSlJVTWpKRjhvb3ROdmIyNnB0eEwwY2FVOWxjSVFBQUFBJCQAAAAAAAAAAAEAAADS9fNj0-~PxM600esAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABrGsVwaxrFcck; cflag=13%3A3; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; BD_HOME=1; delPer=0; BDRCVFR[feWj1Vr5u3D]=mk3SLVN4HKm; H_PS_PSSID=1453_21088_20692_28774_28720_28558_28832_28584; B64_BOT=1; BD_CK_SAM=1; PSINO=1; sug=3; sugstore=1; ORIGIN=2; bdime=0; H_PS_645EC=87ecpN5CzJjR5UwprsIowJPhqh6m9t1xGvxRkjeNmvcXBhI86ytKIjXLMhQ&apos;,
+                &apos;Host&apos;: &apos;www.baidu.com&apos;,
+                &apos;User-Agent&apos;: &apos;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36&apos;,
+            }
+            HEADERS2 = {
+                &apos;Accept&apos;: &apos;text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8&apos;,
+                &apos;Accept-Language&apos;: &apos;zh-CN,zh;q=0.9,en;q=0.8&apos;,
+                &apos;User-Agent&apos;: &apos;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36&apos;,
+            }
+            re = requests.get(url, headers=HEADERS, timeout=20)
+            text = re.content.decode(&apos;utf-8&apos;)
+            tree = etree.HTML(text)
+            # 利用xpath 
+            divs = tree.xpath(&quot;//div[@id=&apos;content_left&apos;]/div&quot;)
+            for div in divs:
+                urls = div.xpath(&quot;.//h3/a/@href&quot;)
+                # print(urls)
+                for url in urls:
+                    r = requests.get(url=url, headers=HEADERS2, timeout=20)
+                    if r.status_code == 200 or r.status_code == 302:
+                        u = urlparse(r.url)
+                        ur = u.scheme + &apos;://&apos; + u.netloc + u.path
+                        print(ur)
+                        result.add(ur)
+        except Exception as e:
+            pass
+    if result != {}:
+        for ur in result:
+            with open(&apos;baidu_url_result.txt&apos;, &apos;a+&apos;, encoding=&apos;utf-8&apos;)as a:
+                a.write(ur + &apos;\n&apos;)
+        print(&apos;搜索完成,已经保存到:&quot;baidu_url_result.txt&quot;&apos;)</code></pre><p>参数说明：</p>
+<p>1、url规则编写：</p>
+<pre><code>url = &apos;https://www.baidu.com/s?wd={}&amp;pn={}&apos;.format(quote(keywords), i)</code></pre><p>url的地址是根据百度url规则来编写的</p>
+<p><img src="/images/urlcj/1.png" alt=""></p>
+<p>通过简单的观察我们可以发现，wd就是我们要进行搜索的关键字，而pn代表的是页数（0,代表第一页，10代表第二页，20代表第三页以此类推）</p>
+<p>写一个”for i in range(0, PAGES*10, 10):”在range中以10为步长从0，PAGES 10 这样的话url的规则就编写完成了。</p>
+<p>2、xpath的规则编写：</p>
+<p>这里我用xpath来采集URL在前面都是正常的request请求。</p>
+<p><img src="/images/urlcj/2.png" alt=""></p>
+<p><img src="/images/urlcj/3.png" alt=""></p>
+<p>通过观察我们可以发现需要的数据在标红色里面，而所有的数据又在div标签并且id=’content_left’中，在得到这些数据中，我们对divs进行遍历”.//h3/a/@href”</p>
+<p><img src="/images/urlcj/4.png" alt=""><br>到这里xpath的规则就编写完成了，你可以获得一个百度跳转到其他网页的列表，下面再对这些URL进行处理</p>
+<p>3、302跳转处理：</p>
+<p>在上面获取了跳转前的链接，并不是我们需要的地址，所以还需要进一步处理<br>在进行request请求之后使用urlparse()函数获得类似下面这样的数据<br><img src="/images/urlcj/5.png" alt=""></p>
+<pre><code>ur = u.scheme + &apos;://&apos; + u.netloc + u.path</code></pre><p>最后把这些组合起来就可以了</p>
+<p>4、编写main()</p>
+<pre><code>if __name__ == &apos;__main__&apos;:
+    inp1 = input(&quot;请选择搜索模式：\n 1 :批量从文件关键字搜索\n 2 :输入一个关键字进行搜索\n&quot;)
+    if inp1 == &apos;1&apos;:
+        inp = input(&apos;导入标题文本:&apos;)
+        titles = list(set([x.strip() for x in open(inp, &apos;r&apos;, encoding=&apos;utf-8&apos;).readlines()]))
+        print(&apos;目标总数:{}&apos;.format(len(titles)))
+        with ThreadPoolExecutor(10) as p:
+            # 开 10 个线程池
+            res = [p.submit(BaiduScan, url) for url in titles]
+    elif inp1 == &apos;2&apos;:
+        url = input(&apos;输入keywords\n&apos;)
+        BaiduScan(url)
+
+    else:
+        pass</code></pre><p>使用效果：</p>
+<p><img src="/images/urlcj/6.png" alt=""></p>
+<h2 id="bing采集模块"><a href="#bing采集模块" class="headerlink" title="bing采集模块"></a>bing采集模块</h2><p>bing和baidu大同小异，所以这里就不赘述，所以这里附上URL和xpath规则</p>
+<pre><code># URL规则
+url = &apos;https://cn.bing.com/search?q={}&amp;first={}&apos;.format(quote(keywords), i)
+# xpath规则
+divs = tree.xpath(&quot;//ol[@id=&apos;b_results&apos;]/li&quot;)
+            for div in divs:
+                url = div.xpath(&quot;.//h2/a/@href&quot;)
+                print(url[0])
+                result.add(url[0])</code></pre><p>使用效果：</p>
+<p><img src="/images/urlcj/7.png" alt=""></p>
+<h2 id="google采集模块"><a href="#google采集模块" class="headerlink" title="google采集模块"></a>google采集模块</h2><p>同样的google和bing、baidu也是大同小异，不同的是google需要能够科学上网的网络，同时google的“确定你不是机器人”，可能需要进一步的绕过</p>
+<pre><code># URL规则
+url = &apos;https://www.google.com/search?q={}&amp;start={}&apos;.format(quote(keywords), i)
+# xptah规则
+divs = tree.xpath(&quot;//div[@class=&apos;g&apos;]&quot;)
+            for div in divs:
+                url = div.xpath(&quot;.//div[@class=&apos;r&apos;]/a/@href&quot;)
+                print(url[0])
+                result.add(url[0])
+# socket代理示例
+ proxies = {&quot;http&quot;: &quot;socks5://127.0.0.1:10808&quot;, &quot;https&quot;: &quot;socks5://127.0.0.1:10808&quot;, }</code></pre><p>使用效果：</p>
+<p><img src="/images/urlcj/8.png" alt=""></p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>爬虫</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>socket之编写netcat（python3）</title>
     <url>/2020/04/30/netcat1/</url>
     <content><![CDATA[<p>关于网络编程之编写一款属于自己的netcat<a id="more"></a></p>
