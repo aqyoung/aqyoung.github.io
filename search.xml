@@ -1,6 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Django之数据库操作</title>
+    <url>/2020/05/04/DjangoDatabase/</url>
+    <content><![CDATA[<p>Django实现数据库操作（增删改查）<a id="more"></a></p>
+<h2 id="数据库配置（mysql）"><a href="#数据库配置（mysql）" class="headerlink" title="数据库配置（mysql）"></a>数据库配置（mysql）</h2><p>下面还是以上一篇为例（hellojango），之后python manage starapp two 创建一个新的app</p>
+<p>实现student数据库的增删改查</p>
+<p>1、配置”DATABASES”:</p>
+<p>打开hellojango/setting.py。</p>
+<p>找到DATABASES修改为如下代码：</p>
+<pre><code>DATABASES = {
+    &apos;default&apos;: {
+        # &apos;ENGINE&apos;: &apos;django.db.backends.sqlite3&apos;,    # 原本默认连接sqlite
+        # &apos;NAME&apos;: os.path.join(BASE_DIR, &apos;db.sqlite3&apos;),
+        &apos;ENGINE&apos;: &apos;django.db.backends.mysql&apos;,
+        &apos;NAME&apos;: &apos;django&apos;,    # 需要创建一个库
+        &apos;USER&apos;: &apos;root&apos;,
+        &apos;PASSWORD&apos;: &apos;toor&apos;,
+        &apos;HOST&apos;: &apos;192.168.11.15&apos;,
+        &apos;PORT&apos;: &apos;3306&apos;,
+    }
+}</code></pre><p>2、安装数据库引擎（pymysql）</p>
+<p>修改hellojango/<em>_init</em>.py</p>
+<pre><code>import pymysql
+
+pymysql.install_as_MySQLdb()</code></pre><h2 id="创建模型"><a href="#创建模型" class="headerlink" title="创建模型"></a>创建模型</h2><p>在 Django 里写一个数据库驱动的 Web 应用的第一步是定义模型 - 也就是数据库结构设计和附加的其它元数据。</p>
+<p>Django遵循<a href="https://docs.djangoproject.com/zh-hans/3.0/misc/design-philosophies/#dry" target="_blank" rel="noopener">DRY</a>原则，所以我们只需要定义一下数据模型，其他都不用关系，下面创建一个Sudent模型：</p>
+<pre><code>from django.db import models
+
+# Create your models here.
+
+class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+    s_age = models.IntegerField(default=1)</code></pre><p>参数说明：<br>CharField    表示字符字段<br>IntegerField    表示int字段<br>除此之外还有：DateTimeField    表示日期时间字段，ImageField    表示图像字段等等。</p>
+<h2 id="激活模型"><a href="#激活模型" class="headerlink" title="激活模型"></a>激活模型</h2><p>创建完成模型代码，之后需要激活模型，django会根据你的代码创建数据库表，比如上面会创建一个Student表，然后创建s_name、s_age两个字段</p>
+<p>配置stting.py</p>
+<pre><code>INSTALLED_APPS = [
+    &apos;django.contrib.admin&apos;,
+    &apos;django.contrib.auth&apos;,
+    &apos;django.contrib.contenttypes&apos;,
+    &apos;django.contrib.sessions&apos;,
+    &apos;django.contrib.messages&apos;,
+    &apos;django.contrib.staticfiles&apos;,
+    &apos;two.apps.TwoConfig&apos;,    #添加在这里
+    # &apos;two&apos;,
+]</code></pre><p>在终端中输入：</p>
+<pre><code>python manage.py migrate
+python manage.py makemigrations</code></pre><h2 id="数据库操作具体实现"><a href="#数据库操作具体实现" class="headerlink" title="数据库操作具体实现"></a>数据库操作具体实现</h2><h3 id="新增数据"><a href="#新增数据" class="headerlink" title="新增数据"></a>新增数据</h3><p>urls.py</p>
+<pre><code>from two import views
+urlpatterns = [
+    url(r&apos;^addstudent/&apos;, views.add_student),
+]</code></pre><p>之后会提示没有add_student这个类，如果你是在pycharm中编写的话，可以用ALT+CTRL自动在 two/views.py自动创建这个类，完整代码如下：</p>
+<pre><code>def add_student(request):
+    student = Student()    #实例化一个student对象
+    num = random.randint(0, 1000)
+    student.s_name = &quot;yang {id}&quot;.format(id=num)    # 添加s._name
+    student.s_age = num
+    student.save()    # 保存
+
+    return HttpResponse(&quot;add success&quot;)</code></pre><p>在此之后启动runserver，就可以访问localhost:8000/addstudent，看看数据库中有没有新增数据</p>
+<h3 id="查询数据"><a href="#查询数据" class="headerlink" title="查询数据"></a>查询数据</h3><p>urls.py</p>
+<pre><code>from two import views
+urlpatterns = [
+    url(r&apos;^addstudent/&apos;, views.add_student),
+    url(r&apos;^getstudent/&apos;, views.get_student),
+]</code></pre><p>同样的创建一个get_student类</p>
+<p>def get_student(request):<br>    students = Student.objects.all()    #查询所有数据<br>    for student in students:<br>        print(student.s_name)</p>
+<pre><code>conntext = {
+    &quot;students&quot;: students
+}
+
+# return HttpResponse(&quot;student list&quot;)
+return render(request, &quot;index.html&quot;, context=conntext)</code></pre><p>由于我上面index.html,所以这里在two创建一个文件夹为templates用来存放index.html</p>
+<p>index.html代码如下:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;学生列表&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;ul&gt;
+    {% for student in students %}
+	        <li>{{student.s_name}}</li>
+	    {% endfor %}
+
+&lt;/ul&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre><h3 id="修改数据-amp-amp-删除数据"><a href="#修改数据-amp-amp-删除数据" class="headerlink" title="修改数据&amp;&amp;删除数据"></a>修改数据&amp;&amp;删除数据</h3><p>同样的在urls.py添加两条规则，以访问页面。</p>
+<pre><code>from two import views
+urlpatterns = [
+    url(r&apos;^addstudent/&apos;, views.add_student),
+    url(r&apos;^getstudent/&apos;, views.get_student),
+    url(r&apos;^upstudent/&apos;, views.up_student),
+url(r&apos;^destudent/&apos;,views.de_student),
+]</code></pre><p>增加和删除都需要先查询数据，所以要给定”键值”，django默认id为主键</p>
+<p>views.py新增如下代码：</p>
+<pre><code>def up_student(request):
+
+    student = Student.objects.get(pk=3)        #查询数据
+    student.s_name=&apos;zhangsan&apos;    # 重新给字段赋值
+    student.save()    #保存
+    return HttpResponse(&quot;updata sucess&quot;)
+
+
+def de_student(request):
+    student = Student.objects.get(pk=4)    #查询数据
+    student.delete()    #删除字段
+    return HttpResponse(&quot;delete sucess&quot;)</code></pre><p>至此，Django中数据库的操作就到这来告一段落了，附上<a href="https://docs.djangoproject.com/zh-hans/3.0/intro/tutorial02/#activating-models" target="_blank" rel="noopener">官方文档</a></p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Django</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Django之Hello-Jjango</title>
+    <url>/2020/05/04/DjangoHello/</url>
+    <content><![CDATA[<p>Django环境准备和实现hello-jango页面<a id="more"></a></p>
+<h2 id="pycharm使用wsl中的virtualenv-搭建开发环境"><a href="#pycharm使用wsl中的virtualenv-搭建开发环境" class="headerlink" title="pycharm使用wsl中的virtualenv(搭建开发环境)"></a>pycharm使用wsl中的virtualenv(搭建开发环境)</h2><p>1、在linux中创建一个virtualenv环境</p>
+<p>安装 virtualenv</p>
+<pre><code>pip install virtualenv</code></pre><p>创建虚拟机环境</p>
+<pre><code>virtualenv django</code></pre><p>进入虚拟环境</p>
+<pre><code>source venv/django/bin/activate</code></pre><p>退出虚拟环境</p>
+<pre><code>deactivate</code></pre><p><img src="/images/django/1.png" alt=""></p>
+<p>2、配置pycharm</p>
+<p>打开 pycharm -&gt; File -&gt; settings -&gt; project</p>
+<p>选择add</p>
+<p><img src="/images/django/2.png" alt=""></p>
+<p>到linux系统查看一下当前路径</p>
+<p><img src="/images/django/3.png" alt=""></p>
+<p>在pycharm选择WSL之后在路径上加上python即可</p>
+<p><img src="/images/django/4.png" alt=""></p>
+<p>这样虚拟环境就配置好了，并且可以使用Windows的pycharm进行编写，又有linux的强命令行功能。</p>
+<p><img src="/images/django/5.png" alt=""></p>
+<h2 id="Django创建一个hellodjango"><a href="#Django创建一个hellodjango" class="headerlink" title="Django创建一个hellodjango"></a>Django创建一个hellodjango</h2><p>1、安装Django包</p>
+<pre><code># 查看所有包和版本
+(django) yang@wsl:~/python$ pip freeze
+(django) yang@wsl:~/python$ pip list
+# 安装特定版本的Django
+(django) yang@wsl:~/python$ pip install django==1.11.7</code></pre><p><img src="/images/django/6.png" alt=""></p>
+<p><img src="/images/django/7.png" alt=""></p>
+<p>2、开始创建一个django</p>
+<pre><code>django-admin starproject hellodjango</code></pre><p>创建完成之后我们查看一下文件夹，有如下文件<br><img src="/images/django/8.png" alt=""></p>
+<p>如果要开发局具体的内容需要创建一个应用实现具体的代码逻辑</p>
+<pre><code>python3 manage.py startapp app</code></pre><p><img src="/images/django/9.png" alt=""></p>
+<p>运行server</p>
+<pre><code>python3 manage.py runserver</code></pre><p><img src="/images/django/10.png" alt=""></p>
+<p>虽然还没有写代码，但是已经可以运行起来，说明搭建没有问题<br><img src="/images/django/11.png" alt=""></p>
+<p>3、实现自定义的hellodjango</p>
+<p>注册一个路由</p>
+<pre><code># 在 urls.py 
+# urlpatterns列表添加如下代码：
+url(r&apos;^hello/&apos;, views.hello),</code></pre><p>在views实现对应的视图函数</p>
+<pre><code>def hello(request):
+    return HttpResponse(&quot;&lt;h1&gt;hello django&lt;/h1&gt;&quot;)</code></pre><p><img src="/images/django/12.png" alt=""></p>
+<p>最后效果如图所示</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Django</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>URL采集器模块</title>
     <url>/2020/05/01/URLcaiji/</url>
     <content><![CDATA[<p>编写各大搜索引擎的URL采集模块（baidu、bing、google）<a id="more"></a></p>

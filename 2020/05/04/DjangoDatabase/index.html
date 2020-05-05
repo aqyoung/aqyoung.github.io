@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"aqyoung.github.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Django实现数据库操作（增删改查）">
+<meta name="keywords" content="Django">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django之数据库操作">
+<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2020&#x2F;05&#x2F;04&#x2F;DjangoDatabase&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="Django实现数据库操作（增删改查）">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-05T02:56:49.574Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://aqyoung.github.io/2020/05/04/DjangoDatabase/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Django之数据库操作 | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">分享渗透知识与技巧</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2020/05/04/DjangoDatabase/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Django之数据库操作
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-05-04 14:01:38" itemprop="dateCreated datePublished" datetime="2020-05-04T14:01:38+08:00">2020-05-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-05-05 10:56:49" itemprop="dateModified" datetime="2020-05-05T10:56:49+08:00">2020-05-05</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/05/04/DjangoDatabase/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/04/DjangoDatabase/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Django实现数据库操作（增删改查）<a id="more"></a></p>
+<h2 id="数据库配置（mysql）"><a href="#数据库配置（mysql）" class="headerlink" title="数据库配置（mysql）"></a>数据库配置（mysql）</h2><p>下面还是以上一篇为例（hellojango），之后python manage starapp two 创建一个新的app</p>
+<p>实现student数据库的增删改查</p>
+<p>1、配置”DATABASES”:</p>
+<p>打开hellojango/setting.py。</p>
+<p>找到DATABASES修改为如下代码：</p>
+<pre><code>DATABASES = {
+    &apos;default&apos;: {
+        # &apos;ENGINE&apos;: &apos;django.db.backends.sqlite3&apos;,    # 原本默认连接sqlite
+        # &apos;NAME&apos;: os.path.join(BASE_DIR, &apos;db.sqlite3&apos;),
+        &apos;ENGINE&apos;: &apos;django.db.backends.mysql&apos;,
+        &apos;NAME&apos;: &apos;django&apos;,    # 需要创建一个库
+        &apos;USER&apos;: &apos;root&apos;,
+        &apos;PASSWORD&apos;: &apos;toor&apos;,
+        &apos;HOST&apos;: &apos;192.168.11.15&apos;,
+        &apos;PORT&apos;: &apos;3306&apos;,
+    }
+}</code></pre><p>2、安装数据库引擎（pymysql）</p>
+<p>修改hellojango/<em>_init</em>.py</p>
+<pre><code>import pymysql
+
+pymysql.install_as_MySQLdb()</code></pre><h2 id="创建模型"><a href="#创建模型" class="headerlink" title="创建模型"></a>创建模型</h2><p>在 Django 里写一个数据库驱动的 Web 应用的第一步是定义模型 - 也就是数据库结构设计和附加的其它元数据。</p>
+<p>Django遵循<a href="https://docs.djangoproject.com/zh-hans/3.0/misc/design-philosophies/#dry" target="_blank" rel="noopener">DRY</a>原则，所以我们只需要定义一下数据模型，其他都不用关系，下面创建一个Sudent模型：</p>
+<pre><code>from django.db import models
+
+# Create your models here.
+
+class Student(models.Model):
+    s_name = models.CharField(max_length=16)
+    s_age = models.IntegerField(default=1)</code></pre><p>参数说明：<br>CharField    表示字符字段<br>IntegerField    表示int字段<br>除此之外还有：DateTimeField    表示日期时间字段，ImageField    表示图像字段等等。</p>
+<h2 id="激活模型"><a href="#激活模型" class="headerlink" title="激活模型"></a>激活模型</h2><p>创建完成模型代码，之后需要激活模型，django会根据你的代码创建数据库表，比如上面会创建一个Student表，然后创建s_name、s_age两个字段</p>
+<p>配置stting.py</p>
+<pre><code>INSTALLED_APPS = [
+    &apos;django.contrib.admin&apos;,
+    &apos;django.contrib.auth&apos;,
+    &apos;django.contrib.contenttypes&apos;,
+    &apos;django.contrib.sessions&apos;,
+    &apos;django.contrib.messages&apos;,
+    &apos;django.contrib.staticfiles&apos;,
+    &apos;two.apps.TwoConfig&apos;,    #添加在这里
+    # &apos;two&apos;,
+]</code></pre><p>在终端中输入：</p>
+<pre><code>python manage.py migrate
+python manage.py makemigrations</code></pre><h2 id="数据库操作具体实现"><a href="#数据库操作具体实现" class="headerlink" title="数据库操作具体实现"></a>数据库操作具体实现</h2><h3 id="新增数据"><a href="#新增数据" class="headerlink" title="新增数据"></a>新增数据</h3><p>urls.py</p>
+<pre><code>from two import views
+urlpatterns = [
+    url(r&apos;^addstudent/&apos;, views.add_student),
+]</code></pre><p>之后会提示没有add_student这个类，如果你是在pycharm中编写的话，可以用ALT+CTRL自动在 two/views.py自动创建这个类，完整代码如下：</p>
+<pre><code>def add_student(request):
+    student = Student()    #实例化一个student对象
+    num = random.randint(0, 1000)
+    student.s_name = &quot;yang {id}&quot;.format(id=num)    # 添加s._name
+    student.s_age = num
+    student.save()    # 保存
+
+    return HttpResponse(&quot;add success&quot;)</code></pre><p>在此之后启动runserver，就可以访问localhost:8000/addstudent，看看数据库中有没有新增数据</p>
+<h3 id="查询数据"><a href="#查询数据" class="headerlink" title="查询数据"></a>查询数据</h3><p>urls.py</p>
+<pre><code>from two import views
+urlpatterns = [
+    url(r&apos;^addstudent/&apos;, views.add_student),
+    url(r&apos;^getstudent/&apos;, views.get_student),
+]</code></pre><p>同样的创建一个get_student类</p>
+<p>def get_student(request):<br>    students = Student.objects.all()    #查询所有数据<br>    for student in students:<br>        print(student.s_name)</p>
+<pre><code>conntext = {
+    &quot;students&quot;: students
+}
+
+# return HttpResponse(&quot;student list&quot;)
+return render(request, &quot;index.html&quot;, context=conntext)</code></pre><p>由于我上面index.html,所以这里在two创建一个文件夹为templates用来存放index.html</p>
+<p>index.html代码如下:</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;学生列表&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;ul&gt;
+    {% for student in students %}
+	        <li>{{student.s_name}}</li>
+	    {% endfor %}
+
+&lt;/ul&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;</code></pre><h3 id="修改数据-amp-amp-删除数据"><a href="#修改数据-amp-amp-删除数据" class="headerlink" title="修改数据&amp;&amp;删除数据"></a>修改数据&amp;&amp;删除数据</h3><p>同样的在urls.py添加两条规则，以访问页面。</p>
+<pre><code>from two import views
+urlpatterns = [
+    url(r&apos;^addstudent/&apos;, views.add_student),
+    url(r&apos;^getstudent/&apos;, views.get_student),
+    url(r&apos;^upstudent/&apos;, views.up_student),
+url(r&apos;^destudent/&apos;,views.de_student),
+]</code></pre><p>增加和删除都需要先查询数据，所以要给定”键值”，django默认id为主键</p>
+<p>views.py新增如下代码：</p>
+<pre><code>def up_student(request):
+
+    student = Student.objects.get(pk=3)        #查询数据
+    student.s_name=&apos;zhangsan&apos;    # 重新给字段赋值
+    student.save()    #保存
+    return HttpResponse(&quot;updata sucess&quot;)
+
+
+def de_student(request):
+    student = Student.objects.get(pk=4)    #查询数据
+    student.delete()    #删除字段
+    return HttpResponse(&quot;delete sucess&quot;)</code></pre><p>至此，Django中数据库的操作就到这来告一段落了，附上<a href="https://docs.djangoproject.com/zh-hans/3.0/intro/tutorial02/#activating-models" target="_blank" rel="noopener">官方文档</a></p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>AqYoung
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://aqyoung.github.io/2020/05/04/DjangoDatabase/" title="Django之数据库操作">https://aqyoung.github.io/2020/05/04/DjangoDatabase/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-ND</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Django/" rel="tag"># Django</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/04/DjangoHello/" rel="prev" title="Django之Hello-Jjango">
+      <i class="fa fa-chevron-left"></i> Django之Hello-Jjango
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库配置（mysql）"><span class="nav-number">1.</span> <span class="nav-text">数据库配置（mysql）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建模型"><span class="nav-number">2.</span> <span class="nav-text">创建模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#激活模型"><span class="nav-number">3.</span> <span class="nav-text">激活模型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库操作具体实现"><span class="nav-number">4.</span> <span class="nav-text">数据库操作具体实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#新增数据"><span class="nav-number">4.1.</span> <span class="nav-text">新增数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询数据"><span class="nav-number">4.2.</span> <span class="nav-text">查询数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改数据-amp-amp-删除数据"><span class="nav-number">4.3.</span> <span class="nav-text">修改数据&amp;&amp;删除数据</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">努力将一切"Regular attacks"工程化！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-nd.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'QWm74uHDCgmhInHfKwyFBod1-gzGzoHsz',
+      appKey     : '1ktt74cyVPPjTy4P28nMIH2V',
+      placeholder: "Just go go （记得在上面留下昵称和邮箱，方便回复！）",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '5' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
