@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"aqyoung.github.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="MTV框架模式众所周知，一般的Web开发都会遵循 MVC 设计模式的框架。MVC是Model、View、Controller三个单词的简写，分别代表模型、视图、控制器。Django采用了MTV的框架模式，即模型M，模板T和视图V。">
+<meta name="keywords" content="Django">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django之MTV框架模式（一）">
+<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2020&#x2F;05&#x2F;06&#x2F;DjangoMTV1&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="MTV框架模式众所周知，一般的Web开发都会遵循 MVC 设计模式的框架。MVC是Model、View、Controller三个单词的简写，分别代表模型、视图、控制器。Django采用了MTV的框架模式，即模型M，模板T和视图V。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-05-06T13:53:44.593Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://aqyoung.github.io/2020/05/06/DjangoMTV1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Django之MTV框架模式（一） | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">分享渗透知识与技巧</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2020/05/06/DjangoMTV1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Django之MTV框架模式（一）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-05-06 21:49:09 / 修改时间：21:53:44" itemprop="dateCreated datePublished" datetime="2020-05-06T21:49:09+08:00">2020-05-06</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/05/06/DjangoMTV1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/06/DjangoMTV1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="MTV框架模式"><a href="#MTV框架模式" class="headerlink" title="MTV框架模式"></a>MTV框架模式</h2><p>众所周知，一般的Web开发都会遵循 MVC 设计模式的框架。MVC是Model、View、Controller三个单词的简写，分别代表模型、视图、控制器。Django采用了MTV的框架模式，即模型M，模板T和视图V。</p>
+<a id="more"></a>
+
+<p>本篇博客主要是入门Django的MTV模式展开的。如果你也是Django初学者的话可能会对你有帮助。</p>
+<h3 id="Models-模型层"><a href="#Models-模型层" class="headerlink" title="Models(模型层)"></a>Models(模型层)</h3><blockquote>
+<p>模型（Model），即数据存取层。主要的职则是：处理与数据相关的所有事务： 如何存取、如何验证有效性、包含哪些行为以及数据之间的关系等。</p>
+</blockquote>
+<p>Django对各种数据库都提供了很好的支持，对不同的数据库，Django提供了统一调用的API，我们可以根据不同的业务需求使用不同的数据库。</p>
+<p>下面一个简单的例子展开：</p>
+<p>（数据库采用mysql；python的数据库操作引擎采用pymsql伪装）</p>
+<h4 id="初始化配置"><a href="#初始化配置" class="headerlink" title="初始化配置"></a>初始化配置</h4><p>创建project和app</p>
+<pre><code>source venv/django/bin/activate
+django-admin startproject djmodels
+cd djmodels/
+python manage.py startapp app
+# 设置pycharm环境
+File -&gt;Setting -&gt;Project -&gt;Python Interpreter</code></pre><p>配置djmodels/setting.py</p>
+<pre><code># 导入APP
+INSTALLED_APPS = [
+    &apos;django.contrib.admin&apos;,
+    &apos;django.contrib.auth&apos;,
+    &apos;django.contrib.contenttypes&apos;,
+    &apos;django.contrib.sessions&apos;,
+    &apos;django.contrib.messages&apos;,
+    &apos;django.contrib.staticfiles&apos;,
+    &apos;app.apps.AppConfig&apos;,
+]
+# 数据库配置
+DATABASES = {
+    &apos;default&apos;: {
+        # &apos;ENGINE&apos;: &apos;django.db.backends.sqlite3&apos;,
+        # &apos;NAME&apos;: os.path.join(BASE_DIR, &apos;db.sqlite3&apos;),
+        # mysql数据库连接
+        &apos;ENGINE&apos;: &apos;django.db.backends.mysql&apos;,
+        &apos;NAME&apos;: &apos;djmodels&apos;,
+        &apos;USER&apos;: &apos;root&apos;,
+        &apos;PASSWORD&apos;: &apos;passwd&apos;,
+        &apos;HOST&apos;: &apos;localhost&apos;,
+        &apos;PORT&apos;: &apos;3306&apos;,
+    }
+}
+# templates文件夹配置，用来放置前端等文件
+TEMPLATES = [
+    {
+        &apos;BACKEND&apos;: &apos;django.template.backends.django.DjangoTemplates&apos;,
+        # 添加templates在djmodels/templates
+        &apos;DIRS&apos;: [os.path.join(BASE_DIR, &apos;templates&apos;)],
+        &apos;APP_DIRS&apos;: True,
+        &apos;OPTIONS&apos;: {
+            &apos;context_processors&apos;: [
+                &apos;django.template.context_processors.debug&apos;,
+                &apos;django.template.context_processors.request&apos;,
+                &apos;django.contrib.auth.context_processors.auth&apos;,
+                &apos;django.contrib.messages.context_processors.messages&apos;,
+            ],
+        },
+    },
+]
+
+# 语言和地区
+LANGUAGE_CODE = &apos;zh-hans&apos;
+
+TIME_ZONE = &apos;Asia/Shanghai&apos;</code></pre><p>配置djmodels/<strong>init</strong>.py</p>
+<pre><code>import pymysql
+
+pymysql.install_as_MySQLdb()    # pymysql伪装MySQLdb</code></pre><p>数据库变更生成</p>
+<pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre><h4 id="定义模型"><a href="#定义模型" class="headerlink" title="定义模型"></a>定义模型</h4><p>在进行定义模型之前需要先了解一下是ORM</p>
+<blockquote>
+<p>ORM(Object Relational Mapping)对象关系映射，是一种程序技术，用于实现面向对象编程语言里不同类型系统的数据之间的转换。<br>可以简单理解为翻译机。</p>
+</blockquote>
+<p>app/models.py</p>
+<pre><code>from django.db import models
+# 创建一个Person类继承自Model
+class Person(models.Model):
+    p_name = models.CharField(max_length=16, unique=True)    # unique设置为True，表示字段在表中必须唯一
+    p_age = models.IntegerField(default=18, db_column=&apos;age&apos;)    # d_column自定义数据库column的名称
+    # False Representative MAN ,True Representative WONAN
+    p_sex = models.BooleanField(default=False, db_column=&apos;sex&apos;)
+
+    class Meta: # 
+        db_table = &apos;Peopel&apos;    # 自定义数据库表的名称</code></pre><p>更多参考：<br><a href="https://docs.djangoproject.com/zh-hans/3.0/ref/models/fields/" target="_blank" rel="noopener">字段类型</a>|<a href="https://docs.djangoproject.com/zh-hans/3.0/ref/models/options/" target="_blank" rel="noopener">Meta选项</a></p>
+<p>数据库操作 参考上一篇博客（<a href="https://aqyoung.github.io/2020/05/04/DjangoDatabase/#more">django之数据操作</a>）</p>
+<h4 id="模型成员objects"><a href="#模型成员objects" class="headerlink" title="模型成员objects"></a>模型成员objects</h4><h5 id="1、URL简单配置"><a href="#1、URL简单配置" class="headerlink" title="1、URL简单配置"></a>1、URL简单配置</h5><p>在djmodels/urls.py配置</p>
+<pre><code>urlpatterns = {
+    url(r&apos;^admin/&apos;, admin.site.urls),
+    url(r&apos;^app/&apos;, include(&apos;app.urls&apos;)),    # 新增配置
+}</code></pre><p>之后创建app/urls.py</p>
+<pre><code>from django.conf.urls import url
+from app import views
+
+urlpatterns = {
+    url(r&apos;^addperson/&apos;, views.add_persons),
+}</code></pre><p>通过上面的配置之后我们就可以访问: localhost:8000/app/addperson 来访问网页了</p>
+<p>更多参考：<a href="https://docs.djangoproject.com/zh-hans/3.0/topics/http/urls/" target="_blank" rel="noopener">URL调度</a></p>
+<h5 id="2、数据添加"><a href="#2、数据添加" class="headerlink" title="2、数据添加"></a>2、数据添加</h5><pre><code>import random
+
+from django.http import HttpResponse
+from django.shortcuts import render
+
+# Create your views here.
+from app.models import Person
+
+# add随机的数据
+def add_persons(request):
+    for i in range(20):
+        person = Person()
+        num = random.randrange(1000)
+        person.p_name = &quot;aqyoung{num}&quot;.format(num=num)
+        person.p_age = num
+        person.p_sex = num % 2
+        person.save()
+
+    return HttpResponse(&quot;add sucess&quot;)</code></pre><h5 id="3、fillter-amp-amp-exclude-过滤器"><a href="#3、fillter-amp-amp-exclude-过滤器" class="headerlink" title="3、fillter&amp;&amp;exclude 过滤器"></a>3、fillter&amp;&amp;exclude 过滤器</h5><p>fillter()    返回符合条件的数据</p>
+<p>exclude()    过滤掉符合条件的数据</p>
+<p>创建templates/person_list</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;PersonList&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;ul&gt;
+    {% for person in persons %}
+	        <li>姓名{{ person.p_name }} 年龄{{person.p_age}}</li>
+	    {% endfor %}
+&lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre><p>按照之前的方法新添加URL规则之后</p>
+<p>编写views.py</p>
+<pre><code>def get_persons(request):
+    # persons = Person.objects.filter(p_age__gt=50).filter(p_age__lt=500)    # 1
+    persons = Person.objects.exclude(p_age__gt=50).filter(p_age__lt=60)    # 2 
+    context = {
+        &quot;persons&quot;: persons
+    }
+
+    return render(request, &apos;person_list.html&apos;, context=context)</code></pre><p>fillter表示筛选出符合规则的数据，而exclude表示排除符合规则的数据</p>
+<p>所以:如1表示 筛选 p_age&gt;=50 and p_age&lt;=500 的数据</p>
+<p>如2表示 排除    a_age&gt;=50(a&lt;50)and p_age&lt;=60 的数据</p>
+<h5 id="4、Model中自定义crete用来增加默认值"><a href="#4、Model中自定义crete用来增加默认值" class="headerlink" title="4、Model中自定义crete用来增加默认值"></a>4、Model中自定义crete用来增加默认值</h5><p>在app/models的Person类添加如下代码</p>
+<pre><code>p_hobby = models.CharField(max_length=32, null=True, blank=True)
+
+@classmethod
+def create(cls, p_name, p_page=20, p_sex=True, p_hobby=&apos;hanppy&apos;):
+    return cls(p_name=p_name, p_age=p_page, p_sex=p_sex, p_hobby=p_hobby)</code></pre><p>之后修改在app/views.py添加如下代码</p>
+<pre><code>def add_person(request):
+    person = Person.create(&apos;lalalal&apos;)
+    person.save()
+    return HttpResponse(&quot;create sucess&quot;)</code></pre><p>记得重新迁移数据库</p>
+<h5 id="5、all-amp-amp-order-by-amp-amp-values-过滤器"><a href="#5、all-amp-amp-order-by-amp-amp-values-过滤器" class="headerlink" title="5、all&amp;&amp;order_by&amp;&amp;values 过滤器"></a>5、all&amp;&amp;order_by&amp;&amp;values 过滤器</h5><pre><code>def get_person(request):
+
+    person_all = Person.objects.all()        # 返回所有数据
+    person_order = Person.objects.order_by(&apos;p_age&apos;)        # 排序.默认以id排序，这里指定p_age
+    person_values = Person.objects.values()            # 一条数据就是一个字典，返回一个列表
+    person_get = Person.objects.get(p_name=&quot;qq&quot;)    # 参数说明 1
+    # print(type(person))
+    # print(person)
+    # for personz in person:
+    #     print(personz)
+
+    context ={
+        &quot;persons&quot;: person_all
+    }
+
+    return render(request, &apos;preson.html&apos;, context=context)</code></pre><p>参数说明：</p>
+<p>get()</p>
+<pre><code>查询条件没有匹配的对象，会抛异常，DoesNotExist
+如果查询条件对应多个对象，会抛异常，MultipleObjectsReturned</code></pre><p>fist()、last()</p>
+<p>默认情况下可以正常从QuerySet中获取<br>隐藏bug</p>
+<pre><code>可能会出现first和last获取到的是相同的对象
+解决方法：显式，手动写排序规则</code></pre><p>count()、exists()</p>
+<p>count用来计数、exists判断是否存</p>
+<h4 id="Templates-模板层"><a href="#Templates-模板层" class="headerlink" title="(Templates) 模板层"></a>(Templates) 模板层</h4><p>模板(Template)，即表现层。主要的职责：处理与表现相关的决定： 如何在页面或其他类型文档中进行显示。</p>
+<p>在Django框架中，模板是可以帮助开发者快速生成呈现给用户页面的工具</p>
+<p>模板主要有两个部分：</p>
+<pre><code>① HTML静态代码
+② 动态插入的代码段（挖坑，填坑）</code></pre><p>在之前的初始化配置中，已经创建templates目录用来存放html文件，下面列出一些常见的DJango模板标签</p>
+<h5 id="Django-模板标签"><a href="#Django-模板标签" class="headerlink" title="Django 模板标签"></a>Django 模板标签</h5><p>1、模板中的点语法</p>
+<pre><code>属性或者方法    student.gname
+索引            student.0.gname</code></pre><p>2、if 标签</p>
+<p>支持嵌套。标签接受and、or 或not关键字来对多个变量做判断，或对变量取反。</p>
+<pre><code>{% if  condition %}
+	    ...
+	{% endif  %}</code></pre><p>或者</p>
+<pre><code>{%  if condition %}
+	    ...
+	{% else  %}
+	    ...
+	{% endif %}</code></pre><p>或者</p>
+<pre><code>{% if condition %}
+        ...	
+ 	{% elif condition %}
+        ...
+	{% endif %}</code></pre><p>3、for 标签</p>
+<p>允许在一个序列上迭代。支持嵌套。</p>
+<pre><code>{% for person in persons %}
+		<li> {{person.p_name}}
+	       {% empty %}
+		<li> sorry not find name <li>
+	{% endfor %}</code></pre><p>当列表为空或不存在时,执行empty之后的语句</p>
+<pre><code>{{ forloop.counter }} 表示当前是第几次循环，从1数数
+{{ forloop.counter0}}表示当前是第几次循环，从0数数
+{{ forloop.revcounter}}表示当前是第几次循环，倒着数数，到1停
+{{ forloop.revcounter0}}表示当前第几次循环，倒着数，到0停
+{{ forloop.first }} 是否是第一个 布尔值
+{{ forloop.last }} 是否是最后一个 布尔值</code></pre><p>4、ifequal/ifnotequal 标签</p>
+<p>ifequal 如果相等</p>
+<pre><code>{%  ifequal  value1 value2 %}
+		语句
+	{% endifequal %}</code></pre><p>ifnotequal 如果不相等</p>
+<p>注释标签</p>
+<pre><code>单行注释
+
+
+多行注释
+    {% comment %}
+			这是多行注释
+		{% endcomment %}</code></pre><p>5、过滤器</p>
+<p>模板过滤器可以在变量被显示前修改它，使用管道字符：</p>
+<pre><code>{{ page | add : -5}} 没有减法过滤器，但是加法里可以加负数
+
+{{ name|lower }} 大写转换为小写。
+
+{{ name|first|upper }} 将第一个元素转化为大写。
+
+{{ name|truncatewords:"3" }} 显示变量的前3个词。
+
+addslashes：添加反斜杠到任何反斜杠、单引号或者双引号前面。
+
+date：按指定的格式字符串参数格式化date或datetime对象，如{{ pub_date|date:"F j, Y" }}。
+
+length：返回变量的长度。</code></pre><p>6、模板继承</p>
+<pre><code>关键字block:挖坑
+    {% block XXX%}
+			code
+		{% endblock %}
+
+extends 继承，写在开头位置
+    {% extends  '父模板路径' %}
+
+include:    加载模板进行渲染
+    格式{% include '模板文件' %}</code></pre><hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>AqYoung
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://aqyoung.github.io/2020/05/06/DjangoMTV1/" title="Django之MTV框架模式（一）">https://aqyoung.github.io/2020/05/06/DjangoMTV1/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-ND</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Django/" rel="tag"># Django</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/04/DjangoDatabase/" rel="prev" title="Django之数据库操作">
+      <i class="fa fa-chevron-left"></i> Django之数据库操作
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MTV框架模式"><span class="nav-number">1.</span> <span class="nav-text">MTV框架模式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Models-模型层"><span class="nav-number">1.1.</span> <span class="nav-text">Models(模型层)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#初始化配置"><span class="nav-number">1.1.1.</span> <span class="nav-text">初始化配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#定义模型"><span class="nav-number">1.1.2.</span> <span class="nav-text">定义模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#模型成员objects"><span class="nav-number">1.1.3.</span> <span class="nav-text">模型成员objects</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#1、URL简单配置"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">1、URL简单配置</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2、数据添加"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">2、数据添加</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#3、fillter-amp-amp-exclude-过滤器"><span class="nav-number">1.1.3.3.</span> <span class="nav-text">3、fillter&amp;&amp;exclude 过滤器</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#4、Model中自定义crete用来增加默认值"><span class="nav-number">1.1.3.4.</span> <span class="nav-text">4、Model中自定义crete用来增加默认值</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#5、all-amp-amp-order-by-amp-amp-values-过滤器"><span class="nav-number">1.1.3.5.</span> <span class="nav-text">5、all&amp;&amp;order_by&amp;&amp;values 过滤器</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Templates-模板层"><span class="nav-number">1.1.4.</span> <span class="nav-text">(Templates) 模板层</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Django-模板标签"><span class="nav-number">1.1.4.1.</span> <span class="nav-text">Django 模板标签</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">努力将一切"Regular attacks"工程化！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-nd.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'QWm74uHDCgmhInHfKwyFBod1-gzGzoHsz',
+      appKey     : '1ktt74cyVPPjTy4P28nMIH2V',
+      placeholder: "Just go go （记得在上面留下昵称和邮箱，方便回复！）",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '5' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>

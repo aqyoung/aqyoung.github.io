@@ -1,6 +1,265 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Django之MTV框架模式（一）</title>
+    <url>/2020/05/06/DjangoMTV1/</url>
+    <content><![CDATA[<h2 id="MTV框架模式"><a href="#MTV框架模式" class="headerlink" title="MTV框架模式"></a>MTV框架模式</h2><p>众所周知，一般的Web开发都会遵循 MVC 设计模式的框架。MVC是Model、View、Controller三个单词的简写，分别代表模型、视图、控制器。Django采用了MTV的框架模式，即模型M，模板T和视图V。</p>
+<a id="more"></a>
+
+<p>本篇博客主要是入门Django的MTV模式展开的。如果你也是Django初学者的话可能会对你有帮助。</p>
+<h3 id="Models-模型层"><a href="#Models-模型层" class="headerlink" title="Models(模型层)"></a>Models(模型层)</h3><blockquote>
+<p>模型（Model），即数据存取层。主要的职则是：处理与数据相关的所有事务： 如何存取、如何验证有效性、包含哪些行为以及数据之间的关系等。</p>
+</blockquote>
+<p>Django对各种数据库都提供了很好的支持，对不同的数据库，Django提供了统一调用的API，我们可以根据不同的业务需求使用不同的数据库。</p>
+<p>下面一个简单的例子展开：</p>
+<p>（数据库采用mysql；python的数据库操作引擎采用pymsql伪装）</p>
+<h4 id="初始化配置"><a href="#初始化配置" class="headerlink" title="初始化配置"></a>初始化配置</h4><p>创建project和app</p>
+<pre><code>source venv/django/bin/activate
+django-admin startproject djmodels
+cd djmodels/
+python manage.py startapp app
+# 设置pycharm环境
+File -&gt;Setting -&gt;Project -&gt;Python Interpreter</code></pre><p>配置djmodels/setting.py</p>
+<pre><code># 导入APP
+INSTALLED_APPS = [
+    &apos;django.contrib.admin&apos;,
+    &apos;django.contrib.auth&apos;,
+    &apos;django.contrib.contenttypes&apos;,
+    &apos;django.contrib.sessions&apos;,
+    &apos;django.contrib.messages&apos;,
+    &apos;django.contrib.staticfiles&apos;,
+    &apos;app.apps.AppConfig&apos;,
+]
+# 数据库配置
+DATABASES = {
+    &apos;default&apos;: {
+        # &apos;ENGINE&apos;: &apos;django.db.backends.sqlite3&apos;,
+        # &apos;NAME&apos;: os.path.join(BASE_DIR, &apos;db.sqlite3&apos;),
+        # mysql数据库连接
+        &apos;ENGINE&apos;: &apos;django.db.backends.mysql&apos;,
+        &apos;NAME&apos;: &apos;djmodels&apos;,
+        &apos;USER&apos;: &apos;root&apos;,
+        &apos;PASSWORD&apos;: &apos;passwd&apos;,
+        &apos;HOST&apos;: &apos;localhost&apos;,
+        &apos;PORT&apos;: &apos;3306&apos;,
+    }
+}
+# templates文件夹配置，用来放置前端等文件
+TEMPLATES = [
+    {
+        &apos;BACKEND&apos;: &apos;django.template.backends.django.DjangoTemplates&apos;,
+        # 添加templates在djmodels/templates
+        &apos;DIRS&apos;: [os.path.join(BASE_DIR, &apos;templates&apos;)],
+        &apos;APP_DIRS&apos;: True,
+        &apos;OPTIONS&apos;: {
+            &apos;context_processors&apos;: [
+                &apos;django.template.context_processors.debug&apos;,
+                &apos;django.template.context_processors.request&apos;,
+                &apos;django.contrib.auth.context_processors.auth&apos;,
+                &apos;django.contrib.messages.context_processors.messages&apos;,
+            ],
+        },
+    },
+]
+
+# 语言和地区
+LANGUAGE_CODE = &apos;zh-hans&apos;
+
+TIME_ZONE = &apos;Asia/Shanghai&apos;</code></pre><p>配置djmodels/<strong>init</strong>.py</p>
+<pre><code>import pymysql
+
+pymysql.install_as_MySQLdb()    # pymysql伪装MySQLdb</code></pre><p>数据库变更生成</p>
+<pre><code>python manage.py makemigrations
+python manage.py migrate</code></pre><h4 id="定义模型"><a href="#定义模型" class="headerlink" title="定义模型"></a>定义模型</h4><p>在进行定义模型之前需要先了解一下是ORM</p>
+<blockquote>
+<p>ORM(Object Relational Mapping)对象关系映射，是一种程序技术，用于实现面向对象编程语言里不同类型系统的数据之间的转换。<br>可以简单理解为翻译机。</p>
+</blockquote>
+<p>app/models.py</p>
+<pre><code>from django.db import models
+# 创建一个Person类继承自Model
+class Person(models.Model):
+    p_name = models.CharField(max_length=16, unique=True)    # unique设置为True，表示字段在表中必须唯一
+    p_age = models.IntegerField(default=18, db_column=&apos;age&apos;)    # d_column自定义数据库column的名称
+    # False Representative MAN ,True Representative WONAN
+    p_sex = models.BooleanField(default=False, db_column=&apos;sex&apos;)
+
+    class Meta: # 
+        db_table = &apos;Peopel&apos;    # 自定义数据库表的名称</code></pre><p>更多参考：<br><a href="https://docs.djangoproject.com/zh-hans/3.0/ref/models/fields/" target="_blank" rel="noopener">字段类型</a>|<a href="https://docs.djangoproject.com/zh-hans/3.0/ref/models/options/" target="_blank" rel="noopener">Meta选项</a></p>
+<p>数据库操作 参考上一篇博客（<a href="https://aqyoung.github.io/2020/05/04/DjangoDatabase/#more">django之数据操作</a>）</p>
+<h4 id="模型成员objects"><a href="#模型成员objects" class="headerlink" title="模型成员objects"></a>模型成员objects</h4><h5 id="1、URL简单配置"><a href="#1、URL简单配置" class="headerlink" title="1、URL简单配置"></a>1、URL简单配置</h5><p>在djmodels/urls.py配置</p>
+<pre><code>urlpatterns = {
+    url(r&apos;^admin/&apos;, admin.site.urls),
+    url(r&apos;^app/&apos;, include(&apos;app.urls&apos;)),    # 新增配置
+}</code></pre><p>之后创建app/urls.py</p>
+<pre><code>from django.conf.urls import url
+from app import views
+
+urlpatterns = {
+    url(r&apos;^addperson/&apos;, views.add_persons),
+}</code></pre><p>通过上面的配置之后我们就可以访问: localhost:8000/app/addperson 来访问网页了</p>
+<p>更多参考：<a href="https://docs.djangoproject.com/zh-hans/3.0/topics/http/urls/" target="_blank" rel="noopener">URL调度</a></p>
+<h5 id="2、数据添加"><a href="#2、数据添加" class="headerlink" title="2、数据添加"></a>2、数据添加</h5><pre><code>import random
+
+from django.http import HttpResponse
+from django.shortcuts import render
+
+# Create your views here.
+from app.models import Person
+
+# add随机的数据
+def add_persons(request):
+    for i in range(20):
+        person = Person()
+        num = random.randrange(1000)
+        person.p_name = &quot;aqyoung{num}&quot;.format(num=num)
+        person.p_age = num
+        person.p_sex = num % 2
+        person.save()
+
+    return HttpResponse(&quot;add sucess&quot;)</code></pre><h5 id="3、fillter-amp-amp-exclude-过滤器"><a href="#3、fillter-amp-amp-exclude-过滤器" class="headerlink" title="3、fillter&amp;&amp;exclude 过滤器"></a>3、fillter&amp;&amp;exclude 过滤器</h5><p>fillter()    返回符合条件的数据</p>
+<p>exclude()    过滤掉符合条件的数据</p>
+<p>创建templates/person_list</p>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;title&gt;PersonList&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;ul&gt;
+    {% for person in persons %}
+	        <li>姓名{{ person.p_name }} 年龄{{person.p_age}}</li>
+	    {% endfor %}
+&lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre><p>按照之前的方法新添加URL规则之后</p>
+<p>编写views.py</p>
+<pre><code>def get_persons(request):
+    # persons = Person.objects.filter(p_age__gt=50).filter(p_age__lt=500)    # 1
+    persons = Person.objects.exclude(p_age__gt=50).filter(p_age__lt=60)    # 2 
+    context = {
+        &quot;persons&quot;: persons
+    }
+
+    return render(request, &apos;person_list.html&apos;, context=context)</code></pre><p>fillter表示筛选出符合规则的数据，而exclude表示排除符合规则的数据</p>
+<p>所以:如1表示 筛选 p_age&gt;=50 and p_age&lt;=500 的数据</p>
+<p>如2表示 排除    a_age&gt;=50(a&lt;50)and p_age&lt;=60 的数据</p>
+<h5 id="4、Model中自定义crete用来增加默认值"><a href="#4、Model中自定义crete用来增加默认值" class="headerlink" title="4、Model中自定义crete用来增加默认值"></a>4、Model中自定义crete用来增加默认值</h5><p>在app/models的Person类添加如下代码</p>
+<pre><code>p_hobby = models.CharField(max_length=32, null=True, blank=True)
+
+@classmethod
+def create(cls, p_name, p_page=20, p_sex=True, p_hobby=&apos;hanppy&apos;):
+    return cls(p_name=p_name, p_age=p_page, p_sex=p_sex, p_hobby=p_hobby)</code></pre><p>之后修改在app/views.py添加如下代码</p>
+<pre><code>def add_person(request):
+    person = Person.create(&apos;lalalal&apos;)
+    person.save()
+    return HttpResponse(&quot;create sucess&quot;)</code></pre><p>记得重新迁移数据库</p>
+<h5 id="5、all-amp-amp-order-by-amp-amp-values-过滤器"><a href="#5、all-amp-amp-order-by-amp-amp-values-过滤器" class="headerlink" title="5、all&amp;&amp;order_by&amp;&amp;values 过滤器"></a>5、all&amp;&amp;order_by&amp;&amp;values 过滤器</h5><pre><code>def get_person(request):
+
+    person_all = Person.objects.all()        # 返回所有数据
+    person_order = Person.objects.order_by(&apos;p_age&apos;)        # 排序.默认以id排序，这里指定p_age
+    person_values = Person.objects.values()            # 一条数据就是一个字典，返回一个列表
+    person_get = Person.objects.get(p_name=&quot;qq&quot;)    # 参数说明 1
+    # print(type(person))
+    # print(person)
+    # for personz in person:
+    #     print(personz)
+
+    context ={
+        &quot;persons&quot;: person_all
+    }
+
+    return render(request, &apos;preson.html&apos;, context=context)</code></pre><p>参数说明：</p>
+<p>get()</p>
+<pre><code>查询条件没有匹配的对象，会抛异常，DoesNotExist
+如果查询条件对应多个对象，会抛异常，MultipleObjectsReturned</code></pre><p>fist()、last()</p>
+<p>默认情况下可以正常从QuerySet中获取<br>隐藏bug</p>
+<pre><code>可能会出现first和last获取到的是相同的对象
+解决方法：显式，手动写排序规则</code></pre><p>count()、exists()</p>
+<p>count用来计数、exists判断是否存</p>
+<h4 id="Templates-模板层"><a href="#Templates-模板层" class="headerlink" title="(Templates) 模板层"></a>(Templates) 模板层</h4><p>模板(Template)，即表现层。主要的职责：处理与表现相关的决定： 如何在页面或其他类型文档中进行显示。</p>
+<p>在Django框架中，模板是可以帮助开发者快速生成呈现给用户页面的工具</p>
+<p>模板主要有两个部分：</p>
+<pre><code>① HTML静态代码
+② 动态插入的代码段（挖坑，填坑）</code></pre><p>在之前的初始化配置中，已经创建templates目录用来存放html文件，下面列出一些常见的DJango模板标签</p>
+<h5 id="Django-模板标签"><a href="#Django-模板标签" class="headerlink" title="Django 模板标签"></a>Django 模板标签</h5><p>1、模板中的点语法</p>
+<pre><code>属性或者方法    student.gname
+索引            student.0.gname</code></pre><p>2、if 标签</p>
+<p>支持嵌套。标签接受and、or 或not关键字来对多个变量做判断，或对变量取反。</p>
+<pre><code>{% if  condition %}
+	    ...
+	{% endif  %}</code></pre><p>或者</p>
+<pre><code>{%  if condition %}
+	    ...
+	{% else  %}
+	    ...
+	{% endif %}</code></pre><p>或者</p>
+<pre><code>{% if condition %}
+        ...	
+ 	{% elif condition %}
+        ...
+	{% endif %}</code></pre><p>3、for 标签</p>
+<p>允许在一个序列上迭代。支持嵌套。</p>
+<pre><code>{% for person in persons %}
+		<li> {{person.p_name}}
+	       {% empty %}
+		<li> sorry not find name <li>
+	{% endfor %}</code></pre><p>当列表为空或不存在时,执行empty之后的语句</p>
+<pre><code>{{ forloop.counter }} 表示当前是第几次循环，从1数数
+{{ forloop.counter0}}表示当前是第几次循环，从0数数
+{{ forloop.revcounter}}表示当前是第几次循环，倒着数数，到1停
+{{ forloop.revcounter0}}表示当前第几次循环，倒着数，到0停
+{{ forloop.first }} 是否是第一个 布尔值
+{{ forloop.last }} 是否是最后一个 布尔值</code></pre><p>4、ifequal/ifnotequal 标签</p>
+<p>ifequal 如果相等</p>
+<pre><code>{%  ifequal  value1 value2 %}
+		语句
+	{% endifequal %}</code></pre><p>ifnotequal 如果不相等</p>
+<p>注释标签</p>
+<pre><code>单行注释
+
+
+多行注释
+    {% comment %}
+			这是多行注释
+		{% endcomment %}</code></pre><p>5、过滤器</p>
+<p>模板过滤器可以在变量被显示前修改它，使用管道字符：</p>
+<pre><code>{{ page | add : -5}} 没有减法过滤器，但是加法里可以加负数
+
+{{ name|lower }} 大写转换为小写。
+
+{{ name|first|upper }} 将第一个元素转化为大写。
+
+{{ name|truncatewords:"3" }} 显示变量的前3个词。
+
+addslashes：添加反斜杠到任何反斜杠、单引号或者双引号前面。
+
+date：按指定的格式字符串参数格式化date或datetime对象，如{{ pub_date|date:"F j, Y" }}。
+
+length：返回变量的长度。</code></pre><p>6、模板继承</p>
+<pre><code>关键字block:挖坑
+    {% block XXX%}
+			code
+		{% endblock %}
+
+extends 继承，写在开头位置
+    {% extends  '父模板路径' %}
+
+include:    加载模板进行渲染
+    格式{% include '模板文件' %}</code></pre><hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>Django</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Django之数据库操作</title>
     <url>/2020/05/04/DjangoDatabase/</url>
     <content><![CDATA[<p>Django实现数据库操作（增删改查）<a id="more"></a></p>
