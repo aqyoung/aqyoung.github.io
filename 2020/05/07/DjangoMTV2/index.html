@@ -21,29 +21,34 @@
     var CONFIG = {"hostname":"aqyoung.github.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="努力将一切&quot;Regular attacks&quot;工程化！">
-<meta property="og:type" content="website">
-<meta property="og:title" content="AqYoung">
-<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;page&#x2F;3&#x2F;index.html">
+  <meta name="description" content="View（视图层）视图（View），即业务逻辑层。主要的职责是：存取模型及调取恰当模板的相关逻辑。模型与模板的桥梁。通俗来讲是用来接受Web请求，并做出响应。">
+<meta name="keywords" content="Django">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Django之MTV框架模式（二）">
+<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2020&#x2F;05&#x2F;07&#x2F;DjangoMTV2&#x2F;index.html">
 <meta property="og:site_name" content="AqYoung">
-<meta property="og:description" content="努力将一切&quot;Regular attacks&quot;工程化！">
+<meta property="og:description" content="View（视图层）视图（View），即业务逻辑层。主要的职责是：存取模型及调取恰当模板的相关逻辑。模型与模板的桥梁。通俗来讲是用来接受Web请求，并做出响应。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;django1&#x2F;2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;django1&#x2F;1.png">
+<meta property="og:updated_time" content="2020-05-07T13:36:56.815Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;django1&#x2F;2.png">
 
-<link rel="canonical" href="https://aqyoung.github.io/page/3/">
+<link rel="canonical" href="https://aqyoung.github.io/2020/05/07/DjangoMTV2/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : true,
-    isPost : false,
+    isHome : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>AqYoung</title>
+  <title>Django之MTV框架模式（二） | AqYoung</title>
   
 
 
@@ -185,15 +190,15 @@
         <div class="content-wrap">
           
 
-          <div class="content index">
+          <div class="content post">
             
 
   <div class="posts-expand">
-        
+      
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/">
+    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2020/05/07/DjangoMTV2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -205,10 +210,9 @@
       <meta itemprop="name" content="AqYoung">
     </span>
       <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/" class="post-title-link" itemprop="url">CTF-SSH私钥泄露CTF-SSH服务测试</a>
-        </h2>
+        <h1 class="post-title" itemprop="name headline">
+          Django之MTV框架模式（二）
+        </h1>
 
         <div class="post-meta">
             <span class="post-meta-item">
@@ -216,27 +220,33 @@
                 <i class="fa fa-calendar-o"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2019-12-14 12:58:29" itemprop="dateCreated datePublished" datetime="2019-12-14T12:58:29+08:00">2019-12-14</time>
+              <time title="创建时间：2020-05-07 15:39:40 / 修改时间：21:36:56" itemprop="dateCreated datePublished" datetime="2020-05-07T15:39:40+08:00">2020-05-07</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-08 01:39:41" itemprop="dateModified" datetime="2020-04-08T01:39:41+08:00">2020-04-08</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="fa fa-folder-o"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/CTF%E5%A4%BA%E6%97%97%E8%AE%AD%E7%BB%83/" itemprop="url" rel="index"><span itemprop="name">CTF夺旗训练</span></a>
+                  <a href="/categories/Python/" itemprop="url" rel="index"><span itemprop="name">Python</span></a>
                 </span>
             </span>
 
           
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/05/07/DjangoMTV2/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/05/07/DjangoMTV2/" itemprop="commentCount"></span>
+    </a>
+  </span>
   
   
 
@@ -249,107 +259,121 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="一、实验环境"><a href="#一、实验环境" class="headerlink" title="一、实验环境"></a>一、实验环境</h2><p>攻击机：kali linux（192.168.43.153）NAT模式<br>靶机：born2root
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/12/14/CTF-SSH%E7%A7%81%E9%92%A5%E6%B3%84%E9%9C%B2/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
+        <h3 id="View（视图层）"><a href="#View（视图层）" class="headerlink" title="View（视图层）"></a>View（视图层）</h3><p>视图（View），即业务逻辑层。主要的职责是：存取模型及调取恰当模板的相关逻辑。模型与模板的桥梁。通俗来讲是用来接受Web请求，并做出响应。<a id="more"></a></p>
+<h4 id="urls"><a href="#urls" class="headerlink" title="urls"></a>urls</h4><p><img src="/images/django1/2.png" alt=""></p>
+<p>url()函数：可以接收四个参数，分别是两个必选参数regex、view 和两个可选参数kwargs、name：</p>
+<pre><code>regex：正则表达式，与之匹配的 URL 会执行对应的第二个参数 view。
+
+view：用于执行与正则表达式匹配的 URL 请求。
+
+kwargs：视图使用的字典类型的参数。
+
+name：用来反向获取 URL。</code></pre><p>这里以一个简单的小例子:</p>
+<pre><code># 创建一个新的app
+python manage.py startapp view
+# sttings.py注册
+INSTALLED_APPS = [
+    &apos;view.apps.ViewConfig&apos;,
+]
+# urls.py导入
+urlpatterns = [
+url(r&apos;^view/&apos;, include(&apos;view.urls&apos;)),
+]
+# 创建view/urls.py
+urlpatterns = [
+url(r&apos;^index/&apos;, views.index)
+]
+# 测试
+def index(request):
+    return HttpResponse(&quot;view&quot;)</code></pre><p><img src="/images/django1/1.png" alt=""><br>创建完成之后，测试一下。</p>
+<h5 id="路由器-regex"><a href="#路由器-regex" class="headerlink" title="路由器(regex)"></a>路由器(regex)</h5><pre><code>按照列表的书写顺序进行匹配的
+从上到下匹配，没有最优匹配的概念</code></pre><p>例如：</p>
+<pre><code>urlpatterns = [
+    url(r&apos;^index&apos;, views.index),
+    url(r&apos;^indexs&apos;, views.indexs),
+]
+
+url1:http://127.0.0.1:8000/view/indexs/
+url2:http://127.0.0.1:8000/view/index/</code></pre><p>我访问上面两个url，返回的都是URL2的内容，</p>
+<p>正确的应该以下面规则编写：</p>
+<pre><code># 路由规则编写
+我们通常直接指定以 ^ 开头
+在结尾处直接添加反斜线</code></pre><h5 id="路由路径中的参数使用-进行获取"><a href="#路由路径中的参数使用-进行获取" class="headerlink" title="路由路径中的参数使用 () 进行获取"></a>路由路径中的参数使用 () 进行获取</h5><pre><code>一个圆括号对应视图函数中的一个参数</code></pre><p>路径参数</p>
+<pre><code># 匹配一个数字参数
+urlpatterns = [
+    url(r&apos;^index/(\d+)/&apos;, views.index),
+]
+# 用s_id来接收参数
+def index(request,s_id):
+    print(s_id)
+    print(type(s_id))
+    return HttpResponse(&quot;view&quot;)</code></pre><p>1、位置参数</p>
+<p>例如:</p>
+<pre><code>urlpatterns = [
+    url(r&apos;^index/(\d+)/(\d+)/(\d+)/&apos;, views.index),
+]
+# 按照书写顺序进行匹配
+def index(request, yeas, moth, day):
+    print(yeas, &quot;-&quot;, moth, &quot;-&quot;, day)
+    return HttpResponse(&quot;Time:{yeas}-{moth}-{day}&quot;.format(yeas=yeas, moth=moth, day=day))</code></pre><p>上面用三个参数（yeas, moth, day），来接收年月日</p>
+<p>2、关键字参数</p>
+<pre><code># 关键字参数写法
+url(r&apos;^index/(?P&lt;yeas&gt;\d+)/(?P&lt;moth&gt;\d+)/(?P&lt;day&gt;\d+)/&apos;, views.index, name=&apos;getdate&apos;),
+# 按照参数名称匹配，和顺序就无关了
+def index(request, yeas, moth, day):
+    return HttpResponse(&quot;Time:{yeas}-{moth}-{day}&quot;.format(yeas=yeas, moth=moth, day=day))</code></pre><p>参数个数必须和视图函数中参数个数一致（除默认的request以外）</p>
+<h5 id="反向解析"><a href="#反向解析" class="headerlink" title="反向解析"></a>反向解析</h5><pre><code>根据根路由中注册的namespace和在子路由中注册name，这两个参数来动态获取我们的路径
+在模板中使用  {% url 'namespace:name'  %}
+如果带有位置参数  {% url 'namespace:name'  value1 value2 [valuen...] %}
+如果带有关键字参数  {% url 'namespace:name' key1=value1 key2=value2 [keyn=valuen....] %}</code></pre><p>后记：</p>
+<p>最初的想法是做一个自己写的工具后台，所以Django的MTV就先学到这里，后续有需要的话，再去学习，查看文档或者google解决问题吧。</p>
+<hr>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+
     </div>
 
     
     
     
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>AqYoung
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://aqyoung.github.io/2020/05/07/DjangoMTV2/" title="Django之MTV框架模式（二）">https://aqyoung.github.io/2020/05/07/DjangoMTV2/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-ND</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/Django/" rel="tag"># Django</a>
+          </div>
 
         
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2019/11/04/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86_base1/">
 
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="AqYoung">
-      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="AqYoung">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/11/04/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86_base1/" class="post-title-link" itemprop="url">信息收集_base1”</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-11-04 20:11:28" itemprop="dateCreated datePublished" datetime="2019-11-04T20:11:28+08:00">2019-11-04</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-04-16 17:56:21" itemprop="dateModified" datetime="2020-04-16T17:56:21+08:00">2020-04-16</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/web%E5%AE%89%E5%85%A8/" itemprop="url" rel="index"><span itemprop="name">web安全</span></a>
-                </span>
-            </span>
-
-          
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>信息收集对于渗透测试整个过程来说是非常重要的，能否挖掘到漏洞很大一部分取决于信息的收集是否全面，只有想尽办法收集到更多信息，你挖掘到漏洞的可能性越大，
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/11/04/%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86_base1/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
         
-      
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/06/DjangoMTV1/" rel="prev" title="Django之MTV框架模式（一）">
+      <i class="fa fa-chevron-left"></i> Django之MTV框架模式（一）
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
       </footer>
+    
   </article>
   
   
@@ -357,15 +381,10 @@
 
   </div>
 
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span>
-  </nav>
-
-
 
           </div>
           
+    <div class="comments" id="valine-comments"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -412,6 +431,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#View（视图层）"><span class="nav-number">1.</span> <span class="nav-text">View（视图层）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#urls"><span class="nav-number">1.1.</span> <span class="nav-text">urls</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#路由器-regex"><span class="nav-number">1.1.1.</span> <span class="nav-text">路由器(regex)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#路由路径中的参数使用-进行获取"><span class="nav-number">1.1.2.</span> <span class="nav-text">路由路径中的参数使用 () 进行获取</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#反向解析"><span class="nav-number">1.1.3.</span> <span class="nav-text">反向解析</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
