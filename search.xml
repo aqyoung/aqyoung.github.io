@@ -108,7 +108,7 @@ dirsearcherThreads1=1
 nmapThreads=5
 dirsearchThreads=50
 dirsearchWordlist=~/tools/dirsearch/db/dicc.txt
-github_key=3386b4ca24e80fb16c4aedb81d019a5bec3feb47
+github_key=key
 subdomainDicts=~/fuzzDicts/subdomainDicts/main.txt
 #
 
